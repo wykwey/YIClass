@@ -27,10 +27,6 @@ final ClassTimeSchema = IsarGeneratedSchema(
         name: 'endTime',
         type: IsarType.string,
       ),
-      IsarPropertySchema(
-        name: 'reminderMinutes',
-        type: IsarType.long,
-      ),
     ],
     indexes: [],
   ),
@@ -45,7 +41,6 @@ int serializeClassTime(IsarWriter writer, ClassTime object) {
   IsarCore.writeLong(writer, 1, object.period);
   IsarCore.writeString(writer, 2, object.startTime);
   IsarCore.writeString(writer, 3, object.endTime);
-  IsarCore.writeLong(writer, 4, object.reminderMinutes);
   return 0;
 }
 
@@ -55,7 +50,6 @@ ClassTime deserializeClassTime(IsarReader reader) {
   object.period = IsarCore.readLong(reader, 1);
   object.startTime = IsarCore.readString(reader, 2) ?? '';
   object.endTime = IsarCore.readString(reader, 3) ?? '';
-  object.reminderMinutes = IsarCore.readLong(reader, 4);
   return object;
 }
 
@@ -489,92 +483,6 @@ extension ClassTimeQueryFilter
         const GreaterCondition(
           property: 3,
           value: '',
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<ClassTime, ClassTime, QAfterFilterCondition>
-      reminderMinutesEqualTo(
-    int value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        EqualCondition(
-          property: 4,
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<ClassTime, ClassTime, QAfterFilterCondition>
-      reminderMinutesGreaterThan(
-    int value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        GreaterCondition(
-          property: 4,
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<ClassTime, ClassTime, QAfterFilterCondition>
-      reminderMinutesGreaterThanOrEqualTo(
-    int value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        GreaterOrEqualCondition(
-          property: 4,
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<ClassTime, ClassTime, QAfterFilterCondition>
-      reminderMinutesLessThan(
-    int value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        LessCondition(
-          property: 4,
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<ClassTime, ClassTime, QAfterFilterCondition>
-      reminderMinutesLessThanOrEqualTo(
-    int value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        LessOrEqualCondition(
-          property: 4,
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<ClassTime, ClassTime, QAfterFilterCondition>
-      reminderMinutesBetween(
-    int lower,
-    int upper,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        BetweenCondition(
-          property: 4,
-          lower: lower,
-          upper: upper,
         ),
       );
     });

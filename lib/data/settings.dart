@@ -15,7 +15,6 @@ class AppSettings {
   // 通知设置
   late bool notificationEnabled; // 是否启用通知
   late bool courseReminder; // 课程提醒
-  late int reminderMinutes; // 提前提醒时间（分钟）
   
   // AI功能开关
   late bool aiEnabled; // 是否启用AI功能
@@ -38,7 +37,6 @@ class AppSettings {
     this.currentTimetableId = '',
     this.notificationEnabled = false,
     this.courseReminder = false,
-    this.reminderMinutes = 30,
     this.aiEnabled = false,
     this.aiImageImport = false,
     this.aiTableImport = false,
@@ -57,7 +55,6 @@ class AppSettings {
       currentTimetableId: json['currentTimetableId']?.toString() ?? '',
       notificationEnabled: json['notificationEnabled'] ?? false,
       courseReminder: json['courseReminder'] ?? false,
-      reminderMinutes: json['reminderMinutes'] ?? 30,
       aiEnabled: json['aiEnabled'] ?? false,
       aiImageImport: json['aiImageImport'] ?? false,
       aiTableImport: json['aiTableImport'] ?? false,
@@ -75,7 +72,6 @@ class AppSettings {
         'currentTimetableId': currentTimetableId,
         'notificationEnabled': notificationEnabled,
         'courseReminder': courseReminder,
-        'reminderMinutes': reminderMinutes,
         'aiEnabled': aiEnabled,
         'aiImageImport': aiImageImport,
         'aiTableImport': aiTableImport,
@@ -93,7 +89,6 @@ class AppSettings {
     String? currentTimetableId,
     bool? notificationEnabled,
     bool? courseReminder,
-    int? reminderMinutes,
     bool? aiEnabled,
     bool? aiImageImport,
     bool? aiTableImport,
@@ -109,7 +104,6 @@ class AppSettings {
       currentTimetableId: currentTimetableId ?? this.currentTimetableId,
       notificationEnabled: notificationEnabled ?? this.notificationEnabled,
       courseReminder: courseReminder ?? this.courseReminder,
-      reminderMinutes: reminderMinutes ?? this.reminderMinutes,
       aiEnabled: aiEnabled ?? this.aiEnabled,
       aiImageImport: aiImageImport ?? this.aiImageImport,
       aiTableImport: aiTableImport ?? this.aiTableImport,
@@ -129,7 +123,6 @@ class AppSettings {
       currentTimetableId: '',
       notificationEnabled: false,
       courseReminder: false,
-      reminderMinutes: 30,
       aiEnabled: false,
       aiImageImport: false,
       aiTableImport: false,
@@ -144,16 +137,14 @@ class AppSettings {
 
   /// 验证设置是否有效
   bool get isValid {
-    return id == 1 && // 确保ID为1
-        reminderMinutes > 0 && // 提醒时间必须大于0
-        reminderMinutes <= 1440; // 不超过24小时（1440分钟）
+    return id == 1; // 确保ID为1
   }
 
   @override
   String toString() {
     return 'AppSettings(id: $id, currentTimetableId: $currentTimetableId, '
         'notificationEnabled: $notificationEnabled, courseReminder: $courseReminder, '
-        'reminderMinutes: $reminderMinutes, aiEnabled: $aiEnabled, '
+        'aiEnabled: $aiEnabled, '
         'aiImageImport: $aiImageImport, aiTableImport: $aiTableImport, aiTextImport: $aiTextImport, '
         'aiApiKey: ${aiApiKey.isNotEmpty ? "${aiApiKey.substring(0, 8)}..." : "未配置"}, '
         'aiEndpoint: $aiEndpoint, aiVisionModel: $aiVisionModel, aiTextModel: $aiTextModel, '

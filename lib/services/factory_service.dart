@@ -11,18 +11,15 @@ class FactoryService {
   /// 创建课时时间
   /// - period: 第几节
   /// - startTime/endTime: 24h 字符串（如 "08:00"）
-  /// - reminderMinutes: 上课前提醒分钟数
   static ClassTime createClassTime({
     required int period,
     required String startTime,
     required String endTime,
-    int reminderMinutes = 0,
   }) {
     final ct = ClassTime()
       ..period = period
       ..startTime = startTime
-      ..endTime = endTime
-      ..reminderMinutes = reminderMinutes;
+      ..endTime = endTime;
     return ct;
   }
 
@@ -48,12 +45,14 @@ class FactoryService {
   /// - totalWeeks: 默认 DataConstants.defaultTotalWeeks
   /// - showWeekend: 默认 DataConstants.defaultShowWeekend
   /// - classTimes: 默认由 DataConstants.defaultPeriodTimes 生成
+  /// - reminderMinutes: 上课前提醒分钟数（默认 30）
   static TimetableSettings createSettings({
     DateTime? startDate,
     int? totalWeeks,
     bool? showWeekend,
     List<ClassTime>? classTimes,
     int? maxPeriods,
+    int? reminderMinutes,
   }) {
     final s = TimetableSettings()
       ..startDate = startDate ?? DateTime.now()
@@ -62,7 +61,7 @@ class FactoryService {
       ..maxPeriods = maxPeriods ?? DataConstants.defaultMaxPeriods
       ..classTimes = classTimes ?? createDefaultClassTimesFromConstants()
       ..holidays = <DateTime>[]
-      ..extraClassDays = <DateTime>[];
+      ..reminderMinutes = reminderMinutes ?? 30;
     return s;
   }
 

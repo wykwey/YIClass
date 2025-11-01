@@ -348,8 +348,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         final ct = ClassTime()
                           ..period = i
                           ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-                          ..endTime = parts.length > 1 ? parts.last : '08:45'
-                          ..reminderMinutes = 0;
+                          ..endTime = parts.length > 1 ? parts.last : '08:45';
                         updated.add(ct);
                       }
                     }

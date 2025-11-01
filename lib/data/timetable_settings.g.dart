@@ -28,6 +28,10 @@ final TimetableSettingsSchema = IsarGeneratedSchema(
         type: IsarType.bool,
       ),
       IsarPropertySchema(
+        name: 'maxPeriods',
+        type: IsarType.long,
+      ),
+      IsarPropertySchema(
         name: 'classTimes',
         type: IsarType.objectList,
         target: 'ClassTime',
@@ -37,11 +41,7 @@ final TimetableSettingsSchema = IsarGeneratedSchema(
         type: IsarType.dateTimeList,
       ),
       IsarPropertySchema(
-        name: 'extraClassDays',
-        type: IsarType.dateTimeList,
-      ),
-      IsarPropertySchema(
-        name: 'maxPeriods',
+        name: 'reminderMinutes',
         type: IsarType.long,
       ),
     ],
@@ -59,10 +59,10 @@ int serializeTimetableSettings(IsarWriter writer, TimetableSettings object) {
       writer, 1, object.startDate.toUtc().microsecondsSinceEpoch);
   IsarCore.writeLong(writer, 2, object.totalWeeks);
   IsarCore.writeBool(writer, 3, object.showWeekend);
-  IsarCore.writeLong(writer, 7, object.maxPeriods);
+  IsarCore.writeLong(writer, 4, object.maxPeriods);
   {
     final list = object.classTimes;
-    final listWriter = IsarCore.beginList(writer, 4, list.length);
+    final listWriter = IsarCore.beginList(writer, 5, list.length);
     for (var i = 0; i < list.length; i++) {
       {
         final value = list[i];
@@ -75,20 +75,13 @@ int serializeTimetableSettings(IsarWriter writer, TimetableSettings object) {
   }
   {
     final list = object.holidays;
-    final listWriter = IsarCore.beginList(writer, 5, list.length);
-    for (var i = 0; i < list.length; i++) {
-      IsarCore.writeLong(listWriter, i, list[i].toUtc().microsecondsSinceEpoch);
-    }
-    IsarCore.endList(writer, listWriter);
-  }
-  {
-    final list = object.extraClassDays;
     final listWriter = IsarCore.beginList(writer, 6, list.length);
     for (var i = 0; i < list.length; i++) {
       IsarCore.writeLong(listWriter, i, list[i].toUtc().microsecondsSinceEpoch);
     }
     IsarCore.endList(writer, listWriter);
   }
+  IsarCore.writeLong(writer, 7, object.reminderMinutes);
   return 0;
 }
 
@@ -107,9 +100,9 @@ TimetableSettings deserializeTimetableSettings(IsarReader reader) {
   }
   object.totalWeeks = IsarCore.readLong(reader, 2);
   object.showWeekend = IsarCore.readBool(reader, 3);
-  object.maxPeriods = IsarCore.readLong(reader, 7);
+  object.maxPeriods = IsarCore.readLong(reader, 4);
   {
-    final length = IsarCore.readList(reader, 4, IsarCore.readerPtrPtr);
+    final length = IsarCore.readList(reader, 5, IsarCore.readerPtrPtr);
     {
       final reader = IsarCore.readerPtr;
       if (reader.isNull) {
@@ -135,7 +128,7 @@ TimetableSettings deserializeTimetableSettings(IsarReader reader) {
     }
   }
   {
-    final length = IsarCore.readList(reader, 5, IsarCore.readerPtrPtr);
+    final length = IsarCore.readList(reader, 6, IsarCore.readerPtrPtr);
     {
       final reader = IsarCore.readerPtr;
       if (reader.isNull) {
@@ -161,33 +154,7 @@ TimetableSettings deserializeTimetableSettings(IsarReader reader) {
       }
     }
   }
-  {
-    final length = IsarCore.readList(reader, 6, IsarCore.readerPtrPtr);
-    {
-      final reader = IsarCore.readerPtr;
-      if (reader.isNull) {
-        object.extraClassDays = const <DateTime>[];
-      } else {
-        final list = List<DateTime>.filled(length,
-            DateTime.fromMillisecondsSinceEpoch(0, isUtc: true).toLocal(),
-            growable: true);
-        for (var i = 0; i < length; i++) {
-          {
-            final value = IsarCore.readLong(reader, i);
-            if (value == -9223372036854775808) {
-              list[i] =
-                  DateTime.fromMillisecondsSinceEpoch(0, isUtc: true).toLocal();
-            } else {
-              list[i] = DateTime.fromMicrosecondsSinceEpoch(value, isUtc: true)
-                  .toLocal();
-            }
-          }
-        }
-        IsarCore.freeReader(reader);
-        object.extraClassDays = list;
-      }
-    }
-  }
+  object.reminderMinutes = IsarCore.readLong(reader, 7);
   return object;
 }
 
@@ -380,6 +347,92 @@ extension TimetableSettingsQueryFilter
   }
 
   QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
+      maxPeriodsEqualTo(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        EqualCondition(
+          property: 4,
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
+      maxPeriodsGreaterThan(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        GreaterCondition(
+          property: 4,
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
+      maxPeriodsGreaterThanOrEqualTo(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        GreaterOrEqualCondition(
+          property: 4,
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
+      maxPeriodsLessThan(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        LessCondition(
+          property: 4,
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
+      maxPeriodsLessThanOrEqualTo(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        LessOrEqualCondition(
+          property: 4,
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
+      maxPeriodsBetween(
+    int lower,
+    int upper,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        BetweenCondition(
+          property: 4,
+          lower: lower,
+          upper: upper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
       classTimesIsEmpty() {
     return not().classTimesIsNotEmpty();
   }
@@ -388,7 +441,7 @@ extension TimetableSettingsQueryFilter
       classTimesIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        const GreaterOrEqualCondition(property: 4, value: null),
+        const GreaterOrEqualCondition(property: 5, value: null),
       );
     });
   }
@@ -400,7 +453,7 @@ extension TimetableSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 5,
+          property: 6,
           value: value,
         ),
       );
@@ -414,7 +467,7 @@ extension TimetableSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 5,
+          property: 6,
           value: value,
         ),
       );
@@ -428,7 +481,7 @@ extension TimetableSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 5,
+          property: 6,
           value: value,
         ),
       );
@@ -442,7 +495,7 @@ extension TimetableSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 5,
+          property: 6,
           value: value,
         ),
       );
@@ -456,7 +509,7 @@ extension TimetableSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 5,
+          property: 6,
           value: value,
         ),
       );
@@ -471,7 +524,7 @@ extension TimetableSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 5,
+          property: 6,
           lower: lower,
           upper: upper,
         ),
@@ -488,19 +541,19 @@ extension TimetableSettingsQueryFilter
       holidaysIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        const GreaterOrEqualCondition(property: 5, value: null),
+        const GreaterOrEqualCondition(property: 6, value: null),
       );
     });
   }
 
   QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
-      extraClassDaysElementEqualTo(
-    DateTime value,
+      reminderMinutesEqualTo(
+    int value,
   ) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 6,
+          property: 7,
           value: value,
         ),
       );
@@ -508,13 +561,13 @@ extension TimetableSettingsQueryFilter
   }
 
   QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
-      extraClassDaysElementGreaterThan(
-    DateTime value,
+      reminderMinutesGreaterThan(
+    int value,
   ) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 6,
+          property: 7,
           value: value,
         ),
       );
@@ -522,13 +575,13 @@ extension TimetableSettingsQueryFilter
   }
 
   QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
-      extraClassDaysElementGreaterThanOrEqualTo(
-    DateTime value,
+      reminderMinutesGreaterThanOrEqualTo(
+    int value,
   ) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 6,
+          property: 7,
           value: value,
         ),
       );
@@ -536,13 +589,13 @@ extension TimetableSettingsQueryFilter
   }
 
   QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
-      extraClassDaysElementLessThan(
-    DateTime value,
+      reminderMinutesLessThan(
+    int value,
   ) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 6,
+          property: 7,
           value: value,
         ),
       );
@@ -550,13 +603,13 @@ extension TimetableSettingsQueryFilter
   }
 
   QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
-      extraClassDaysElementLessThanOrEqualTo(
-    DateTime value,
+      reminderMinutesLessThanOrEqualTo(
+    int value,
   ) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 6,
+          property: 7,
           value: value,
         ),
       );
@@ -564,31 +617,17 @@ extension TimetableSettingsQueryFilter
   }
 
   QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
-      extraClassDaysElementBetween(
-    DateTime lower,
-    DateTime upper,
+      reminderMinutesBetween(
+    int lower,
+    int upper,
   ) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 6,
+          property: 7,
           lower: lower,
           upper: upper,
         ),
-      );
-    });
-  }
-
-  QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
-      extraClassDaysIsEmpty() {
-    return not().extraClassDaysIsNotEmpty();
-  }
-
-  QueryBuilder<TimetableSettings, TimetableSettings, QAfterFilterCondition>
-      extraClassDaysIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const GreaterOrEqualCondition(property: 6, value: null),
       );
     });
   }

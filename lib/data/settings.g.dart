@@ -33,10 +33,6 @@ final AppSettingsSchema = IsarGeneratedSchema(
         type: IsarType.bool,
       ),
       IsarPropertySchema(
-        name: 'reminderMinutes',
-        type: IsarType.long,
-      ),
-      IsarPropertySchema(
         name: 'aiEnabled',
         type: IsarType.bool,
       ),
@@ -92,17 +88,16 @@ int serializeAppSettings(IsarWriter writer, AppSettings object) {
   IsarCore.writeString(writer, 1, object.currentTimetableId);
   IsarCore.writeBool(writer, 2, object.notificationEnabled);
   IsarCore.writeBool(writer, 3, object.courseReminder);
-  IsarCore.writeLong(writer, 4, object.reminderMinutes);
-  IsarCore.writeBool(writer, 5, object.aiEnabled);
-  IsarCore.writeBool(writer, 6, object.aiImageImport);
-  IsarCore.writeBool(writer, 7, object.aiTableImport);
-  IsarCore.writeBool(writer, 8, object.aiTextImport);
-  IsarCore.writeString(writer, 9, object.aiApiKey);
-  IsarCore.writeString(writer, 10, object.aiEndpoint);
-  IsarCore.writeString(writer, 11, object.aiVisionModel);
-  IsarCore.writeString(writer, 12, object.aiTextModel);
-  IsarCore.writeBool(writer, 13, object.advancedFeaturesEnabled);
-  IsarCore.writeBool(writer, 14, object.isValid);
+  IsarCore.writeBool(writer, 4, object.aiEnabled);
+  IsarCore.writeBool(writer, 5, object.aiImageImport);
+  IsarCore.writeBool(writer, 6, object.aiTableImport);
+  IsarCore.writeBool(writer, 7, object.aiTextImport);
+  IsarCore.writeString(writer, 8, object.aiApiKey);
+  IsarCore.writeString(writer, 9, object.aiEndpoint);
+  IsarCore.writeString(writer, 10, object.aiVisionModel);
+  IsarCore.writeString(writer, 11, object.aiTextModel);
+  IsarCore.writeBool(writer, 12, object.advancedFeaturesEnabled);
+  IsarCore.writeBool(writer, 13, object.isValid);
   return object.id;
 }
 
@@ -116,39 +111,29 @@ AppSettings deserializeAppSettings(IsarReader reader) {
   _notificationEnabled = IsarCore.readBool(reader, 2);
   final bool _courseReminder;
   _courseReminder = IsarCore.readBool(reader, 3);
-  final int _reminderMinutes;
-  {
-    final value = IsarCore.readLong(reader, 4);
-    if (value == -9223372036854775808) {
-      _reminderMinutes = 30;
-    } else {
-      _reminderMinutes = value;
-    }
-  }
   final bool _aiEnabled;
-  _aiEnabled = IsarCore.readBool(reader, 5);
+  _aiEnabled = IsarCore.readBool(reader, 4);
   final bool _aiImageImport;
-  _aiImageImport = IsarCore.readBool(reader, 6);
+  _aiImageImport = IsarCore.readBool(reader, 5);
   final bool _aiTableImport;
-  _aiTableImport = IsarCore.readBool(reader, 7);
+  _aiTableImport = IsarCore.readBool(reader, 6);
   final bool _aiTextImport;
-  _aiTextImport = IsarCore.readBool(reader, 8);
+  _aiTextImport = IsarCore.readBool(reader, 7);
   final String _aiApiKey;
-  _aiApiKey = IsarCore.readString(reader, 9) ?? '';
+  _aiApiKey = IsarCore.readString(reader, 8) ?? '';
   final String _aiEndpoint;
-  _aiEndpoint = IsarCore.readString(reader, 10) ?? '';
+  _aiEndpoint = IsarCore.readString(reader, 9) ?? '';
   final String _aiVisionModel;
-  _aiVisionModel = IsarCore.readString(reader, 11) ?? 'gpt-4-vision-preview';
+  _aiVisionModel = IsarCore.readString(reader, 10) ?? 'gpt-4-vision-preview';
   final String _aiTextModel;
-  _aiTextModel = IsarCore.readString(reader, 12) ?? 'gpt-4';
+  _aiTextModel = IsarCore.readString(reader, 11) ?? 'gpt-4';
   final bool _advancedFeaturesEnabled;
-  _advancedFeaturesEnabled = IsarCore.readBool(reader, 13);
+  _advancedFeaturesEnabled = IsarCore.readBool(reader, 12);
   final object = AppSettings(
     id: _id,
     currentTimetableId: _currentTimetableId,
     notificationEnabled: _notificationEnabled,
     courseReminder: _courseReminder,
-    reminderMinutes: _reminderMinutes,
     aiEnabled: _aiEnabled,
     aiImageImport: _aiImageImport,
     aiTableImport: _aiTableImport,
@@ -174,14 +159,7 @@ dynamic deserializeAppSettingsProp(IsarReader reader, int property) {
     case 3:
       return IsarCore.readBool(reader, 3);
     case 4:
-      {
-        final value = IsarCore.readLong(reader, 4);
-        if (value == -9223372036854775808) {
-          return 30;
-        } else {
-          return value;
-        }
-      }
+      return IsarCore.readBool(reader, 4);
     case 5:
       return IsarCore.readBool(reader, 5);
     case 6:
@@ -189,19 +167,17 @@ dynamic deserializeAppSettingsProp(IsarReader reader, int property) {
     case 7:
       return IsarCore.readBool(reader, 7);
     case 8:
-      return IsarCore.readBool(reader, 8);
+      return IsarCore.readString(reader, 8) ?? '';
     case 9:
       return IsarCore.readString(reader, 9) ?? '';
     case 10:
-      return IsarCore.readString(reader, 10) ?? '';
+      return IsarCore.readString(reader, 10) ?? 'gpt-4-vision-preview';
     case 11:
-      return IsarCore.readString(reader, 11) ?? 'gpt-4-vision-preview';
+      return IsarCore.readString(reader, 11) ?? 'gpt-4';
     case 12:
-      return IsarCore.readString(reader, 12) ?? 'gpt-4';
+      return IsarCore.readBool(reader, 12);
     case 13:
       return IsarCore.readBool(reader, 13);
-    case 14:
-      return IsarCore.readBool(reader, 14);
     default:
       throw ArgumentError('Unknown property: $property');
   }
@@ -213,7 +189,6 @@ sealed class _AppSettingsUpdate {
     String? currentTimetableId,
     bool? notificationEnabled,
     bool? courseReminder,
-    int? reminderMinutes,
     bool? aiEnabled,
     bool? aiImageImport,
     bool? aiTableImport,
@@ -238,7 +213,6 @@ class _AppSettingsUpdateImpl implements _AppSettingsUpdate {
     Object? currentTimetableId = ignore,
     Object? notificationEnabled = ignore,
     Object? courseReminder = ignore,
-    Object? reminderMinutes = ignore,
     Object? aiEnabled = ignore,
     Object? aiImageImport = ignore,
     Object? aiTableImport = ignore,
@@ -256,18 +230,17 @@ class _AppSettingsUpdateImpl implements _AppSettingsUpdate {
           if (currentTimetableId != ignore) 1: currentTimetableId as String?,
           if (notificationEnabled != ignore) 2: notificationEnabled as bool?,
           if (courseReminder != ignore) 3: courseReminder as bool?,
-          if (reminderMinutes != ignore) 4: reminderMinutes as int?,
-          if (aiEnabled != ignore) 5: aiEnabled as bool?,
-          if (aiImageImport != ignore) 6: aiImageImport as bool?,
-          if (aiTableImport != ignore) 7: aiTableImport as bool?,
-          if (aiTextImport != ignore) 8: aiTextImport as bool?,
-          if (aiApiKey != ignore) 9: aiApiKey as String?,
-          if (aiEndpoint != ignore) 10: aiEndpoint as String?,
-          if (aiVisionModel != ignore) 11: aiVisionModel as String?,
-          if (aiTextModel != ignore) 12: aiTextModel as String?,
+          if (aiEnabled != ignore) 4: aiEnabled as bool?,
+          if (aiImageImport != ignore) 5: aiImageImport as bool?,
+          if (aiTableImport != ignore) 6: aiTableImport as bool?,
+          if (aiTextImport != ignore) 7: aiTextImport as bool?,
+          if (aiApiKey != ignore) 8: aiApiKey as String?,
+          if (aiEndpoint != ignore) 9: aiEndpoint as String?,
+          if (aiVisionModel != ignore) 10: aiVisionModel as String?,
+          if (aiTextModel != ignore) 11: aiTextModel as String?,
           if (advancedFeaturesEnabled != ignore)
-            13: advancedFeaturesEnabled as bool?,
-          if (isValid != ignore) 14: isValid as bool?,
+            12: advancedFeaturesEnabled as bool?,
+          if (isValid != ignore) 13: isValid as bool?,
         }) >
         0;
   }
@@ -279,7 +252,6 @@ sealed class _AppSettingsUpdateAll {
     String? currentTimetableId,
     bool? notificationEnabled,
     bool? courseReminder,
-    int? reminderMinutes,
     bool? aiEnabled,
     bool? aiImageImport,
     bool? aiTableImport,
@@ -304,7 +276,6 @@ class _AppSettingsUpdateAllImpl implements _AppSettingsUpdateAll {
     Object? currentTimetableId = ignore,
     Object? notificationEnabled = ignore,
     Object? courseReminder = ignore,
-    Object? reminderMinutes = ignore,
     Object? aiEnabled = ignore,
     Object? aiImageImport = ignore,
     Object? aiTableImport = ignore,
@@ -320,18 +291,17 @@ class _AppSettingsUpdateAllImpl implements _AppSettingsUpdateAll {
       if (currentTimetableId != ignore) 1: currentTimetableId as String?,
       if (notificationEnabled != ignore) 2: notificationEnabled as bool?,
       if (courseReminder != ignore) 3: courseReminder as bool?,
-      if (reminderMinutes != ignore) 4: reminderMinutes as int?,
-      if (aiEnabled != ignore) 5: aiEnabled as bool?,
-      if (aiImageImport != ignore) 6: aiImageImport as bool?,
-      if (aiTableImport != ignore) 7: aiTableImport as bool?,
-      if (aiTextImport != ignore) 8: aiTextImport as bool?,
-      if (aiApiKey != ignore) 9: aiApiKey as String?,
-      if (aiEndpoint != ignore) 10: aiEndpoint as String?,
-      if (aiVisionModel != ignore) 11: aiVisionModel as String?,
-      if (aiTextModel != ignore) 12: aiTextModel as String?,
+      if (aiEnabled != ignore) 4: aiEnabled as bool?,
+      if (aiImageImport != ignore) 5: aiImageImport as bool?,
+      if (aiTableImport != ignore) 6: aiTableImport as bool?,
+      if (aiTextImport != ignore) 7: aiTextImport as bool?,
+      if (aiApiKey != ignore) 8: aiApiKey as String?,
+      if (aiEndpoint != ignore) 9: aiEndpoint as String?,
+      if (aiVisionModel != ignore) 10: aiVisionModel as String?,
+      if (aiTextModel != ignore) 11: aiTextModel as String?,
       if (advancedFeaturesEnabled != ignore)
-        13: advancedFeaturesEnabled as bool?,
-      if (isValid != ignore) 14: isValid as bool?,
+        12: advancedFeaturesEnabled as bool?,
+      if (isValid != ignore) 13: isValid as bool?,
     });
   }
 }
@@ -347,7 +317,6 @@ sealed class _AppSettingsQueryUpdate {
     String? currentTimetableId,
     bool? notificationEnabled,
     bool? courseReminder,
-    int? reminderMinutes,
     bool? aiEnabled,
     bool? aiImageImport,
     bool? aiTableImport,
@@ -372,7 +341,6 @@ class _AppSettingsQueryUpdateImpl implements _AppSettingsQueryUpdate {
     Object? currentTimetableId = ignore,
     Object? notificationEnabled = ignore,
     Object? courseReminder = ignore,
-    Object? reminderMinutes = ignore,
     Object? aiEnabled = ignore,
     Object? aiImageImport = ignore,
     Object? aiTableImport = ignore,
@@ -388,18 +356,17 @@ class _AppSettingsQueryUpdateImpl implements _AppSettingsQueryUpdate {
       if (currentTimetableId != ignore) 1: currentTimetableId as String?,
       if (notificationEnabled != ignore) 2: notificationEnabled as bool?,
       if (courseReminder != ignore) 3: courseReminder as bool?,
-      if (reminderMinutes != ignore) 4: reminderMinutes as int?,
-      if (aiEnabled != ignore) 5: aiEnabled as bool?,
-      if (aiImageImport != ignore) 6: aiImageImport as bool?,
-      if (aiTableImport != ignore) 7: aiTableImport as bool?,
-      if (aiTextImport != ignore) 8: aiTextImport as bool?,
-      if (aiApiKey != ignore) 9: aiApiKey as String?,
-      if (aiEndpoint != ignore) 10: aiEndpoint as String?,
-      if (aiVisionModel != ignore) 11: aiVisionModel as String?,
-      if (aiTextModel != ignore) 12: aiTextModel as String?,
+      if (aiEnabled != ignore) 4: aiEnabled as bool?,
+      if (aiImageImport != ignore) 5: aiImageImport as bool?,
+      if (aiTableImport != ignore) 6: aiTableImport as bool?,
+      if (aiTextImport != ignore) 7: aiTextImport as bool?,
+      if (aiApiKey != ignore) 8: aiApiKey as String?,
+      if (aiEndpoint != ignore) 9: aiEndpoint as String?,
+      if (aiVisionModel != ignore) 10: aiVisionModel as String?,
+      if (aiTextModel != ignore) 11: aiTextModel as String?,
       if (advancedFeaturesEnabled != ignore)
-        13: advancedFeaturesEnabled as bool?,
-      if (isValid != ignore) 14: isValid as bool?,
+        12: advancedFeaturesEnabled as bool?,
+      if (isValid != ignore) 13: isValid as bool?,
     });
   }
 }
@@ -422,7 +389,6 @@ class _AppSettingsQueryBuilderUpdateImpl implements _AppSettingsQueryUpdate {
     Object? currentTimetableId = ignore,
     Object? notificationEnabled = ignore,
     Object? courseReminder = ignore,
-    Object? reminderMinutes = ignore,
     Object? aiEnabled = ignore,
     Object? aiImageImport = ignore,
     Object? aiTableImport = ignore,
@@ -440,18 +406,17 @@ class _AppSettingsQueryBuilderUpdateImpl implements _AppSettingsQueryUpdate {
         if (currentTimetableId != ignore) 1: currentTimetableId as String?,
         if (notificationEnabled != ignore) 2: notificationEnabled as bool?,
         if (courseReminder != ignore) 3: courseReminder as bool?,
-        if (reminderMinutes != ignore) 4: reminderMinutes as int?,
-        if (aiEnabled != ignore) 5: aiEnabled as bool?,
-        if (aiImageImport != ignore) 6: aiImageImport as bool?,
-        if (aiTableImport != ignore) 7: aiTableImport as bool?,
-        if (aiTextImport != ignore) 8: aiTextImport as bool?,
-        if (aiApiKey != ignore) 9: aiApiKey as String?,
-        if (aiEndpoint != ignore) 10: aiEndpoint as String?,
-        if (aiVisionModel != ignore) 11: aiVisionModel as String?,
-        if (aiTextModel != ignore) 12: aiTextModel as String?,
+        if (aiEnabled != ignore) 4: aiEnabled as bool?,
+        if (aiImageImport != ignore) 5: aiImageImport as bool?,
+        if (aiTableImport != ignore) 6: aiTableImport as bool?,
+        if (aiTextImport != ignore) 7: aiTextImport as bool?,
+        if (aiApiKey != ignore) 8: aiApiKey as String?,
+        if (aiEndpoint != ignore) 9: aiEndpoint as String?,
+        if (aiVisionModel != ignore) 10: aiVisionModel as String?,
+        if (aiTextModel != ignore) 11: aiTextModel as String?,
         if (advancedFeaturesEnabled != ignore)
-          13: advancedFeaturesEnabled as bool?,
-        if (isValid != ignore) 14: isValid as bool?,
+          12: advancedFeaturesEnabled as bool?,
+        if (isValid != ignore) 13: isValid as bool?,
       });
     } finally {
       q.close();
@@ -761,99 +726,13 @@ extension AppSettingsQueryFilter
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
-      reminderMinutesEqualTo(
-    int value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        EqualCondition(
-          property: 4,
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
-      reminderMinutesGreaterThan(
-    int value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        GreaterCondition(
-          property: 4,
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
-      reminderMinutesGreaterThanOrEqualTo(
-    int value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        GreaterOrEqualCondition(
-          property: 4,
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
-      reminderMinutesLessThan(
-    int value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        LessCondition(
-          property: 4,
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
-      reminderMinutesLessThanOrEqualTo(
-    int value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        LessOrEqualCondition(
-          property: 4,
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
-      reminderMinutesBetween(
-    int lower,
-    int upper,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        BetweenCondition(
-          property: 4,
-          lower: lower,
-          upper: upper,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
       aiEnabledEqualTo(
     bool value,
   ) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 5,
+          property: 4,
           value: value,
         ),
       );
@@ -867,7 +746,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 6,
+          property: 5,
           value: value,
         ),
       );
@@ -881,7 +760,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 7,
+          property: 6,
           value: value,
         ),
       );
@@ -895,7 +774,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 8,
+          property: 7,
           value: value,
         ),
       );
@@ -909,7 +788,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 9,
+          property: 8,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -925,7 +804,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 9,
+          property: 8,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -941,7 +820,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 9,
+          property: 8,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -957,7 +836,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 9,
+          property: 8,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -973,7 +852,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 9,
+          property: 8,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -989,7 +868,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 9,
+          property: 8,
           lower: lower,
           upper: upper,
           caseSensitive: caseSensitive,
@@ -1006,7 +885,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         StartsWithCondition(
-          property: 9,
+          property: 8,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1022,7 +901,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EndsWithCondition(
-          property: 9,
+          property: 8,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1035,7 +914,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         ContainsCondition(
-          property: 9,
+          property: 8,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1049,7 +928,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         MatchesCondition(
-          property: 9,
+          property: 8,
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -1062,7 +941,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const EqualCondition(
-          property: 9,
+          property: 8,
           value: '',
         ),
       );
@@ -1074,7 +953,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterCondition(
-          property: 9,
+          property: 8,
           value: '',
         ),
       );
@@ -1089,7 +968,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 10,
+          property: 9,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1105,7 +984,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 10,
+          property: 9,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1121,7 +1000,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 10,
+          property: 9,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1137,7 +1016,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 10,
+          property: 9,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1153,7 +1032,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 10,
+          property: 9,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1170,7 +1049,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 10,
+          property: 9,
           lower: lower,
           upper: upper,
           caseSensitive: caseSensitive,
@@ -1187,7 +1066,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         StartsWithCondition(
-          property: 10,
+          property: 9,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1203,7 +1082,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EndsWithCondition(
-          property: 10,
+          property: 9,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1216,7 +1095,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         ContainsCondition(
-          property: 10,
+          property: 9,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1229,7 +1108,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         MatchesCondition(
-          property: 10,
+          property: 9,
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -1242,7 +1121,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const EqualCondition(
-          property: 10,
+          property: 9,
           value: '',
         ),
       );
@@ -1254,7 +1133,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterCondition(
-          property: 10,
+          property: 9,
           value: '',
         ),
       );
@@ -1269,7 +1148,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 11,
+          property: 10,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1285,7 +1164,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 11,
+          property: 10,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1301,7 +1180,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 11,
+          property: 10,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1317,7 +1196,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 11,
+          property: 10,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1333,7 +1212,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 11,
+          property: 10,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1350,7 +1229,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 11,
+          property: 10,
           lower: lower,
           upper: upper,
           caseSensitive: caseSensitive,
@@ -1367,7 +1246,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         StartsWithCondition(
-          property: 11,
+          property: 10,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1383,7 +1262,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EndsWithCondition(
-          property: 11,
+          property: 10,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1396,7 +1275,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         ContainsCondition(
-          property: 11,
+          property: 10,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1409,7 +1288,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         MatchesCondition(
-          property: 11,
+          property: 10,
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -1422,7 +1301,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const EqualCondition(
-          property: 11,
+          property: 10,
           value: '',
         ),
       );
@@ -1434,7 +1313,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterCondition(
-          property: 11,
+          property: 10,
           value: '',
         ),
       );
@@ -1449,7 +1328,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 12,
+          property: 11,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1465,7 +1344,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 12,
+          property: 11,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1481,7 +1360,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 12,
+          property: 11,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1497,7 +1376,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 12,
+          property: 11,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1513,7 +1392,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 12,
+          property: 11,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1530,7 +1409,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 12,
+          property: 11,
           lower: lower,
           upper: upper,
           caseSensitive: caseSensitive,
@@ -1547,7 +1426,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         StartsWithCondition(
-          property: 12,
+          property: 11,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1563,7 +1442,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EndsWithCondition(
-          property: 12,
+          property: 11,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1576,7 +1455,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         ContainsCondition(
-          property: 12,
+          property: 11,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1589,7 +1468,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         MatchesCondition(
-          property: 12,
+          property: 11,
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -1602,7 +1481,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const EqualCondition(
-          property: 12,
+          property: 11,
           value: '',
         ),
       );
@@ -1614,7 +1493,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterCondition(
-          property: 12,
+          property: 11,
           value: '',
         ),
       );
@@ -1628,7 +1507,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 13,
+          property: 12,
           value: value,
         ),
       );
@@ -1641,7 +1520,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 14,
+          property: 13,
           value: value,
         ),
       );
@@ -1714,67 +1593,54 @@ extension AppSettingsQuerySortBy
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByReminderMinutes() {
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByAiEnabled() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(4);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
-      sortByReminderMinutesDesc() {
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByAiEnabledDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(4, sort: Sort.desc);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByAiEnabled() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(5);
-    });
-  }
-
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByAiEnabledDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(5, sort: Sort.desc);
-    });
-  }
-
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByAiImageImport() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(6);
+      return query.addSortBy(5);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       sortByAiImageImportDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(6, sort: Sort.desc);
+      return query.addSortBy(5, sort: Sort.desc);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByAiTableImport() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(7);
+      return query.addSortBy(6);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       sortByAiTableImportDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(7, sort: Sort.desc);
+      return query.addSortBy(6, sort: Sort.desc);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByAiTextImport() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(8);
+      return query.addSortBy(7);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       sortByAiTextImportDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(8, sort: Sort.desc);
+      return query.addSortBy(7, sort: Sort.desc);
     });
   }
 
@@ -1782,7 +1648,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        9,
+        8,
         caseSensitive: caseSensitive,
       );
     });
@@ -1792,7 +1658,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        9,
+        8,
         sort: Sort.desc,
         caseSensitive: caseSensitive,
       );
@@ -1803,7 +1669,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        10,
+        9,
         caseSensitive: caseSensitive,
       );
     });
@@ -1813,7 +1679,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        10,
+        9,
         sort: Sort.desc,
         caseSensitive: caseSensitive,
       );
@@ -1824,7 +1690,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        11,
+        10,
         caseSensitive: caseSensitive,
       );
     });
@@ -1834,7 +1700,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        11,
+        10,
         sort: Sort.desc,
         caseSensitive: caseSensitive,
       );
@@ -1845,7 +1711,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        12,
+        11,
         caseSensitive: caseSensitive,
       );
     });
@@ -1855,7 +1721,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        12,
+        11,
         sort: Sort.desc,
         caseSensitive: caseSensitive,
       );
@@ -1865,26 +1731,26 @@ extension AppSettingsQuerySortBy
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       sortByAdvancedFeaturesEnabled() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(13);
+      return query.addSortBy(12);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       sortByAdvancedFeaturesEnabledDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(13, sort: Sort.desc);
+      return query.addSortBy(12, sort: Sort.desc);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByIsValid() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(14);
+      return query.addSortBy(13);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByIsValidDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(14, sort: Sort.desc);
+      return query.addSortBy(13, sort: Sort.desc);
     });
   }
 }
@@ -1944,149 +1810,136 @@ extension AppSettingsQuerySortThenBy
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByReminderMinutes() {
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiEnabled() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(4);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
-      thenByReminderMinutesDesc() {
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiEnabledDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(4, sort: Sort.desc);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiEnabled() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(5);
-    });
-  }
-
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiEnabledDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(5, sort: Sort.desc);
-    });
-  }
-
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiImageImport() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(6);
+      return query.addSortBy(5);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       thenByAiImageImportDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(6, sort: Sort.desc);
+      return query.addSortBy(5, sort: Sort.desc);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiTableImport() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(7);
+      return query.addSortBy(6);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       thenByAiTableImportDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(7, sort: Sort.desc);
+      return query.addSortBy(6, sort: Sort.desc);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiTextImport() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(8);
+      return query.addSortBy(7);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       thenByAiTextImportDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(8, sort: Sort.desc);
+      return query.addSortBy(7, sort: Sort.desc);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiApiKey(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(9, caseSensitive: caseSensitive);
+      return query.addSortBy(8, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiApiKeyDesc(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(9, sort: Sort.desc, caseSensitive: caseSensitive);
+      return query.addSortBy(8, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiEndpoint(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(10, caseSensitive: caseSensitive);
+      return query.addSortBy(9, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiEndpointDesc(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(10, sort: Sort.desc, caseSensitive: caseSensitive);
+      return query.addSortBy(9, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiVisionModel(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(11, caseSensitive: caseSensitive);
+      return query.addSortBy(10, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiVisionModelDesc(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(11, sort: Sort.desc, caseSensitive: caseSensitive);
+      return query.addSortBy(10, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiTextModel(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(12, caseSensitive: caseSensitive);
+      return query.addSortBy(11, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByAiTextModelDesc(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(12, sort: Sort.desc, caseSensitive: caseSensitive);
+      return query.addSortBy(11, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       thenByAdvancedFeaturesEnabled() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(13);
+      return query.addSortBy(12);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       thenByAdvancedFeaturesEnabledDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(13, sort: Sort.desc);
+      return query.addSortBy(12, sort: Sort.desc);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByIsValid() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(14);
+      return query.addSortBy(13);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByIsValidDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(14, sort: Sort.desc);
+      return query.addSortBy(13, sort: Sort.desc);
     });
   }
 }
@@ -2114,78 +1967,71 @@ extension AppSettingsQueryWhereDistinct
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
-      distinctByReminderMinutes() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(4);
-    });
-  }
-
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct> distinctByAiEnabled() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(5);
+      return query.addDistinctBy(4);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
       distinctByAiImageImport() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(6);
+      return query.addDistinctBy(5);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
       distinctByAiTableImport() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(7);
+      return query.addDistinctBy(6);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
       distinctByAiTextImport() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(8);
+      return query.addDistinctBy(7);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct> distinctByAiApiKey(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(9, caseSensitive: caseSensitive);
+      return query.addDistinctBy(8, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct> distinctByAiEndpoint(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(10, caseSensitive: caseSensitive);
+      return query.addDistinctBy(9, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
       distinctByAiVisionModel({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(11, caseSensitive: caseSensitive);
+      return query.addDistinctBy(10, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct> distinctByAiTextModel(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(12, caseSensitive: caseSensitive);
+      return query.addDistinctBy(11, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
       distinctByAdvancedFeaturesEnabled() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(13);
+      return query.addDistinctBy(12);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct> distinctByIsValid() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(14);
+      return query.addDistinctBy(13);
     });
   }
 }
@@ -2218,70 +2064,64 @@ extension AppSettingsQueryProperty1
     });
   }
 
-  QueryBuilder<AppSettings, int, QAfterProperty> reminderMinutesProperty() {
+  QueryBuilder<AppSettings, bool, QAfterProperty> aiEnabledProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(4);
     });
   }
 
-  QueryBuilder<AppSettings, bool, QAfterProperty> aiEnabledProperty() {
+  QueryBuilder<AppSettings, bool, QAfterProperty> aiImageImportProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(5);
     });
   }
 
-  QueryBuilder<AppSettings, bool, QAfterProperty> aiImageImportProperty() {
+  QueryBuilder<AppSettings, bool, QAfterProperty> aiTableImportProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(6);
     });
   }
 
-  QueryBuilder<AppSettings, bool, QAfterProperty> aiTableImportProperty() {
+  QueryBuilder<AppSettings, bool, QAfterProperty> aiTextImportProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(7);
     });
   }
 
-  QueryBuilder<AppSettings, bool, QAfterProperty> aiTextImportProperty() {
+  QueryBuilder<AppSettings, String, QAfterProperty> aiApiKeyProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(8);
     });
   }
 
-  QueryBuilder<AppSettings, String, QAfterProperty> aiApiKeyProperty() {
+  QueryBuilder<AppSettings, String, QAfterProperty> aiEndpointProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(9);
     });
   }
 
-  QueryBuilder<AppSettings, String, QAfterProperty> aiEndpointProperty() {
+  QueryBuilder<AppSettings, String, QAfterProperty> aiVisionModelProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(10);
     });
   }
 
-  QueryBuilder<AppSettings, String, QAfterProperty> aiVisionModelProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addProperty(11);
-    });
-  }
-
   QueryBuilder<AppSettings, String, QAfterProperty> aiTextModelProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(12);
+      return query.addProperty(11);
     });
   }
 
   QueryBuilder<AppSettings, bool, QAfterProperty>
       advancedFeaturesEnabledProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(13);
+      return query.addProperty(12);
     });
   }
 
   QueryBuilder<AppSettings, bool, QAfterProperty> isValidProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(14);
+      return query.addProperty(13);
     });
   }
 }
@@ -2315,72 +2155,65 @@ extension AppSettingsQueryProperty2<R>
     });
   }
 
-  QueryBuilder<AppSettings, (R, int), QAfterProperty>
-      reminderMinutesProperty() {
+  QueryBuilder<AppSettings, (R, bool), QAfterProperty> aiEnabledProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(4);
     });
   }
 
-  QueryBuilder<AppSettings, (R, bool), QAfterProperty> aiEnabledProperty() {
+  QueryBuilder<AppSettings, (R, bool), QAfterProperty> aiImageImportProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(5);
     });
   }
 
-  QueryBuilder<AppSettings, (R, bool), QAfterProperty> aiImageImportProperty() {
+  QueryBuilder<AppSettings, (R, bool), QAfterProperty> aiTableImportProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(6);
     });
   }
 
-  QueryBuilder<AppSettings, (R, bool), QAfterProperty> aiTableImportProperty() {
+  QueryBuilder<AppSettings, (R, bool), QAfterProperty> aiTextImportProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(7);
     });
   }
 
-  QueryBuilder<AppSettings, (R, bool), QAfterProperty> aiTextImportProperty() {
+  QueryBuilder<AppSettings, (R, String), QAfterProperty> aiApiKeyProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(8);
     });
   }
 
-  QueryBuilder<AppSettings, (R, String), QAfterProperty> aiApiKeyProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addProperty(9);
-    });
-  }
-
   QueryBuilder<AppSettings, (R, String), QAfterProperty> aiEndpointProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(10);
+      return query.addProperty(9);
     });
   }
 
   QueryBuilder<AppSettings, (R, String), QAfterProperty>
       aiVisionModelProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(11);
+      return query.addProperty(10);
     });
   }
 
   QueryBuilder<AppSettings, (R, String), QAfterProperty> aiTextModelProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(12);
+      return query.addProperty(11);
     });
   }
 
   QueryBuilder<AppSettings, (R, bool), QAfterProperty>
       advancedFeaturesEnabledProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(13);
+      return query.addProperty(12);
     });
   }
 
   QueryBuilder<AppSettings, (R, bool), QAfterProperty> isValidProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(14);
+      return query.addProperty(13);
     });
   }
 }
@@ -2414,77 +2247,70 @@ extension AppSettingsQueryProperty3<R1, R2>
     });
   }
 
-  QueryBuilder<AppSettings, (R1, R2, int), QOperations>
-      reminderMinutesProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addProperty(4);
-    });
-  }
-
   QueryBuilder<AppSettings, (R1, R2, bool), QOperations> aiEnabledProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(5);
+      return query.addProperty(4);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, bool), QOperations>
       aiImageImportProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(6);
+      return query.addProperty(5);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, bool), QOperations>
       aiTableImportProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(7);
+      return query.addProperty(6);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, bool), QOperations>
       aiTextImportProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(8);
+      return query.addProperty(7);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, String), QOperations> aiApiKeyProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(9);
+      return query.addProperty(8);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, String), QOperations>
       aiEndpointProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(10);
+      return query.addProperty(9);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, String), QOperations>
       aiVisionModelProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(11);
+      return query.addProperty(10);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, String), QOperations>
       aiTextModelProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(12);
+      return query.addProperty(11);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, bool), QOperations>
       advancedFeaturesEnabledProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(13);
+      return query.addProperty(12);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, bool), QOperations> isValidProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(14);
+      return query.addProperty(13);
     });
   }
 }

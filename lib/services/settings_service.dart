@@ -122,13 +122,11 @@ class SettingsService {
   Future<bool> updateNotificationSettings({
     bool? enabled,
     bool? courseReminder,
-    int? reminderMinutes,
   }) async {
     try {
       final settings = await loadSettings();
       if (enabled != null) settings.notificationEnabled = enabled;
       if (courseReminder != null) settings.courseReminder = courseReminder;
-      if (reminderMinutes != null) settings.reminderMinutes = reminderMinutes;
       return await saveSettings(settings);
     } catch (_) {
       return false;

@@ -35,8 +35,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
         _classTimes[ct.period] = ClassTime()
           ..period = ct.period
           ..startTime = ct.startTime
-          ..endTime = ct.endTime
-          ..reminderMinutes = ct.reminderMinutes;
+          ..endTime = ct.endTime;
       }
     } else {
       // 使用默认值
@@ -47,8 +46,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
           _classTimes[period] = ClassTime()
             ..period = period
             ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-            ..endTime = parts.length > 1 ? parts.last : '08:45'
-            ..reminderMinutes = 0;
+            ..endTime = parts.length > 1 ? parts.last : '08:45';
         }
       });
     }
@@ -66,8 +64,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
         return ClassTime()
           ..period = i
           ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-          ..endTime = parts.length > 1 ? parts.last : '08:45'
-          ..reminderMinutes = 0;
+          ..endTime = parts.length > 1 ? parts.last : '08:45';
       });
     }
   }
@@ -124,8 +121,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
           return ClassTime()
             ..period = i
             ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-            ..endTime = parts.length > 1 ? parts.last : '08:45'
-            ..reminderMinutes = 0;
+            ..endTime = parts.length > 1 ? parts.last : '08:45';
         });
       }
       _classTimes.removeWhere((key, _) => key > _localMaxPeriods);
@@ -144,8 +140,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
       _classTimes[i] = ClassTime()
         ..period = i
         ..startTime = startStr
-        ..endTime = endStr
-        ..reminderMinutes = 0;
+        ..endTime = endStr;
       
       start = end;
     }
@@ -229,8 +224,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
               _classTimes[period] = ClassTime()
                 ..period = period
                 ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-                ..endTime = parts.length > 1 ? parts.last : '08:45'
-                ..reminderMinutes = classTime?.reminderMinutes ?? 0;
+                ..endTime = parts.length > 1 ? parts.last : '08:45';
             });
           },
         );

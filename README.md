@@ -94,7 +94,7 @@ class TimetableSettings {
   int maxPeriods;          // 最大节数 (1-16)
   List<ClassTime> classTimes; // 每节课的时间设置
   List<DateTime> holidays; // 节假日
-  List<DateTime> extraClassDays; // 补课日
+  int reminderMinutes;     // 上课前提醒分钟数
 }
 ```
 
@@ -114,7 +114,6 @@ class TimetableSettings {
           "day": 1,
           "periods": [1, 2],
           "weekPattern": [1, 2, 3, 4, 5, 6],
-          "reminder": ""
         }
       ]
     }
@@ -205,7 +204,11 @@ A:
 4. 配置完成后在AI导入页面使用
 
 **Q: 课程时间冲突如何处理?**
-A: 系统会自动检测同一时段的多个课程，并允许同时显示（可手动调整）
+A: 当前版本中：
+- 系统提供了冲突检测方法（`QueryService.hasConflict()`），可以检测同一时段是否有多个课程
+- 保存课程时不会阻止冲突的创建，允许用户手动添加时间冲突的课程
+- 在周视图和日视图中，如果同一时段有多门课程，只会显示第一个匹配的课程
+- 用户可以通过编辑课程来调整时间安排，避免冲突
 
 **Q: 如何自定义课程颜色?**
 A: 编辑课程时可以手动选择颜色，未设置颜色的课程会从预设颜色中自动分配
@@ -220,8 +223,8 @@ A: 使用Isar数据库本地存储，所有数据保存在设备本地，不会�
 ### 许可证信息
 - **许可证名称**: Apache License 2.0
 - **许可证链接**: [LICENSE](LICENSE)
-- **版权年份**: 2024
-- **版权所有者**: YIClass
+- **版权年份**: 2025
+- **版权所有者**: wykwey
 
 ### 第三方依赖协议
 本应用使用的第三方库及其协议：

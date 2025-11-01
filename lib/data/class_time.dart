@@ -15,8 +15,5 @@ class ClassTime {
   /// 结束时间（24小时制，如 "08:45"）
   late String endTime;
 
-  /// 上课前多少分钟提醒（如10表示上课前10分钟）
-  late int reminderMinutes;
-
   ClassTime();
 }

@@ -40,7 +40,7 @@ class FileService {
       'showWeekend': s.showWeekend,
       'maxPeriods': s.maxPeriods,
       'holidays': s.holidays.map((d) => d.toIso8601String()).toList(),
-      'extraClassDays': s.extraClassDays.map((d) => d.toIso8601String()).toList(),
+      'reminderMinutes': s.reminderMinutes,
     };
   }
 
@@ -103,11 +103,10 @@ class FileService {
       return ClassTime()
         ..period = period
         ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-        ..endTime = parts.length > 1 ? parts.last : '08:45'
-        ..reminderMinutes = 0;
+        ..endTime = parts.length > 1 ? parts.last : '08:45';
     });
 
-    // holidays / extraClassDays（默认空数组）
+    // holidays（默认空数组）
     List<DateTime> holidays = <DateTime>[];
     if (settingsMap['holidays'] is List) {
       holidays = (settingsMap['holidays'] as List)
@@ -115,13 +114,9 @@ class FileService {
           .whereType<DateTime>()
           .toList();
     }
-    List<DateTime> extraClassDays = <DateTime>[];
-    if (settingsMap['extraClassDays'] is List) {
-      extraClassDays = (settingsMap['extraClassDays'] as List)
-          .map((e) => DateTime.tryParse(e.toString()))
-          .whereType<DateTime>()
-          .toList();
-    }
+
+    // reminderMinutes（默认30分钟）
+    final int reminderMinutes = settingsMap['reminderMinutes'] as int? ?? 30;
 
     final s = TimetableSettings()
       ..startDate = startDate
@@ -129,7 +124,7 @@ class FileService {
       ..showWeekend = showWeekend
       ..classTimes = classTimes
       ..holidays = holidays
-      ..extraClassDays = extraClassDays;
+      ..reminderMinutes = reminderMinutes;
 
     // 以 maxPeriods 为准
     s.maxPeriods = maxPeriods;
