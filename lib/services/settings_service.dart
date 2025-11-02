@@ -132,5 +132,30 @@ class SettingsService {
       return false;
     }
   }
+
+  /// 更新仓库配置
+  Future<bool> updateRepositoryConfig({
+    String? repositoryUrl,
+    String? repositoryType,
+    String? indexBranch,
+    String? scriptsBranch,
+    String? tokenKey,
+    String? tokenValue,
+    bool? repositoryImportEnabled,
+  }) async {
+    try {
+      final settings = await loadSettings();
+      if (repositoryUrl != null) settings.repositoryUrl = repositoryUrl;
+      if (repositoryType != null) settings.repositoryType = repositoryType;
+      if (indexBranch != null) settings.indexBranch = indexBranch;
+      if (scriptsBranch != null) settings.scriptsBranch = scriptsBranch;
+      if (tokenKey != null) settings.tokenKey = tokenKey;
+      if (tokenValue != null) settings.tokenValue = tokenValue;
+      if (repositoryImportEnabled != null) settings.repositoryImportEnabled = repositoryImportEnabled;
+      return await saveSettings(settings);
+    } catch (_) {
+      return false;
+    }
+  }
 }
 

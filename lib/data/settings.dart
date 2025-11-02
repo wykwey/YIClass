@@ -31,6 +31,15 @@ class AppSettings {
   // 高级功能开关
   late bool advancedFeaturesEnabled; // 是否启用高级功能
 
+  // 仓库配置（教务导入）
+  late String repositoryUrl; // 仓库URL
+  late String repositoryType; // 仓库类型：'official', 'custom', 'private'
+  late String indexBranch; // 索引文件所在分支
+  late String scriptsBranch; // 脚本文件所在分支
+  late String tokenKey; // Token Key（私有仓库）
+  late String tokenValue; // Token Value（私有仓库）
+  late bool repositoryImportEnabled; // 是否启用教务导入
+
   // ================= 构造 =================
   AppSettings({
     this.id = 1, // 固定为1，确保只有一个实例
@@ -46,6 +55,13 @@ class AppSettings {
     this.aiVisionModel = 'gpt-4-vision-preview',
     this.aiTextModel = 'gpt-4',
     this.advancedFeaturesEnabled = false,
+    this.repositoryUrl = '',
+    this.repositoryType = 'official',
+    this.indexBranch = 'index-data',
+    this.scriptsBranch = 'main',
+    this.tokenKey = '',
+    this.tokenValue = '',
+    this.repositoryImportEnabled = false,
   });
 
   // ================= JSON 转换 =================
@@ -64,6 +80,13 @@ class AppSettings {
       aiVisionModel: json['aiVisionModel']?.toString() ?? 'gpt-4-vision-preview',
       aiTextModel: json['aiTextModel']?.toString() ?? 'gpt-4',
       advancedFeaturesEnabled: json['advancedFeaturesEnabled'] ?? false,
+      repositoryUrl: json['repositoryUrl']?.toString() ?? '',
+      repositoryType: json['repositoryType']?.toString() ?? 'official',
+      indexBranch: json['indexBranch']?.toString() ?? 'index-data',
+      scriptsBranch: json['scriptsBranch']?.toString() ?? 'main',
+      tokenKey: json['tokenKey']?.toString() ?? '',
+      tokenValue: json['tokenValue']?.toString() ?? '',
+      repositoryImportEnabled: json['repositoryImportEnabled'] ?? false,
     );
   }
 
@@ -81,6 +104,13 @@ class AppSettings {
         'aiVisionModel': aiVisionModel,
         'aiTextModel': aiTextModel,
         'advancedFeaturesEnabled': advancedFeaturesEnabled,
+        'repositoryUrl': repositoryUrl,
+        'repositoryType': repositoryType,
+        'indexBranch': indexBranch,
+        'scriptsBranch': scriptsBranch,
+        'tokenKey': tokenKey,
+        'tokenValue': tokenValue,
+        'repositoryImportEnabled': repositoryImportEnabled,
       };
 
   // ================= 辅助方法 =================
@@ -98,6 +128,13 @@ class AppSettings {
     String? aiVisionModel,
     String? aiTextModel,
     bool? advancedFeaturesEnabled,
+    String? repositoryUrl,
+    String? repositoryType,
+    String? indexBranch,
+    String? scriptsBranch,
+    String? tokenKey,
+    String? tokenValue,
+    bool? repositoryImportEnabled,
   }) {
     return AppSettings(
       id: id ?? this.id,
@@ -113,6 +150,13 @@ class AppSettings {
       aiVisionModel: aiVisionModel ?? this.aiVisionModel,
       aiTextModel: aiTextModel ?? this.aiTextModel,
       advancedFeaturesEnabled: advancedFeaturesEnabled ?? this.advancedFeaturesEnabled,
+      repositoryUrl: repositoryUrl ?? this.repositoryUrl,
+      repositoryType: repositoryType ?? this.repositoryType,
+      indexBranch: indexBranch ?? this.indexBranch,
+      scriptsBranch: scriptsBranch ?? this.scriptsBranch,
+      tokenKey: tokenKey ?? this.tokenKey,
+      tokenValue: tokenValue ?? this.tokenValue,
+      repositoryImportEnabled: repositoryImportEnabled ?? this.repositoryImportEnabled,
     );
   }
 
@@ -132,6 +176,13 @@ class AppSettings {
       aiVisionModel: 'gpt-4-vision-preview',
       aiTextModel: 'gpt-4',
       advancedFeaturesEnabled: false,
+      repositoryUrl: '',
+      repositoryType: 'official',
+      indexBranch: 'index-data',
+      scriptsBranch: 'main',
+      tokenKey: '',
+      tokenValue: '',
+      repositoryImportEnabled: false,
     );
   }
 
@@ -148,6 +199,8 @@ class AppSettings {
         'aiImageImport: $aiImageImport, aiTableImport: $aiTableImport, aiTextImport: $aiTextImport, '
         'aiApiKey: ${aiApiKey.isNotEmpty ? "${aiApiKey.substring(0, 8)}..." : "未配置"}, '
         'aiEndpoint: $aiEndpoint, aiVisionModel: $aiVisionModel, aiTextModel: $aiTextModel, '
-        'advancedFeaturesEnabled: $advancedFeaturesEnabled)';
+        'advancedFeaturesEnabled: $advancedFeaturesEnabled, '
+        'repositoryUrl: $repositoryUrl, repositoryType: $repositoryType, '
+        'repositoryImportEnabled: $repositoryImportEnabled)';
   }
 }

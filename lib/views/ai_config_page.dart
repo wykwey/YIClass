@@ -57,25 +57,25 @@ class _AIConfigPageState extends State<AIConfigPage> {
   }
 
   Future<void> _saveConfig() async {
-    if (_apiKeyController.text.isEmpty || _endpointController.text.isEmpty) {
-      FeedbackUtils.show(context, '请填写API Key和Endpoint');
+    final config = AIConfig(
+      apiKey: _apiKeyController.text.trim(),
+      endpoint: _endpointController.text.trim(),
+      visionModel: _visionModelController.text.trim(),
+      textModel: _textModelController.text.trim(),
+      enabled: true,
+      enableImageImport: _enableImageImport,
+      enableTableImport: _enableTableImport,
+      enableTextImport: _enableTextImport,
+    );
+
+    if (!config.isValid) {
+      FeedbackUtils.show(context, '请填写API Key、Endpoint和文本模型');
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      final config = AIConfig(
-        apiKey: _apiKeyController.text.trim(),
-        endpoint: _endpointController.text.trim(),
-        visionModel: _visionModelController.text.trim(),
-        textModel: _textModelController.text.trim(),
-        enabled: true,
-        enableImageImport: _enableImageImport,
-        enableTableImport: _enableTableImport,
-        enableTextImport: _enableTextImport,
-      );
-
       await AIConfigService.saveConfig(config);
       FeedbackUtils.show(context, '配置保存成功');
     } catch (e) {
@@ -234,13 +234,13 @@ class _AIConfigPageState extends State<AIConfigPage> {
 
                 // 预设配置
                 _buildSection('预设配置', [
-                  _buildPresetButton('OpenAI', () => _setPresetOpenAI()),
+                  _buildPresetButton('OpenAI', () => _setPreset('openai')),
                   const SizedBox(height: 8),
-                  _buildPresetButton('Claude', () => _setPresetClaude()),
+                  _buildPresetButton('Claude', () => _setPreset('claude')),
                   const SizedBox(height: 8),
-                  _buildPresetButton('Gemini', () => _setPresetGemini()),
+                  _buildPresetButton('Gemini', () => _setPreset('gemini')),
                   const SizedBox(height: 8),
-                  _buildPresetButton('DeepSeek', () => _setPresetDeepSeek()),
+                  _buildPresetButton('DeepSeek', () => _setPreset('deepseek')),
                 ]),
 
                 const SizedBox(height: 24),
@@ -317,27 +317,12 @@ class _AIConfigPageState extends State<AIConfigPage> {
     );
   }
 
-  void _setPresetOpenAI() {
-    _endpointController.text = 'https://api.openai.com/v1';
-    _visionModelController.text = 'gpt-4o-mini';
-    _textModelController.text = 'gpt-4o';
-  }
-
-  void _setPresetClaude() {
-    _endpointController.text = 'https://api.anthropic.com';
-    _visionModelController.text = 'claude-3-5-sonnet';
-    _textModelController.text = 'claude-3-5-sonnet';
-  }
-
-  void _setPresetGemini() {
-    _endpointController.text = 'https://generativelanguage.googleapis.com/v1';
-    _visionModelController.text = 'gemini-1.5-pro';
-    _textModelController.text = 'gemini-1.5-pro';
-  }
-
-  void _setPresetDeepSeek() {
-    _endpointController.text = 'https://api.deepseek.com/chat/completions';
-    _visionModelController.text = ''; 
-    _textModelController.text = 'deepseek-chat';
+  void _setPreset(String provider) {
+    final preset = AIConfig.getPresetConfig(provider);
+    setState(() {
+      _endpointController.text = preset.endpoint;
+      _visionModelController.text = preset.visionModel;
+      _textModelController.text = preset.textModel;
+    });
   }
 }

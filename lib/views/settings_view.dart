@@ -7,6 +7,7 @@ import '../components/start_date_picker.dart';
 import './time_settings_page.dart';
 import './license_page.dart' as license;
 import './ai_config_page.dart';
+import './repository_config_page.dart';
 import '../components/bottom_nav_bar.dart';
 import '../data/data_constants.dart';
 import '../components/timetable_management_dialog.dart';
@@ -597,12 +598,17 @@ class _SettingsPageState extends State<SettingsPage> {
         final advancedEnabled = snapshot.data ?? false;
         
         return ListTile(
-          title: const Text('脚本仓库'),
-          subtitle: const Text('管理和安装自定义脚本'),
+          title: const Text('教务导入配置'),
+          subtitle: const Text('配置GitHub脚本仓库'),
           trailing: const Icon(Icons.chevron_right),
           enabled: advancedEnabled,
           onTap: advancedEnabled ? () {
-            FeedbackUtils.show(context, '脚本仓库功能暂未实现');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RepositoryConfigPage(),
+              ),
+            );
           } : null,
         );
       },

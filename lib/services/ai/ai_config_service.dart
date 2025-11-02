@@ -70,6 +70,37 @@ class AIConfig {
       'deepseek-chat',
     ];
   }
+
+  /// 获取预设配置
+  static AIConfig getPresetConfig(String provider) {
+    switch (provider.toLowerCase()) {
+      case 'openai':
+        return const AIConfig(
+          endpoint: 'https://api.openai.com/v1',
+          visionModel: 'gpt-4o-mini',
+          textModel: 'gpt-4o',
+        );
+      case 'claude':
+        return const AIConfig(
+          endpoint: 'https://api.anthropic.com',
+          visionModel: 'claude-3-5-sonnet',
+          textModel: 'claude-3-5-sonnet',
+        );
+      case 'gemini':
+        return const AIConfig(
+          endpoint: 'https://generativelanguage.googleapis.com/v1',
+          visionModel: 'gemini-1.5-pro',
+          textModel: 'gemini-1.5-pro',
+        );
+      case 'deepseek':
+        return const AIConfig(
+          endpoint: 'https://api.deepseek.com/chat/completions',
+          textModel: 'deepseek-chat',
+        );
+      default:
+        return const AIConfig();
+    }
+  }
 }
 
 /// AI配置服务（轻量级包装 SettingsService）
