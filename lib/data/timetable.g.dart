@@ -57,7 +57,7 @@ final TimetableSchema = IsarGeneratedSchema(
 @isarProtected
 int serializeTimetable(IsarWriter writer, Timetable object) {
   IsarCore.writeString(writer, 1, object.name);
-  IsarCore.writeBool(writer, 2, object.isDefault);
+  IsarCore.writeBool(writer, 2, value: object.isDefault);
   {
     final value = object.settings;
     final objectWriter = IsarCore.beginObject(writer, 3);

@@ -54,7 +54,7 @@ class _DayViewState extends State<DayView> {
       currentWeek: weekState.week,
       showWeekend: timetable.settings.showWeekend,
       selectedDay: viewState.selectedDay,
-      onDaySelected: (day) => viewState.selectDay(day),
+      onDaySelected: (weekday) => viewState.selectDay(weekday),
       onEditCourse: _handleEditCourse,
     );
   }
@@ -155,27 +155,27 @@ class DaySelector extends StatelessWidget {
     );
   }
 
-  Widget _buildDayButton(BuildContext context, int day) {
+  Widget _buildDayButton(BuildContext context, int weekday) {
     final timetableState = Provider.of<TimetableState>(context, listen: false);
     final timetable = timetableState.current;
-    final isSelected = selectedDay == day;
+    final isSelected = selectedDay == weekday;
     
     return InkWell(
-      onTap: () => onDaySelected(day),
+      onTap: () => onDaySelected(weekday),
       child: Container(
         decoration: BoxDecoration(
           color: isSelected ? Colors.blue : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Center(child: _buildDayContent(day, isSelected, timetable)),
+        child: Center(child: _buildDayContent(weekday, isSelected, timetable)),
       ),
     );
   }
 
-  Widget _buildDayContent(int day, bool isSelected, Timetable? timetable) {
+  Widget _buildDayContent(int weekday, bool isSelected, Timetable? timetable) {
     final textColor = isSelected ? Colors.white : Colors.grey[800];
     const weekDays = ['周一','周二','周三','周四','周五','周六','周日'];
-    final dayName = weekDays[day - 1];
+    final dayName = weekDays[weekday - 1];
     
     if (timetable == null) {
       return Text(
@@ -190,7 +190,7 @@ class DaySelector extends StatelessWidget {
     }
     
     final startDate = timetable.settings.startDate;
-    final courseDate = startDate.add(Duration(days: 7 * (currentWeek - 1) + (day - 1)));
+    final courseDate = startDate.add(Duration(days: 7 * (currentWeek - 1) + (weekday - 1)));
     
     return Column(
       mainAxisSize: MainAxisSize.min,

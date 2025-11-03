@@ -65,7 +65,7 @@ class _CourseEditPageState extends State<CourseEditPage> {
     _days = [];
     if (widget.course.schedules.isNotEmpty) {
       for (final schedule in widget.course.schedules) {
-        _days.add(schedule.day);
+        _days.add(schedule.weekday);
         _weekPatternControllers.add(TextEditingController(
           text: ParseUtils.formatNumbers(schedule.weekPattern),
         ));
@@ -106,7 +106,7 @@ class _CourseEditPageState extends State<CourseEditPage> {
     for (int i = 0; i < _days.length; i++) {
       final weeks = ParseUtils.parseNumbers(_weekPatternControllers[i].text.trim(), defaultMax: 30);
       final periods = ParseUtils.parseNumbers(_periodsControllers[i].text.trim(), defaultMax: 20);
-      list.add(FactoryService.createSchedule(day: _days[i], periods: periods, weekPattern: weeks));
+      list.add(FactoryService.createSchedule(weekday: _days[i], periods: periods, weekPattern: weeks));
     }
     return list;
   }

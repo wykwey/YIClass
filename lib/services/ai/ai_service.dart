@@ -273,10 +273,9 @@ class AIService {
       "teacher": "教师姓名",
       "schedules": [
         {
-          "day": 1,                       
+          "weekday": 1,                       
           "periods": [1,2],             
-          "weekPattern": [1,2,3,4,5,6],   
-          "reminder": ""                
+          "weekPattern": [1,2,3,4,5,6],                  
         }
       ]
     }
@@ -285,8 +284,8 @@ class AIService {
 
 规范要求：
 - 仅输出 JSON；不要输出任何多余文字。
-- 将周范围（如“1-16周/双周/单周”）展开为具体数字数组 weekPattern。
-- day 取值 1..7；periods 取值 1..16；数字均为整数。
+- 将周范围（如"1-16周/双周/单周"）展开为具体数字数组 weekPattern。
+- weekday(星期几) 取值 1..7（1代表星期一，7代表星期日）；periods(第几节) 取值 1..16；数字均为整数。
 - 同一课程同一上课时段仅保留一条 schedule（去重合并）。
 - 若同名课程出现在不同时间，应合并到同一课程对象的不同 schedules。
 ''';
@@ -295,7 +294,7 @@ class AIService {
   /// 表格分析提示词
   static String _getTablePrompt(String tableText) {
     return '''
-你是课表抽取助手。请解析以下“表格/CSV/Excel文本化内容”，输出符合严格模式的 JSON（不要输出任何说明/Markdown/多余文本）：
+你是课表抽取助手。请解析以下"表格/CSV/Excel文本化内容"，输出符合严格模式的 JSON（不要输出任何说明/Markdown/多余文本）：
 
 源数据：
 $tableText
@@ -311,10 +310,9 @@ $tableText
       "teacher": "教师姓名",
       "schedules": [
         {
-          "day": 1,
+          "weekday": 1,
           "periods": [1,2],
           "weekPattern": [1,2,3,4,5,6],
-          "reminder": ""
         }
       ]
     }
@@ -323,8 +321,8 @@ $tableText
 
 规范要求：
 - 仅输出 JSON；不要输出任何多余文字。
-- 将“1-16周/单周/双周”等转换为具体 weekPattern 数组。
-- day 1..7；periods 1..16；整数。
+- 将"1-16周/单周/双周"等转换为具体 weekPattern 数组。
+- weekday 1..7（1代表星期一，7代表星期日）；periods 1..16；整数。
 - 合并同一课程的不同时间到同一课程对象的多个 schedules；去重相同时间的重复记录。
 ''';
   }
@@ -332,7 +330,7 @@ $tableText
   /// 文字分析提示词
   static String _getTextPrompt(String text) {
     return '''
-你是课表抽取助手。请从以下“自然语言文字描述”中抽取课程数据，并仅输出符合严格模式的 JSON（不要输出任何说明/Markdown/多余文本）：
+你是课表抽取助手。请从以下"自然语言文字描述"中抽取课程数据，并仅输出符合严格模式的 JSON（不要输出任何说明/Markdown/多余文本）：
 
 原始描述：
 $text
@@ -348,10 +346,9 @@ $text
       "teacher": "教师姓名",
       "schedules": [
         {
-          "day": 1,
+          "weekday": 1,
           "periods": [1,2],
           "weekPattern": [1,2,3,4,5,6],
-          "reminder": ""
         }
       ]
     }
@@ -360,8 +357,8 @@ $text
 
 规范要求：
 - 仅输出 JSON；不要输出任何多余文字。
-- 将“1-16周/单周/双周”等文字规则转换为具体 weekPattern 数组。
-- day 1..7；periods 1..16；整数。
+- 将"1-16周/单周/双周"等文字规则转换为具体 weekPattern 数组。
+- weekday 1..7（1代表星期一，7代表星期日）；periods 1..16；整数。
 - 合并同名课程，不同上课时间放入同一课程对象的 schedules；去重重复时间。
 ''';
   }

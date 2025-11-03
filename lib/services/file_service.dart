@@ -60,7 +60,7 @@ class FileService {
   /// 将 CourseSchedule 导出为 Map
   static Map<String, dynamic> _scheduleToMap(CourseSchedule s) {
     return {
-      'day': s.day,
+      'weekday': s.weekday,
       'periods': s.periods,
       'weekPattern': s.weekPattern,
       'reminder': s.reminder,
@@ -164,7 +164,7 @@ class FileService {
   /// 从 Map 构建 CourseSchedule
   static CourseSchedule _scheduleFromMap(Map<String, dynamic> m) {
     final s = CourseSchedule()
-      ..day = m['day'] as int
+      ..weekday = (m['weekday'] ?? m['day']) as int  // 兼容旧格式
       ..periods = (m['periods'] as List).cast<int>().toList()
       ..weekPattern = (m['weekPattern'] as List).cast<int>().toList()
       ..reminder = m['reminder']?.toString() ?? '';

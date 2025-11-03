@@ -24,12 +24,12 @@ class WeekView extends StatefulWidget {
 
 class _WeekViewState extends State<WeekView> {
   // ================= 业务逻辑 =================
-  Future<void> _showCourseEditDialog(Course? course, int day, int period, int week) async {
+  Future<void> _showCourseEditDialog(Course? course, int weekday, int period, int week) async {
     // 如果是空课程，创建一个默认的课程对象，并设置日期和节次信息
     Course courseToEdit;
     if (course == null) {
       final schedule = FactoryService.createSchedule(
-        day: day,
+        weekday: weekday,
         periods: [period],
         weekPattern: [week],
       );
@@ -96,7 +96,7 @@ class _WeekViewState extends State<WeekView> {
       showWeekend: showWeekend,
       maxPeriods: maxPeriods,
       classTimes: classTimes,
-      onCourseEdit: (course, day, period) => _showCourseEditDialog(course, day, period, currentWeek),
+      onCourseEdit: (course, weekday, period) => _showCourseEditDialog(course, weekday, period, currentWeek),
       onTimeSettingsTap: _handleTimeSettingsTap,
     );
   }
@@ -215,13 +215,13 @@ class WeekViewUI extends StatelessWidget {
                     for (int periodIndex = 0; periodIndex < maxPeriods; periodIndex++)
                       for (int dayIndex = 0; dayIndex < (showWeekend ? 7 : 5); dayIndex++)
                         Builder(builder: (context) {
-                          final day = dayIndex + 1;
+                          final weekday = dayIndex + 1;
                           final period = periodIndex + 1;
 
                           final cellWidth = (constraints.maxWidth - 40) / (showWeekend ? 7 : 5);
 
                           // 判断当前节次是否有课程
-                          final course = QueryService.periodCourse(timetable, currentWeek, day, period);
+                          final course = QueryService.periodCourse(timetable, currentWeek, weekday, period);
                           
                           if (course == null) {
                             // 空白格：不渲染空课程卡片，保留可点击添加
@@ -233,7 +233,7 @@ class WeekViewUI extends StatelessWidget {
                               child: Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  onTap: () => onCourseEdit(null, day, period),
+                                  onTap: () => onCourseEdit(null, weekday, period),
                                   splashColor: Colors.transparent,
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
@@ -244,7 +244,7 @@ class WeekViewUI extends StatelessWidget {
 
                           // 判断是否是连续区块的第一节：如果前一个节次没有课程或不在同一课程中，则是第一节
                           final isFirstOfBlock = period == 1 || 
-                              QueryService.periodCourse(timetable, currentWeek, day, period - 1) != course;
+                              QueryService.periodCourse(timetable, currentWeek, weekday, period - 1) != course;
 
                           if (!isFirstOfBlock) {
                             // 不是第一节，不渲染（由第一节的卡片覆盖）
@@ -254,7 +254,7 @@ class WeekViewUI extends StatelessWidget {
                           final consecutiveCount = QueryService.consecutivePeriods(
                             timetable,
                             currentWeek,
-                            day,
+                            weekday,
                             period,
                           );
 
@@ -265,7 +265,7 @@ class WeekViewUI extends StatelessWidget {
                             height: cellHeight * (consecutiveCount > 0 ? consecutiveCount : 1),
                             child: _buildCourseCell(
                               course,
-                              day,
+                              weekday,
                               period,
                               course,
                             ),
@@ -301,12 +301,12 @@ class WeekViewUI extends StatelessWidget {
     );
   }
 
-  Widget _buildCourseCell(Course course, int day, int period, Course? originalCourse) {
+  Widget _buildCourseCell(Course course, int weekday, int period, Course? originalCourse) {
     final isEmpty = course.name.isEmpty;
     return CourseCard(
       course: course,
       showWeekend: showWeekend,
-      onTap: () => onCourseEdit(isEmpty ? null : (originalCourse ?? course), day, period),
+      onTap: () => onCourseEdit(isEmpty ? null : (originalCourse ?? course), weekday, period),
     );
   }
 }

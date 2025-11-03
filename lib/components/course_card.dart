@@ -114,21 +114,21 @@ class CourseCard extends StatelessWidget {
     if (selectedDay == null) return '';
     
     final schedule = course.schedules.firstWhere(
-      (s) => s.day == selectedDay,
+      (s) => s.weekday == selectedDay,
       orElse: () => course.schedules.isNotEmpty ? course.schedules.first : CourseSchedule()
-        ..day = selectedDay ?? 1
+        ..weekday = selectedDay ?? 1
         ..periods = <int>[],
     );
     
     const weekDays = ['周一','周二','周三','周四','周五','周六','周日'];
     final periods = schedule.periods.join(',');
-    return '${weekDays[schedule.day - 1]} 第$periods节';
+    return '${weekDays[schedule.weekday - 1]} 第$periods节';
   }
 
   String _getListViewTimeText() {
     return course.schedules.map((s) {
       const weekDays = ['周一','周二','周三','周四','周五','周六','周日'];
-      final dayText = weekDays[s.day - 1];
+      final dayText = weekDays[s.weekday - 1];
       final periods = s.periods.join(',');
       return '$dayText 第$periods节';
     }).join('\n');

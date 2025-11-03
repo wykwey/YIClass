@@ -66,18 +66,18 @@ class FactoryService {
   }
 
   /// 创建课程时间（排课）
-  /// - day: 周几（1-7）
+  /// - weekday: 周几（1-7）
   /// - periods: 节次列表
   /// - weekPattern: 周次数组
   /// - reminder: 自定义提醒配置字符串
   static CourseSchedule createSchedule({
-    required int day,
+    required int weekday,
     required List<int> periods,
     required List<int> weekPattern,
     String reminder = '',
   }) {
     final sch = CourseSchedule()
-      ..day = day
+      ..weekday = weekday
       ..periods = periods
       ..weekPattern = weekPattern
       ..reminder = reminder;

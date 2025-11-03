@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         // 设置最低 SDK 版本为 21
-        minSdkVersion 21
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion 33  // 推荐使用最新的 SDK 版本
         versionCode flutter.versionCode.toInteger()
         versionName flutter.versionName

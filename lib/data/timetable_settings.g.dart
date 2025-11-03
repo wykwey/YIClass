@@ -58,7 +58,7 @@ int serializeTimetableSettings(IsarWriter writer, TimetableSettings object) {
   IsarCore.writeLong(
       writer, 1, object.startDate.toUtc().microsecondsSinceEpoch);
   IsarCore.writeLong(writer, 2, object.totalWeeks);
-  IsarCore.writeBool(writer, 3, object.showWeekend);
+  IsarCore.writeBool(writer, 3, value: object.showWeekend);
   IsarCore.writeLong(writer, 4, object.maxPeriods);
   {
     final list = object.classTimes;

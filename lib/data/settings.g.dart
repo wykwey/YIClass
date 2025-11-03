@@ -114,25 +114,25 @@ final AppSettingsSchema = IsarGeneratedSchema(
 @isarProtected
 int serializeAppSettings(IsarWriter writer, AppSettings object) {
   IsarCore.writeString(writer, 1, object.currentTimetableId);
-  IsarCore.writeBool(writer, 2, object.notificationEnabled);
-  IsarCore.writeBool(writer, 3, object.courseReminder);
-  IsarCore.writeBool(writer, 4, object.aiEnabled);
-  IsarCore.writeBool(writer, 5, object.aiImageImport);
-  IsarCore.writeBool(writer, 6, object.aiTableImport);
-  IsarCore.writeBool(writer, 7, object.aiTextImport);
+  IsarCore.writeBool(writer, 2, value: object.notificationEnabled);
+  IsarCore.writeBool(writer, 3, value: object.courseReminder);
+  IsarCore.writeBool(writer, 4, value: object.aiEnabled);
+  IsarCore.writeBool(writer, 5, value: object.aiImageImport);
+  IsarCore.writeBool(writer, 6, value: object.aiTableImport);
+  IsarCore.writeBool(writer, 7, value: object.aiTextImport);
   IsarCore.writeString(writer, 8, object.aiApiKey);
   IsarCore.writeString(writer, 9, object.aiEndpoint);
   IsarCore.writeString(writer, 10, object.aiVisionModel);
   IsarCore.writeString(writer, 11, object.aiTextModel);
-  IsarCore.writeBool(writer, 12, object.advancedFeaturesEnabled);
+  IsarCore.writeBool(writer, 12, value: object.advancedFeaturesEnabled);
   IsarCore.writeString(writer, 13, object.repositoryUrl);
   IsarCore.writeString(writer, 14, object.repositoryType);
   IsarCore.writeString(writer, 15, object.indexBranch);
   IsarCore.writeString(writer, 16, object.scriptsBranch);
   IsarCore.writeString(writer, 17, object.tokenKey);
   IsarCore.writeString(writer, 18, object.tokenValue);
-  IsarCore.writeBool(writer, 19, object.repositoryImportEnabled);
-  IsarCore.writeBool(writer, 20, object.isValid);
+  IsarCore.writeBool(writer, 19, value: object.repositoryImportEnabled);
+  IsarCore.writeBool(writer, 20, value: object.isValid);
   return object.id;
 }
 

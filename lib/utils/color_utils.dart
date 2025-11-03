@@ -59,7 +59,7 @@ class ColorUtils {
       return textColorMap[colorName]!;
     }
 
-    // 没有预设则使用智能算法
-    return textColors[(bgColor.value % textColors.length).abs()];
+    // 不是预设颜色则使用默认文本颜色（深色，确保在浅色背景上可读）
+    return textColors.first;
   }
 }

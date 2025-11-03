@@ -73,7 +73,7 @@ class Course {
 }
 
 class CourseSchedule {
-  int day;                 // 星期几 (1=周一, ..., 7=周日)
+  int weekday;            // 星期几 (1=周一, ..., 7=周日)
   List<int> periods;       // 节次列表 (如[1,2]表示1-2节)
   List<int> weekPattern;   // 上课周次数组 (如[1,2,3,4,5,6])
   String reminder;         // 提醒设置
@@ -81,7 +81,7 @@ class CourseSchedule {
 ```
 
 ### 时间安排格式
-- `day`: 星期几 (1=周一, 2=周二...7=周日)
+- `weekday`: 星期几 (1=周一, 2=周二...7=周日)
 - `periods`: 节次列表，范围 1-20 (如[1,2]表示1-2节)
 - `weekPattern`: 周次数组，具体数字列表 (如[1,2,3,4,5,6]表示第1-6周)
 
@@ -111,7 +111,7 @@ class TimetableSettings {
       "color": 4280391411,
       "schedules": [
         {
-          "day": 1,
+          "weekday": 1,
           "periods": [1, 2],
           "weekPattern": [1, 2, 3, 4, 5, 6],
         }

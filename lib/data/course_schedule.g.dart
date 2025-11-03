@@ -16,7 +16,7 @@ final CourseScheduleSchema = IsarGeneratedSchema(
     embedded: true,
     properties: [
       IsarPropertySchema(
-        name: 'day',
+        name: 'weekday',
         type: IsarType.long,
       ),
       IsarPropertySchema(
@@ -42,7 +42,7 @@ final CourseScheduleSchema = IsarGeneratedSchema(
 
 @isarProtected
 int serializeCourseSchedule(IsarWriter writer, CourseSchedule object) {
-  IsarCore.writeLong(writer, 1, object.day);
+  IsarCore.writeLong(writer, 1, object.weekday);
   {
     final list = object.periods;
     final listWriter = IsarCore.beginList(writer, 2, list.length);
@@ -66,7 +66,7 @@ int serializeCourseSchedule(IsarWriter writer, CourseSchedule object) {
 @isarProtected
 CourseSchedule deserializeCourseSchedule(IsarReader reader) {
   final object = CourseSchedule();
-  object.day = IsarCore.readLong(reader, 1);
+  object.weekday = IsarCore.readLong(reader, 1);
   {
     final length = IsarCore.readList(reader, 2, IsarCore.readerPtrPtr);
     {
@@ -108,7 +108,7 @@ CourseSchedule deserializeCourseSchedule(IsarReader reader) {
 extension CourseScheduleQueryFilter
     on QueryBuilder<CourseSchedule, CourseSchedule, QFilterCondition> {
   QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      dayEqualTo(
+      weekdayEqualTo(
     int value,
   ) {
     return QueryBuilder.apply(this, (query) {
@@ -122,7 +122,7 @@ extension CourseScheduleQueryFilter
   }
 
   QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      dayGreaterThan(
+      weekdayGreaterThan(
     int value,
   ) {
     return QueryBuilder.apply(this, (query) {
@@ -136,7 +136,7 @@ extension CourseScheduleQueryFilter
   }
 
   QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      dayGreaterThanOrEqualTo(
+      weekdayGreaterThanOrEqualTo(
     int value,
   ) {
     return QueryBuilder.apply(this, (query) {
@@ -150,7 +150,7 @@ extension CourseScheduleQueryFilter
   }
 
   QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      dayLessThan(
+      weekdayLessThan(
     int value,
   ) {
     return QueryBuilder.apply(this, (query) {
@@ -164,7 +164,7 @@ extension CourseScheduleQueryFilter
   }
 
   QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      dayLessThanOrEqualTo(
+      weekdayLessThanOrEqualTo(
     int value,
   ) {
     return QueryBuilder.apply(this, (query) {
@@ -178,7 +178,7 @@ extension CourseScheduleQueryFilter
   }
 
   QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      dayBetween(
+      weekdayBetween(
     int lower,
     int upper,
   ) {

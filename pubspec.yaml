@@ -15,6 +15,7 @@ dependencies:
   permission_handler: ^12.0.0+1
   path_provider: ^2.1.5
   isar_plus: ^1.1.1
+  isar_plus_flutter_libs: ^1.1.5
   file_selector: ^1.0.3
   http: ^1.1.0
   image_picker: ^1.0.4

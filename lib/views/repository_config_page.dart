@@ -16,7 +16,7 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
   final _tokenKeyController = TextEditingController();
   final _tokenValueController = TextEditingController();
   
-  String _repositoryType = 'official'; // 'official', 'custom', 'private'
+  String _repositoryType = 'official'; // 'official', 'mirror', 'custom', 'private'
   bool _enableImport = false;
   bool _isLoading = false;
   bool _isSaving = false;
@@ -43,8 +43,8 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     
     try {
       final config = await RepositoryConfigService.getConfig();
-      // 官方仓库不加载URL和分支（使用固定值）
-      if (config.repositoryType != 'official') {
+      // 官方仓库和镜像仓库不加载URL和分支（使用固定值）
+      if (config.repositoryType != 'official' && config.repositoryType != 'mirror') {
         _repositoryUrlController.text = config.repositoryUrl;
         _scriptsBranchController.text = config.scriptsBranch;
       }
@@ -63,11 +63,13 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     final config = RepositoryConfig(
       repositoryUrl: _repositoryType == 'official'
           ? RepositoryConfigService.officialRepositoryUrl
-          : _repositoryUrlController.text.trim(),
+          : _repositoryType == 'mirror'
+              ? RepositoryConfigService.mirrorRepositoryUrl
+              : _repositoryUrlController.text.trim(),
       repositoryType: _repositoryType,
       indexBranch: RepositoryConfigService.officialIndexBranch, // 索引分支固定为 index-data
-      scriptsBranch: _repositoryType == 'official'
-          ? 'main' // 官方仓库使用默认分支
+      scriptsBranch: (_repositoryType == 'official' || _repositoryType == 'mirror')
+          ? 'main' // 官方仓库和镜像仓库使用默认分支
           : (_scriptsBranchController.text.trim().isEmpty 
               ? 'main' 
               : _scriptsBranchController.text.trim()),
@@ -102,11 +104,13 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     final config = RepositoryConfig(
       repositoryUrl: _repositoryType == 'official'
           ? RepositoryConfigService.officialRepositoryUrl
-          : _repositoryUrlController.text.trim(),
+          : _repositoryType == 'mirror'
+              ? RepositoryConfigService.mirrorRepositoryUrl
+              : _repositoryUrlController.text.trim(),
       repositoryType: _repositoryType,
       indexBranch: RepositoryConfigService.officialIndexBranch, // 索引分支固定为 index-data
-      scriptsBranch: _repositoryType == 'official'
-          ? 'main' // 官方仓库使用默认分支
+      scriptsBranch: (_repositoryType == 'official' || _repositoryType == 'mirror')
+          ? 'main' // 官方仓库和镜像仓库使用默认分支
           : (_scriptsBranchController.text.trim().isEmpty 
               ? 'main' 
               : _scriptsBranchController.text.trim()),
@@ -145,11 +149,13 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     final config = RepositoryConfig(
       repositoryUrl: _repositoryType == 'official'
           ? RepositoryConfigService.officialRepositoryUrl
-          : _repositoryUrlController.text.trim(),
+          : _repositoryType == 'mirror'
+              ? RepositoryConfigService.mirrorRepositoryUrl
+              : _repositoryUrlController.text.trim(),
       repositoryType: _repositoryType,
       indexBranch: RepositoryConfigService.officialIndexBranch, // 索引分支固定为 index-data
-      scriptsBranch: _repositoryType == 'official'
-          ? 'main' // 官方仓库使用默认分支
+      scriptsBranch: (_repositoryType == 'official' || _repositoryType == 'mirror')
+          ? 'main' // 官方仓库和镜像仓库使用默认分支
           : (_scriptsBranchController.text.trim().isEmpty 
               ? 'main' 
               : _scriptsBranchController.text.trim()),
@@ -219,8 +225,8 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
                 // 基础配置
                 _buildSection('基础配置', [
                   _buildRepositoryTypeSelector(),
-                  // 官方仓库不显示URL和分支输入框
-                  if (_repositoryType != 'official') ...[
+                  // 官方仓库和镜像仓库不显示URL和分支输入框
+                  if (_repositoryType != 'official' && _repositoryType != 'mirror') ...[
                     const SizedBox(height: 16),
                     _buildTextField(
                       'GitHub仓库URL',
@@ -348,26 +354,47 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
           ),
         ),
         const SizedBox(height: 8),
-        SegmentedButton<String>(
-          segments: const [
-            ButtonSegment(
-              value: 'official',
-              label: Text('官方'),
-            ),
-            ButtonSegment(
-              value: 'custom',
-              label: Text('自定义'),
-            ),
-            ButtonSegment(
-              value: 'private',
-              label: Text('私有'),
-            ),
-          ],
-          selected: {_repositoryType},
-          onSelectionChanged: (Set<String> newSelection) {
-            setState(() {
-              _repositoryType = newSelection.first;
-            });
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final totalWidth = constraints.maxWidth;
+            const spacing = 8.0; // 分段间隙
+            final buttonWidth = (totalWidth - spacing * 3) / 4; // 4段，3个间隙
+
+            return SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<String>(
+              segments: const [
+                ButtonSegment(
+                  value: 'official',
+                  label: Text('官方'),
+                ),
+                ButtonSegment(
+                  value: 'mirror',
+                  label: Text('官方镜像'),
+                ),
+                ButtonSegment(
+                  value: 'custom',
+                  label: Text('自定义'),
+                ),
+                ButtonSegment(
+                  value: 'private',
+                  label: Text('私有'),
+                ),
+              ],
+              selected: {_repositoryType},
+              onSelectionChanged: (Set<String> newSelection) {
+                setState(() {
+                  _repositoryType = newSelection.first;
+                });
+              },
+              showSelectedIcon: false,
+              style: SegmentedButton.styleFrom(
+                minimumSize: Size(buttonWidth, 40),
+                maximumSize: Size(buttonWidth, 40),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                textStyle: const TextStyle(fontSize: 13),
+              ),
+            ));
           },
         ),
       ],

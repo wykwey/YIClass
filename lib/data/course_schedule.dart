@@ -7,7 +7,7 @@ part 'course_schedule.g.dart';
 @embedded
 class CourseSchedule {
   /// 周几（1~7, 1代表星期一，7代表星期日）
-  late int day;
+  late int weekday;
 
   /// 节次列表，例如 [1,2,3] 代表第1/2/3节
   late List<int> periods;

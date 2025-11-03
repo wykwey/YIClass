@@ -8,6 +8,7 @@ import './time_settings_page.dart';
 import './license_page.dart' as license;
 import './ai_config_page.dart';
 import './repository_config_page.dart';
+import './repository/school_select_page.dart';
 import '../components/bottom_nav_bar.dart';
 import '../data/data_constants.dart';
 import '../components/timetable_management_dialog.dart';
@@ -446,7 +447,12 @@ class _SettingsPageState extends State<SettingsPage> {
           trailing: const Icon(Icons.chevron_right),
           enabled: advancedEnabled,
           onTap: advancedEnabled ? () {
-            FeedbackUtils.show(context, '教务系统导入功能暂未实现');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SchoolSelectPage(),
+              ),
+            );
           } : null,
         );
       },

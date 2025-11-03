@@ -58,8 +58,8 @@ class ViewState extends ChangeNotifier {
   }
 
   /// 选择/清除选中日（仅内存）
-  void selectDay(int? day) {
-    _selectedDay = day;
+  void selectDay(int? weekday) {
+    _selectedDay = weekday;
     notifyListeners();
   }
 }

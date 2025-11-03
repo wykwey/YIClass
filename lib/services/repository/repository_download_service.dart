@@ -97,10 +97,22 @@ class RepositoryDownloadService {
         throw Exception('无效的仓库URL格式');
       }
       
-      // 使用GitHub API获取scripts目录下的所有文件
-      final apiUrl = 'https://api.github.com/repos/${repoInfo['owner']}/${repoInfo['repo']}/contents/scripts?ref=$branch';
+      final platform = repoInfo['platform'];
+      if (platform == null) {
+        throw Exception('无法确定仓库平台');
+      }
       
-      final headers = _buildHeaders(tokenKey, tokenValue);
+      // 使用API获取scripts目录下的所有文件
+      String apiUrl;
+      if (platform == 'github') {
+        apiUrl = 'https://api.github.com/repos/${repoInfo['owner']}/${repoInfo['repo']}/contents/scripts?ref=$branch';
+      } else if (platform == 'gitee') {
+        apiUrl = 'https://gitee.com/api/v5/repos/${repoInfo['owner']}/${repoInfo['repo']}/contents/scripts?ref=$branch';
+      } else {
+        throw Exception('不支持的平台');
+      }
+      
+      final headers = _buildHeaders(tokenKey, tokenValue, platform);
       final response = await http.get(Uri.parse(apiUrl), headers: headers);
 
       if (response.statusCode != 200) {
@@ -120,10 +132,30 @@ class RepositoryDownloadService {
       for (final item in contents) {
         if (item['type'] == 'file') {
           final fileName = item['name'];
-          final downloadUrl = item['download_url'];
+          
+          // 对于公开仓库，使用raw URL下载（更快且兼容性好）
+          String downloadUrl;
+          final platformValue = platform;
+          if (tokenKey == null || tokenValue == null) {
+            // 公开仓库：使用raw URL
+            downloadUrl = _convertToRawUrl(repositoryUrl, branch, 'scripts/$fileName', platformValue);
+          } else {
+            // 私有仓库：使用API返回的download_url
+            if (platformValue == 'github') {
+              downloadUrl = item['download_url'] ?? '';
+            } else if (platformValue == 'gitee') {
+              // Gitee API 可能没有 download_url，使用 raw URL + token
+              downloadUrl = _convertToRawUrl(repositoryUrl, branch, 'scripts/$fileName', platformValue);
+            } else {
+              downloadUrl = '';
+            }
+          }
 
-          if (downloadUrl != null) {
-            final fileResponse = await http.get(Uri.parse(downloadUrl));
+          if (downloadUrl.isNotEmpty) {
+            final headers = tokenKey != null && tokenValue != null 
+                ? _buildHeaders(tokenKey, tokenValue, platformValue)
+                : <String, String>{};
+            final fileResponse = await http.get(Uri.parse(downloadUrl), headers: headers);
             if (fileResponse.statusCode == 200) {
               final filePath = path.join(scriptsDir.path, fileName);
               final file = File(filePath);
@@ -159,21 +191,29 @@ class RepositoryDownloadService {
     try {
       final uri = Uri.parse(repositoryUrl);
       
+      final repoInfo = _parseRepositoryUrl(repositoryUrl);
+      if (repoInfo == null) {
+        throw Exception('无法解析仓库URL');
+      }
+      
+      final platform = repoInfo['platform'];
+      
       // 检查是否是raw URL格式
       bool isRawUrl = uri.host == 'raw.githubusercontent.com' || 
+                      uri.host == 'gitee.com' ||
                       uri.host.contains('raw.');
       
       // 对于公开仓库，使用raw链接（更快）
-      // 对于私有仓库，使用GitHub API
+      // 对于私有仓库，使用API
       if (tokenKey == null || tokenValue == null) {
         String rawUrl;
         
-        if (isRawUrl) {
+        if (isRawUrl && platform == 'github') {
           // 如果已经是raw URL，直接使用，但需要更新分支和文件路径
           rawUrl = _buildRawUrl(repositoryUrl, branch, filePath);
         } else {
-          // 从标准GitHub URL转换为raw URL
-          rawUrl = _convertToRawUrl(repositoryUrl, branch, filePath);
+          // 从标准URL转换为raw URL
+          rawUrl = _convertToRawUrl(repositoryUrl, branch, filePath, platform!);
         }
         
         final response = await http.get(Uri.parse(rawUrl));
@@ -184,14 +224,17 @@ class RepositoryDownloadService {
           throw Exception('下载文件失败: ${response.statusCode}');
         }
       } else {
-        // 私有仓库：使用GitHub API
-        final repoInfo = _parseRepositoryUrl(repositoryUrl);
-        if (repoInfo == null) {
-          throw Exception('无法解析仓库URL，私有仓库需要标准的GitHub URL格式');
+        // 私有仓库：使用API
+        String apiUrl;
+        if (platform == 'github') {
+          apiUrl = 'https://api.github.com/repos/${repoInfo['owner']}/${repoInfo['repo']}/contents/$filePath?ref=$branch';
+        } else if (platform == 'gitee') {
+          apiUrl = 'https://gitee.com/api/v5/repos/${repoInfo['owner']}/${repoInfo['repo']}/contents/$filePath?ref=$branch';
+        } else {
+          throw Exception('不支持的平台');
         }
         
-        final apiUrl = 'https://api.github.com/repos/${repoInfo['owner']}/${repoInfo['repo']}/contents/$filePath?ref=$branch';
-        final headers = _buildHeaders(tokenKey, tokenValue);
+        final headers = _buildHeaders(tokenKey, tokenValue, platform!);
         final response = await http.get(Uri.parse(apiUrl), headers: headers);
 
         if (response.statusCode != 200) {
@@ -210,14 +253,16 @@ class RepositoryDownloadService {
     }
   }
   
-  /// 将标准GitHub URL转换为raw URL
+  /// 将标准仓库URL转换为raw URL
   /// 
-  /// 例如：https://github.com/owner/repo -> https://raw.githubusercontent.com/owner/repo/branch/path
-  static String _convertToRawUrl(String repositoryUrl, String branch, String filePath) {
+  /// 例如：
+  /// - https://github.com/owner/repo -> https://raw.githubusercontent.com/owner/repo/branch/path
+  /// - https://gitee.com/owner/repo -> https://gitee.com/owner/repo/raw/branch/path
+  static String _convertToRawUrl(String repositoryUrl, String branch, String filePath, String platform) {
     final uri = Uri.parse(repositoryUrl);
     
     // 如果已经是raw URL
-    if (uri.host == 'raw.githubusercontent.com') {
+    if (uri.host == 'raw.githubusercontent.com' && platform == 'github') {
       // raw URL格式: raw.githubusercontent.com/owner/repo/branch/path
       // 需要替换分支和文件路径
       final pathSegments = uri.pathSegments;
@@ -227,8 +272,7 @@ class RepositoryDownloadService {
       return '$repositoryUrl/$branch/$filePath';
     }
     
-    // 从标准GitHub URL提取路径
-    // GitHub URL格式: https://github.com/owner/repo
+    // 从标准URL提取路径
     final pathSegments = uri.pathSegments;
     if (pathSegments.length < 2) {
       throw Exception('无效的仓库URL格式，需要包含owner和repo');
@@ -242,8 +286,16 @@ class RepositoryDownloadService {
       repo = repo.substring(0, repo.length - 4);
     }
     
-    // 构建raw URL: https://raw.githubusercontent.com/owner/repo/branch/path
-    return 'https://raw.githubusercontent.com/$owner/$repo/$branch/$filePath';
+    // 根据平台构建raw URL
+    if (platform == 'github') {
+      // GitHub raw URL: https://raw.githubusercontent.com/owner/repo/branch/path
+      return 'https://raw.githubusercontent.com/$owner/$repo/$branch/$filePath';
+    } else if (platform == 'gitee') {
+      // Gitee raw URL: https://gitee.com/owner/repo/raw/branch/path
+      return 'https://gitee.com/$owner/$repo/raw/$branch/$filePath';
+    } else {
+      throw Exception('不支持的平台: $platform');
+    }
   }
   
   /// 从现有raw URL构建新的raw URL（更新分支和文件路径）
@@ -279,19 +331,26 @@ class RepositoryDownloadService {
     return filePath;
   }
 
-  /// 解析GitHub仓库URL，提取owner和repo
+  /// 解析GitHub/Gitee仓库URL，提取owner和repo
   /// 
   /// 支持的格式：
   /// - https://github.com/owner/repo
   /// - https://github.com/owner/repo.git
+  /// - https://gitee.com/owner/repo
+  /// - https://gitee.com/owner/repo.git
   /// 
-  /// 返回：包含'owner'和'repo'的Map，失败时返回null
+  /// 返回：包含'owner'、'repo'和'platform'的Map，失败时返回null
   static Map<String, String>? _parseRepositoryUrl(String url) {
     try {
       final uri = Uri.parse(url);
       
-      // 验证域名
-      if (uri.host != 'github.com') {
+      // 验证域名（支持GitHub和Gitee）
+      String? platform;
+      if (uri.host == 'github.com') {
+        platform = 'github';
+      } else if (uri.host == 'gitee.com') {
+        platform = 'gitee';
+      } else {
         return null;
       }
 
@@ -309,6 +368,7 @@ class RepositoryDownloadService {
       return {
         'owner': pathSegments[0],
         'repo': repo,
+        'platform': platform,
       };
     } catch (e) {
       return null;
@@ -316,18 +376,28 @@ class RepositoryDownloadService {
   }
 
   /// 构建HTTP请求头
-  static Map<String, String> _buildHeaders(String? tokenKey, String? tokenValue) {
-    final headers = <String, String>{
-      'Accept': 'application/vnd.github.v3+json',
-    };
+  static Map<String, String> _buildHeaders(String? tokenKey, String? tokenValue, String platform) {
+    final headers = <String, String>{};
+    
+    // 根据平台设置Accept header
+    if (platform == 'github') {
+      headers['Accept'] = 'application/vnd.github.v3+json';
+    } else if (platform == 'gitee') {
+      // Gitee API 不需要特殊的 Accept header
+    }
 
     // 如果有token，添加到请求头
-    // GitHub API支持两种方式：Authorization: token {token} 或自定义header
     if (tokenKey != null && tokenKey.isNotEmpty && 
         tokenValue != null && tokenValue.isNotEmpty) {
       // 如果是标准的Authorization header
       if (tokenKey.toLowerCase() == 'authorization' || tokenKey.toLowerCase() == 'token') {
-        headers['Authorization'] = 'token $tokenValue';
+        if (platform == 'gitee') {
+          // Gitee API 使用 Bearer token
+          headers['Authorization'] = 'Bearer $tokenValue';
+        } else {
+          // GitHub API 使用 token 前缀
+          headers['Authorization'] = 'token $tokenValue';
+        }
       } else {
         // 自定义header
         headers[tokenKey] = tokenValue;
