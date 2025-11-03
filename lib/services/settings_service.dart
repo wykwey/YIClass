@@ -157,5 +157,22 @@ class SettingsService {
       return false;
     }
   }
+
+  /// 获取当前课表ID
+  Future<String> getCurrentTimetableId() async {
+    final settings = await loadSettings();
+    return settings.currentTimetableId;
+  }
+
+  /// 设置当前课表ID
+  Future<bool> setCurrentTimetableId(String id) async {
+    try {
+      final settings = await loadSettings();
+      settings.currentTimetableId = id;
+      return await saveSettings(settings);
+    } catch (_) {
+      return false;
+    }
+  }
 }
 

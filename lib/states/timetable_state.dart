@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:isar_plus/isar_plus.dart';
 import '../data/timetable.dart';
 import '../services/timetable_service.dart';
+import '../services/settings_service.dart';
 import '../services/factory_service.dart';
 import '../data/data_constants.dart';
 
@@ -38,24 +39,48 @@ class TimetableState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 重新加载所有课表并定位当前默认课表
-  /// 如果数据库中没有课表，自动创建默认课表
+  /// 重新加载所有课表并定位当前课表
+  /// 如果数据库中没有课表，自动创建默认课表并设置为当前课表
   Future<void> reload() async {
     _loading = true;
     notifyListeners();
+    
+    // 1. 获取所有课表
     _timetables = await _service.getAll();
     
-    // 如果没有课表，自动创建默认课表
+    // 2. 如果没有课表，自动创建默认课表并设置为当前课表
     if (_timetables.isEmpty) {
       final defaultTimetable = FactoryService.createTimetable(
         name: DataConstants.defaultTimetableName,
-        isDefault: true,
       );
       await _service.put(defaultTimetable);
       _timetables = await _service.getAll();
+      
+      // 设置为当前课表
+      if (_timetables.isNotEmpty) {
+        _current = _timetables.first;
+        await SettingsService.instance.setCurrentTimetableId(_current!.id.toString());
+      }
+    } else {
+      // 3. 从全局设置获取当前课表ID
+      final currentIdStr = await SettingsService.instance.getCurrentTimetableId();
+      if (currentIdStr.isNotEmpty) {
+        final currentId = int.tryParse(currentIdStr);
+        if (currentId != null) {
+          final timetable = await _service.getById(currentId);
+          if (timetable != null) {
+            _current = timetable;
+          }
+        }
+      }
+      
+      // 4. 如果当前课表不存在或无效，使用第一个课表并更新全局设置
+      if (_current == null && _timetables.isNotEmpty) {
+        _current = _timetables.first;
+        await SettingsService.instance.setCurrentTimetableId(_current!.id.toString());
+      }
     }
     
-    _current = await _service.getDefault() ?? (_timetables.isNotEmpty ? _timetables.first : null);
     _loading = false;
     notifyListeners();
   }
@@ -66,11 +91,20 @@ class TimetableState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 根据 ID 设置默认课表，并刷新内存态
-  Future<bool> setDefaultById(int id) async {
-    final ok = await _service.setDefault(id);
+  /// 根据 ID 设置当前课表，并刷新内存态
+  Future<bool> setCurrentById(int id) async {
+    // 更新全局设置
+    final ok = await SettingsService.instance.setCurrentTimetableId(id.toString());
     if (ok) {
-      await reload();
+      // 从数据库获取课表并更新内存态
+      final timetable = await _service.getById(id);
+      if (timetable != null) {
+        _current = timetable;
+        notifyListeners();
+      } else {
+        // 如果ID无效，重新加载
+        await reload();
+      }
     }
     return ok;
   }
@@ -90,9 +124,25 @@ class TimetableState extends ChangeNotifier {
   }
 
   /// 删除课表（按 ID）
+  /// 如果删除的是当前课表，自动切换到其他课表
   Future<bool> delete(int id) async {
     final ok = await _service.delete(id);
-    if (ok) await reload();
+    if (ok) {
+      // 如果删除的是当前课表，需要切换
+      if (_current?.id == id) {
+        _timetables = await _service.getAll();
+        if (_timetables.isNotEmpty) {
+          // 切换到第一个课表
+          await setCurrentById(_timetables.first.id);
+        } else {
+          _current = null;
+          await SettingsService.instance.setCurrentTimetableId('');
+        }
+        notifyListeners();
+      } else {
+        await reload();
+      }
+    }
     return ok;
   }
 

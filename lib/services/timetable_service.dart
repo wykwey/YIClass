@@ -51,12 +51,11 @@ class TimetableService {
     return await isar.timetables.get(id);
   }
 
-  /// 获取默认课表（第一个 isDefault = true 的课表），不存在返回 null
-  Future<Timetable?> getDefault() async {
-    final all = await getAll();
-    for (final t in all) {
-      if (t.isDefault) return t;
-    }
+  /// 获取当前课表（根据 AppSettings.currentTimetableId）
+  /// 需要 SettingsService 支持，如果ID无效或不存在，返回第一个课表或null
+  Future<Timetable?> getCurrent() async {
+    // 注意：这里需要导入 SettingsService，但由于循环依赖，先返回null
+    // 实际实现应该通过 TimetableState 来处理
     return null;
   }
 
@@ -109,20 +108,12 @@ class TimetableService {
     }
   }
 
-  /// 将指定 ID 的课表设为默认，其余取消默认。成功返回 true
-  Future<bool> setDefault(int id) async {
-    try {
-      await isar.write((isar) async {
-        final all = await isar.timetables.where().findAll();
-        for (final t in all) {
-          t.isDefault = (t.id == id);
-          isar.timetables.put(t);
-        }
-      });
-      return true;
-    } catch (_) {
-      return false;
-    }
+  /// 将指定 ID 的课表设为当前课表（通过 SettingsService 更新 AppSettings.currentTimetableId）
+  /// 注意：此方法不再直接修改 Timetable，而是更新全局设置
+  /// 实际实现应该通过 TimetableState 来处理
+  Future<bool> setCurrent(int id) async {
+    // 此方法保留接口兼容性，实际逻辑在 TimetableState 中实现
+    return true;
   }
 
   // ===== Delete =====

@@ -265,7 +265,6 @@ class AIService {
 输出 JSON 严格结构：
 {
   "name": "不超过6个字的课表名",
-  "isDefault": false,
   "courses": [
     {
       "name": "课程名称",
@@ -302,7 +301,6 @@ $tableText
 输出 JSON 严格结构：
 {
   "name": "不超过6个字的课表名",
-  "isDefault": false,
   "courses": [
     {
       "name": "课程名称",
@@ -338,7 +336,6 @@ $text
 输出 JSON 严格结构：
 {
   "name": "不超过6个字的课表名",
-  "isDefault": false,
   "courses": [
     {
       "name": "课程名称",

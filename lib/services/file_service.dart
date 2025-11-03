@@ -24,11 +24,10 @@ class FileService {
     return {
       'id': t.id,
       'name': t.name,
-      'isDefault': t.isDefault,
       'settings': _settingsToMap(t.settings),
       'courses': t.courses.map(_courseToMap).toList(),
       'version': '2.0',
-        'exportTime': DateTime.now().toIso8601String(),
+      'exportTime': DateTime.now().toIso8601String(),
     };
   }
 
@@ -63,7 +62,6 @@ class FileService {
       'weekday': s.weekday,
       'periods': s.periods,
       'weekPattern': s.weekPattern,
-      'reminder': s.reminder,
     };
   }
 
@@ -132,7 +130,6 @@ class FileService {
     final t = Timetable()
       ..id = (m['id'] as int? ?? 0)
       ..name = m['name']?.toString() ?? ''
-      ..isDefault = (m['isDefault'] as bool? ?? false)
       ..settings = s
       ..courses = (m['courses'] as List)
           .map((e) => _courseFromMap(Map<String, dynamic>.from(e)))
@@ -166,8 +163,7 @@ class FileService {
     final s = CourseSchedule()
       ..weekday = (m['weekday'] ?? m['day']) as int  // 兼容旧格式
       ..periods = (m['periods'] as List).cast<int>().toList()
-      ..weekPattern = (m['weekPattern'] as List).cast<int>().toList()
-      ..reminder = m['reminder']?.toString() ?? '';
+      ..weekPattern = (m['weekPattern'] as List).cast<int>().toList();
     return s;
   }
 

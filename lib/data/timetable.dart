@@ -15,9 +15,6 @@ class Timetable {
   /// 课表名称
   late String name;
 
-  /// 是否为默认课表
-  late bool isDefault;
-
   /// 课表设置（嵌入式）
   late TimetableSettings settings;
 

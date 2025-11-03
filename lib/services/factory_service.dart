@@ -69,18 +69,15 @@ class FactoryService {
   /// - weekday: 周几（1-7）
   /// - periods: 节次列表
   /// - weekPattern: 周次数组
-  /// - reminder: 自定义提醒配置字符串
   static CourseSchedule createSchedule({
     required int weekday,
     required List<int> periods,
     required List<int> weekPattern,
-    String reminder = '',
   }) {
     final sch = CourseSchedule()
       ..weekday = weekday
       ..periods = periods
-      ..weekPattern = weekPattern
-      ..reminder = reminder;
+      ..weekPattern = weekPattern;
     return sch;
   }
 
@@ -106,17 +103,14 @@ class FactoryService {
 
   /// 创建空课表
   /// - name: 课表名称（默认 DataConstants.defaultTimetableName）
-  /// - isDefault: 是否默认
   /// - settings: 课表设置（默认 createSettings()）
   static Timetable createTimetable({
     String? name,
-    bool isDefault = false,
     TimetableSettings? settings,
   }) {
     final t = Timetable()
       ..id = 0  // 新对象的 ID 设为 0，Isar 会自动分配新 ID
       ..name = name ?? DataConstants.defaultTimetableName
-      ..isDefault = isDefault
       ..settings = settings ?? createSettings()
       ..courses = <Course>[];
     return t;

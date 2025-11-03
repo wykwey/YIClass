@@ -25,10 +25,6 @@ final TimetableSchema = IsarGeneratedSchema(
         type: IsarType.string,
       ),
       IsarPropertySchema(
-        name: 'isDefault',
-        type: IsarType.bool,
-      ),
-      IsarPropertySchema(
         name: 'settings',
         type: IsarType.object,
         target: 'TimetableSettings',
@@ -57,16 +53,15 @@ final TimetableSchema = IsarGeneratedSchema(
 @isarProtected
 int serializeTimetable(IsarWriter writer, Timetable object) {
   IsarCore.writeString(writer, 1, object.name);
-  IsarCore.writeBool(writer, 2, value: object.isDefault);
   {
     final value = object.settings;
-    final objectWriter = IsarCore.beginObject(writer, 3);
+    final objectWriter = IsarCore.beginObject(writer, 2);
     serializeTimetableSettings(objectWriter, value);
     IsarCore.endObject(writer, objectWriter);
   }
   {
     final list = object.courses;
-    final listWriter = IsarCore.beginList(writer, 4, list.length);
+    final listWriter = IsarCore.beginList(writer, 3, list.length);
     for (var i = 0; i < list.length; i++) {
       {
         final value = list[i];
@@ -85,9 +80,8 @@ Timetable deserializeTimetable(IsarReader reader) {
   final object = Timetable();
   object.id = IsarCore.readId(reader);
   object.name = IsarCore.readString(reader, 1) ?? '';
-  object.isDefault = IsarCore.readBool(reader, 2);
   {
-    final objectReader = IsarCore.readObject(reader, 3);
+    final objectReader = IsarCore.readObject(reader, 2);
     if (objectReader.isNull) {
       object.settings = TimetableSettings();
     } else {
@@ -97,7 +91,7 @@ Timetable deserializeTimetable(IsarReader reader) {
     }
   }
   {
-    final length = IsarCore.readList(reader, 4, IsarCore.readerPtrPtr);
+    final length = IsarCore.readList(reader, 3, IsarCore.readerPtrPtr);
     {
       final reader = IsarCore.readerPtr;
       if (reader.isNull) {
@@ -132,10 +126,8 @@ dynamic deserializeTimetableProp(IsarReader reader, int property) {
     case 1:
       return IsarCore.readString(reader, 1) ?? '';
     case 2:
-      return IsarCore.readBool(reader, 2);
-    case 3:
       {
-        final objectReader = IsarCore.readObject(reader, 3);
+        final objectReader = IsarCore.readObject(reader, 2);
         if (objectReader.isNull) {
           return TimetableSettings();
         } else {
@@ -144,9 +136,9 @@ dynamic deserializeTimetableProp(IsarReader reader, int property) {
           return embedded;
         }
       }
-    case 4:
+    case 3:
       {
-        final length = IsarCore.readList(reader, 4, IsarCore.readerPtrPtr);
+        final length = IsarCore.readList(reader, 3, IsarCore.readerPtrPtr);
         {
           final reader = IsarCore.readerPtr;
           if (reader.isNull) {
@@ -179,7 +171,6 @@ sealed class _TimetableUpdate {
   bool call({
     required int id,
     String? name,
-    bool? isDefault,
   });
 }
 
@@ -192,13 +183,11 @@ class _TimetableUpdateImpl implements _TimetableUpdate {
   bool call({
     required int id,
     Object? name = ignore,
-    Object? isDefault = ignore,
   }) {
     return collection.updateProperties([
           id
         ], {
           if (name != ignore) 1: name as String?,
-          if (isDefault != ignore) 2: isDefault as bool?,
         }) >
         0;
   }
@@ -208,7 +197,6 @@ sealed class _TimetableUpdateAll {
   int call({
     required List<int> id,
     String? name,
-    bool? isDefault,
   });
 }
 
@@ -221,11 +209,9 @@ class _TimetableUpdateAllImpl implements _TimetableUpdateAll {
   int call({
     required List<int> id,
     Object? name = ignore,
-    Object? isDefault = ignore,
   }) {
     return collection.updateProperties(id, {
       if (name != ignore) 1: name as String?,
-      if (isDefault != ignore) 2: isDefault as bool?,
     });
   }
 }
@@ -239,7 +225,6 @@ extension TimetableUpdate on IsarCollection<int, Timetable> {
 sealed class _TimetableQueryUpdate {
   int call({
     String? name,
-    bool? isDefault,
   });
 }
 
@@ -252,11 +237,9 @@ class _TimetableQueryUpdateImpl implements _TimetableQueryUpdate {
   @override
   int call({
     Object? name = ignore,
-    Object? isDefault = ignore,
   }) {
     return query.updateProperties(limit: limit, {
       if (name != ignore) 1: name as String?,
-      if (isDefault != ignore) 2: isDefault as bool?,
     });
   }
 }
@@ -277,13 +260,11 @@ class _TimetableQueryBuilderUpdateImpl implements _TimetableQueryUpdate {
   @override
   int call({
     Object? name = ignore,
-    Object? isDefault = ignore,
   }) {
     final q = query.build();
     try {
       return q.updateProperties(limit: limit, {
         if (name != ignore) 1: name as String?,
-        if (isDefault != ignore) 2: isDefault as bool?,
       });
     } finally {
       q.close();
@@ -556,19 +537,6 @@ extension TimetableQueryFilter
     });
   }
 
-  QueryBuilder<Timetable, Timetable, QAfterFilterCondition> isDefaultEqualTo(
-    bool value,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        EqualCondition(
-          property: 2,
-          value: value,
-        ),
-      );
-    });
-  }
-
   QueryBuilder<Timetable, Timetable, QAfterFilterCondition> coursesIsEmpty() {
     return not().coursesIsNotEmpty();
   }
@@ -577,7 +545,7 @@ extension TimetableQueryFilter
       coursesIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        const GreaterOrEqualCondition(property: 4, value: null),
+        const GreaterOrEqualCondition(property: 3, value: null),
       );
     });
   }
@@ -588,7 +556,7 @@ extension TimetableQueryObject
   QueryBuilder<Timetable, Timetable, QAfterFilterCondition> settings(
       FilterQuery<TimetableSettings> q) {
     return QueryBuilder.apply(this, (query) {
-      return query.object(q, 3);
+      return query.object(q, 2);
     });
   }
 }
@@ -626,18 +594,6 @@ extension TimetableQuerySortBy on QueryBuilder<Timetable, Timetable, QSortBy> {
       );
     });
   }
-
-  QueryBuilder<Timetable, Timetable, QAfterSortBy> sortByIsDefault() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(2);
-    });
-  }
-
-  QueryBuilder<Timetable, Timetable, QAfterSortBy> sortByIsDefaultDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(2, sort: Sort.desc);
-    });
-  }
 }
 
 extension TimetableQuerySortThenBy
@@ -667,18 +623,6 @@ extension TimetableQuerySortThenBy
       return query.addSortBy(1, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
-
-  QueryBuilder<Timetable, Timetable, QAfterSortBy> thenByIsDefault() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(2);
-    });
-  }
-
-  QueryBuilder<Timetable, Timetable, QAfterSortBy> thenByIsDefaultDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(2, sort: Sort.desc);
-    });
-  }
 }
 
 extension TimetableQueryWhereDistinct
@@ -687,12 +631,6 @@ extension TimetableQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(1, caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<Timetable, Timetable, QAfterDistinct> distinctByIsDefault() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(2);
     });
   }
 }
@@ -711,22 +649,16 @@ extension TimetableQueryProperty1
     });
   }
 
-  QueryBuilder<Timetable, bool, QAfterProperty> isDefaultProperty() {
+  QueryBuilder<Timetable, TimetableSettings, QAfterProperty>
+      settingsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(2);
     });
   }
 
-  QueryBuilder<Timetable, TimetableSettings, QAfterProperty>
-      settingsProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addProperty(3);
-    });
-  }
-
   QueryBuilder<Timetable, List<Course>, QAfterProperty> coursesProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(4);
+      return query.addProperty(3);
     });
   }
 }
@@ -745,22 +677,16 @@ extension TimetableQueryProperty2<R>
     });
   }
 
-  QueryBuilder<Timetable, (R, bool), QAfterProperty> isDefaultProperty() {
+  QueryBuilder<Timetable, (R, TimetableSettings), QAfterProperty>
+      settingsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(2);
     });
   }
 
-  QueryBuilder<Timetable, (R, TimetableSettings), QAfterProperty>
-      settingsProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addProperty(3);
-    });
-  }
-
   QueryBuilder<Timetable, (R, List<Course>), QAfterProperty> coursesProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(4);
+      return query.addProperty(3);
     });
   }
 }
@@ -779,23 +705,17 @@ extension TimetableQueryProperty3<R1, R2>
     });
   }
 
-  QueryBuilder<Timetable, (R1, R2, bool), QOperations> isDefaultProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addProperty(2);
-    });
-  }
-
   QueryBuilder<Timetable, (R1, R2, TimetableSettings), QOperations>
       settingsProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(3);
+      return query.addProperty(2);
     });
   }
 
   QueryBuilder<Timetable, (R1, R2, List<Course>), QOperations>
       coursesProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(4);
+      return query.addProperty(3);
     });
   }
 }

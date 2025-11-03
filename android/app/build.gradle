@@ -5,8 +5,14 @@ plugins {
     id 'dev.flutter.flutter-gradle-plugin'
 }
 
+def keystorePropertiesFile = rootProject.file("key.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace "com.example.yiclass"
+    namespace "com.wykwey.yiclass"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion "28.1.13356709"
 
@@ -19,28 +25,34 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "21"
     }
 
     signingConfigs {
         release {
-            storeFile file("upload-keystore.jks")
-            storePassword System.getenv("KEYSTORE_PASSWORD")
-            keyAlias System.getenv("KEY_ALIAS")
-            keyPassword System.getenv("KEY_PASSWORD")
+            if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties['storeFile'] ?: "upload-keystore.jks")
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
         }
     }
 
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            minifyEnabled false
-            shrinkResources false
+            // 启用 R8 代码压缩
+            minifyEnabled true
+            // 启用资源缩减（需要 minifyEnabled 为 true）
+            shrinkResources true
+            // ProGuard 规则文件
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             signingConfig signingConfigs.debug

@@ -27,10 +27,6 @@ final CourseScheduleSchema = IsarGeneratedSchema(
         name: 'weekPattern',
         type: IsarType.longList,
       ),
-      IsarPropertySchema(
-        name: 'reminder',
-        type: IsarType.string,
-      ),
     ],
     indexes: [],
   ),
@@ -59,7 +55,6 @@ int serializeCourseSchedule(IsarWriter writer, CourseSchedule object) {
     }
     IsarCore.endList(writer, listWriter);
   }
-  IsarCore.writeString(writer, 4, object.reminder);
   return 0;
 }
 
@@ -101,7 +96,6 @@ CourseSchedule deserializeCourseSchedule(IsarReader reader) {
       }
     }
   }
-  object.reminder = IsarCore.readString(reader, 4) ?? '';
   return object;
 }
 
@@ -389,186 +383,6 @@ extension CourseScheduleQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterOrEqualCondition(property: 3, value: null),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        EqualCondition(
-          property: 4,
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderGreaterThan(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        GreaterCondition(
-          property: 4,
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderGreaterThanOrEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        GreaterOrEqualCondition(
-          property: 4,
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderLessThan(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        LessCondition(
-          property: 4,
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderLessThanOrEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        LessOrEqualCondition(
-          property: 4,
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderBetween(
-    String lower,
-    String upper, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        BetweenCondition(
-          property: 4,
-          lower: lower,
-          upper: upper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        StartsWithCondition(
-          property: 4,
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        EndsWithCondition(
-          property: 4,
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        ContainsCondition(
-          property: 4,
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        MatchesCondition(
-          property: 4,
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const EqualCondition(
-          property: 4,
-          value: '',
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<CourseSchedule, CourseSchedule, QAfterFilterCondition>
-      reminderIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const GreaterCondition(
-          property: 4,
-          value: '',
-        ),
       );
     });
   }

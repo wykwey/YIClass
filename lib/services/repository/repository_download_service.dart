@@ -84,6 +84,71 @@ class RepositoryDownloadService {
     }
   }
 
+  /// 下载指定的脚本文件列表
+  /// 
+  /// [config] 仓库配置
+  /// [scriptNames] 要下载的脚本文件名列表（如 ['example.js', 'test.js']）
+  /// 返回：下载成功的文件数量，失败时抛出异常
+  static Future<int> downloadScripts(
+    RepositoryConfig config,
+    List<String> scriptNames,
+  ) async {
+    if (scriptNames.isEmpty) {
+      return 0;
+    }
+
+    try {
+      final repoInfo = _parseRepositoryUrl(config.repositoryUrl);
+      if (repoInfo == null) {
+        throw Exception('无效的仓库URL格式');
+      }
+
+      final platform = repoInfo['platform'];
+      if (platform == null) {
+        throw Exception('无法确定仓库平台');
+      }
+
+      final tokenKey = config.repositoryType == 'private' ? config.tokenKey : null;
+      final tokenValue = config.repositoryType == 'private' ? config.tokenValue : null;
+
+      // 获取应用文档目录
+      final appDir = await _getAppDirectory();
+      final scriptsDir = Directory(path.join(appDir.path, 'repository', 'scripts'));
+      if (!await scriptsDir.exists()) {
+        await scriptsDir.create(recursive: true);
+      }
+
+      int successCount = 0;
+
+      // 下载每个脚本文件
+      for (final scriptName in scriptNames) {
+        try {
+          final bytes = await _downloadFile(
+            repositoryUrl: config.repositoryUrl,
+            branch: config.scriptsBranch,
+            filePath: 'scripts/$scriptName',
+            tokenKey: tokenKey,
+            tokenValue: tokenValue,
+          );
+
+          if (bytes != null) {
+            final filePath = path.join(scriptsDir.path, scriptName);
+            final file = File(filePath);
+            await file.writeAsBytes(bytes);
+            successCount++;
+          }
+        } catch (e) {
+          // 单个文件下载失败，继续下载其他文件
+          print('下载脚本 $scriptName 失败: $e');
+        }
+      }
+
+      return successCount;
+    } catch (e) {
+      throw Exception('下载脚本失败: $e');
+    }
+  }
+
   /// 下载scripts文件夹
   static Future<String?> _downloadScriptsFolder({
     required String repositoryUrl,

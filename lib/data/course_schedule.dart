@@ -15,8 +15,5 @@ class CourseSchedule {
   /// 周次列表，例如 [1,2,3,4,5] 表示第1-5周上课
   late List<int> weekPattern;
 
-  /// 课程提醒配置字符串
-  late String reminder;
-
   CourseSchedule();
 }

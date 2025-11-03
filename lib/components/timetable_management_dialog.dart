@@ -101,8 +101,7 @@ class _TimetableManagementDialogState extends State<TimetableManagementDialog> {
                             if (editingId == id) setState(() => editingId = null);
                           },
                           onSwitch: () {
-                            state.setCurrent(timetable);
-                            state.setDefaultById(timetable.id);
+                            state.setCurrentById(timetable.id);
                           },
                           onExitEdit: () async {
                             // 统一的退出编辑逻辑：保存并退出
