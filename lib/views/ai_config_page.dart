@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import '../services/ai/ai_config_service.dart';
 import '../services/ai/ai_service.dart';
-import '../utils/feedback_utils.dart';
+import '../zujian/notifications.dart';
+import '../zujian/appbar.dart';
+import '../zujian/settingscard.dart';
+import '../zujian/components.dart';
+import '../zujian/cards.dart';
 
 class AIConfigPage extends StatefulWidget {
   const AIConfigPage({super.key});
@@ -50,7 +54,9 @@ class _AIConfigPageState extends State<AIConfigPage> {
       _enableTableImport = config.enableTableImport;
       _enableTextImport = config.enableTextImport;
     } catch (e) {
-      _showErrorSnackBar('加载配置失败: $e');
+      if (mounted) {
+        Notifications.sonner(context, message: '加载配置失败: $e');
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -69,7 +75,7 @@ class _AIConfigPageState extends State<AIConfigPage> {
     );
 
     if (!config.isValid) {
-      FeedbackUtils.show(context, '请填写API Key、Endpoint和文本模型');
+      Notifications.sonner(context, message: '请填写API Key、Endpoint和文本模型');
       return;
     }
 
@@ -77,45 +83,28 @@ class _AIConfigPageState extends State<AIConfigPage> {
 
     try {
       await AIConfigService.saveConfig(config);
-      FeedbackUtils.show(context, '配置保存成功');
+      Notifications.sonner(context, message: '配置保存成功');
     } catch (e) {
-      FeedbackUtils.show(context, '保存配置失败: $e');
+      Notifications.sonner(context, message: '保存配置失败: $e');
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
   Future<void> _testConfig() async {
-    print('🎯 [UI测试] 用户点击测试配置按钮');
-    
     if (_apiKeyController.text.isEmpty || _endpointController.text.isEmpty) {
-      print('❌ [UI测试] 验证失败: API Key或Endpoint为空');
-      FeedbackUtils.show(context, '请先填写API Key和Endpoint');
+      Notifications.sonner(context, message: '请先填写API Key和Endpoint');
       return;
     }
 
     if (_textModelController.text.isEmpty) {
-      print('❌ [UI测试] 验证失败: 文本模型为空');
-      FeedbackUtils.show(context, '请先填写文本模型');
+      Notifications.sonner(context, message: '请先填写文本模型');
       return;
     }
 
-    print('✅ [UI测试] 输入验证通过');
-    print('📋 [UI测试] 用户输入信息:');
-    print('   - API Key: ${_apiKeyController.text.substring(0, 8)}...');
-    print('   - Endpoint: ${_endpointController.text}');
-    print('   - 文本模型: ${_textModelController.text}');
-    print('   - 视觉模型: ${_visionModelController.text}');
-    print('   - 图片导入: $_enableImageImport');
-    print('   - 表格导入: $_enableTableImport');
-    print('   - 文字导入: $_enableTextImport');
-
     setState(() => _isTesting = true);
-    print('🔄 [UI测试] 设置测试状态为true');
 
     try {
-      print('🚀 [UI测试] 开始调用AI服务测试...');
-      
       // 创建临时配置进行测试
       final tempConfig = AIConfig(
         apiKey: _apiKeyController.text,
@@ -135,138 +124,222 @@ class _AIConfigPageState extends State<AIConfigPage> {
       final success = await AIService.testConfig();
       
       if (success) {
-        print('🎉 [UI测试] AI服务测试成功');
-        FeedbackUtils.show(context, '配置测试成功');
+        Notifications.sonner(context, message: '配置测试成功');
       } else {
-        print('❌ [UI测试] AI服务测试失败');
-        FeedbackUtils.show(context, '配置测试失败');
+        Notifications.sonner(context, message: '配置测试失败');
       }
     } catch (e) {
-      print('💥 [UI测试] 测试过程出现异常: $e');
-      print('🔍 [UI测试] 异常类型: ${e.runtimeType}');
-      FeedbackUtils.show(context, '配置测试失败: $e');
+      Notifications.sonner(context, message: '配置测试失败: $e');
     } finally {
       setState(() => _isTesting = false);
-      print('🔄 [UI测试] 设置测试状态为false');
-      print('🏁 [UI测试] 测试流程结束');
     }
   }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('AI导入配置'),
+      appBar: YicoreAppBar(
+        title: 'AI导入配置',
+        centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
+          YicoreAppBarAction(
+            icon: Icons.save,
             onPressed: _isLoading ? null : _saveConfig,
           ),
         ],
       ),
+      backgroundColor: Color(0xFFF7F7F7),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               children: [
                 // 基础配置
-                _buildSection('基础配置', [
-                  _buildTextField(
-                    'API Key',
-                    _apiKeyController,
-                    obscureText: true,
-                    hintText: '输入你的API Key',
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    'API Endpoint',
-                    _endpointController,
-                    hintText: '输入API端点URL',
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    '视觉模型',
-                    _visionModelController,
-                    hintText: '如: gpt-4-vision-preview',
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    '文本模型',
-                    _textModelController,
-                    hintText: '如: gpt-4',
-                  ),
-                ]),
+                SettingsBlock(
+                  title: '基础配置',
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'API Key',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black.withValues(alpha: 0.85),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _apiKeyController,
+                            obscureText: true,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: '输入你的API Key',
+                              hintStyle: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[400],
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Colors.grey[300]!,
+                                  width: 1,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Colors.grey[300]!,
+                                  width: 1,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 1.5,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      child: YicoreTextField(
+                        labelText: 'API Endpoint',
+                        controller: _endpointController,
+                        hintText: '输入API端点URL',
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      child: YicoreTextField(
+                        labelText: '视觉模型',
+                        controller: _visionModelController,
+                        hintText: '如: gpt-4-vision-preview',
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      child: YicoreTextField(
+                        labelText: '文本模型',
+                        controller: _textModelController,
+                        hintText: '如: gpt-4',
+                      ),
+                    ),
+                  ],
+                ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // 功能开关
-                _buildSection('功能开关', [
-                  SwitchListTile(
-                    title: const Text('图片导入'),
-                    subtitle: const Text('支持课程表图片识别'),
-                    value: _enableImageImport,
-                    onChanged: (value) => setState(() => _enableImageImport = value),
-                  ),
-                  SwitchListTile(
-                    title: const Text('表格导入'),
-                    subtitle: const Text('支持表格数据解析'),
-                    value: _enableTableImport,
-                    onChanged: (value) => setState(() => _enableTableImport = value),
-                  ),
-                  SwitchListTile(
-                    title: const Text('文字导入'),
-                    subtitle: const Text('支持文字描述解析'),
-                    value: _enableTextImport,
-                    onChanged: (value) => setState(() => _enableTextImport = value),
-                  ),
-                ]),
+                SettingsBlock(
+                  title: '功能开关',
+                  children: [
+                    SettingsItem.switch_(
+                      title: '图片导入',
+                      description: '支持课程表图片识别',
+                      value: _enableImageImport,
+                      onChanged: (value) => setState(() => _enableImageImport = value),
+                      inBlock: true,
+                    ),
+                    SettingsItem.switch_(
+                      title: '表格导入',
+                      description: '支持表格数据解析',
+                      value: _enableTableImport,
+                      onChanged: (value) => setState(() => _enableTableImport = value),
+                      inBlock: true,
+                    ),
+                    SettingsItem.switch_(
+                      title: '文字导入',
+                      description: '支持文字描述解析',
+                      value: _enableTextImport,
+                      onChanged: (value) => setState(() => _enableTextImport = value),
+                      inBlock: true,
+                    ),
+                  ],
+                ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // 预设配置
-                _buildSection('预设配置', [
-                  _buildPresetButton('OpenAI', () => _setPreset('openai')),
-                  const SizedBox(height: 8),
-                  _buildPresetButton('Claude', () => _setPreset('claude')),
-                  const SizedBox(height: 8),
-                  _buildPresetButton('Gemini', () => _setPreset('gemini')),
-                  const SizedBox(height: 8),
-                  _buildPresetButton('DeepSeek', () => _setPreset('deepseek')),
-                ]),
+                YicoreCard(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '预设配置',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[800],
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          YicoreButton(
+                            text: 'OpenAI',
+                            isOutlined: true,
+                            onPressed: () => _setPreset('openai'),
+                          ),
+                          YicoreButton(
+                            text: 'Claude',
+                            isOutlined: true,
+                            onPressed: () => _setPreset('claude'),
+                          ),
+                          YicoreButton(
+                            text: 'Gemini',
+                            isOutlined: true,
+                            onPressed: () => _setPreset('gemini'),
+                          ),
+                          YicoreButton(
+                            text: 'DeepSeek',
+                            isOutlined: true,
+                            onPressed: () => _setPreset('deepseek'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // 操作按钮
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: YicoreButton(
+                        text: _isTesting ? '测试中...' : '测试配置',
                         onPressed: _isTesting ? null : _testConfig,
-                        icon: _isTesting
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Icon(Icons.science),
-                        label: Text(_isTesting ? '测试中...' : '测试配置'),
+                        isLoading: _isTesting,
+                        width: double.infinity,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: YicoreButton(
+                        text: '保存配置',
                         onPressed: _isLoading ? null : _saveConfig,
-                        icon: const Icon(Icons.save),
-                        label: const Text('保存配置'),
+                        isOutlined: true,
+                        width: double.infinity,
                       ),
                     ),
                   ],
@@ -276,46 +349,6 @@ class _AIConfigPageState extends State<AIConfigPage> {
     );
   }
 
-  Widget _buildSection(String title, List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        ...children,
-      ],
-    );
-  }
-
-  Widget _buildTextField(
-    String label,
-    TextEditingController controller, {
-    bool obscureText = false,
-    String? hintText,
-  }) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hintText,
-        border: const OutlineInputBorder(),
-      ),
-    );
-  }
-
-  Widget _buildPresetButton(String title, VoidCallback onPressed) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      child: Text(title),
-    );
-  }
 
   void _setPreset(String provider) {
     final preset = AIConfig.getPresetConfig(provider);

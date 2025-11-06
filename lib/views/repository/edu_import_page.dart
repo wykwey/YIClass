@@ -6,7 +6,8 @@ import '../../data/school_index.dart';
 import '../../services/repository/script_file_service.dart';
 import '../../services/file_service.dart';
 import '../../states/timetable_state.dart';
-import '../../utils/feedback_utils.dart';
+import '../../zujian/notifications.dart';
+import '../../zujian/appbar.dart';
 
 /// 教务系统导入页
 class EduImportPage extends StatefulWidget {
@@ -107,18 +108,18 @@ class _EduImportPageState extends State<EduImportPage> {
           final timetableState = context.read<TimetableState>();
           await timetableState.reload();
 
-          FeedbackUtils.show(context, '导入成功');
+          Notifications.sonner(context, message: '导入成功');
 
           // 导入成功后返回上一页
           Navigator.pop(context);
         } else {
-          FeedbackUtils.show(context, '导入失败');
+          Notifications.sonner(context, message: '导入失败');
           setState(() => _isImporting = false);
         }
       }
     } catch (e) {
       if (mounted) {
-        FeedbackUtils.show(context, '导入失败: $e');
+        Notifications.sonner(context, message: '导入失败: $e');
         setState(() => _isImporting = false);
       }
     }
@@ -129,7 +130,7 @@ class _EduImportPageState extends State<EduImportPage> {
     if (_isImporting) return;
 
     setState(() => _isImporting = true);
-    FeedbackUtils.show(context, '正在导入...');
+    Notifications.sonner(context, message: '正在导入...');
 
     try {
       // 检查脚本文件是否存在
@@ -138,7 +139,7 @@ class _EduImportPageState extends State<EduImportPage> {
       );
 
       if (!scriptExists) {
-        FeedbackUtils.show(context, '脚本文件不存在，请先下载脚本');
+        Notifications.sonner(context, message: '脚本文件不存在，请先下载脚本');
         setState(() => _isImporting = false);
         return;
       }
@@ -149,7 +150,7 @@ class _EduImportPageState extends State<EduImportPage> {
       );
 
       if (scriptContent == null || scriptContent.isEmpty) {
-        FeedbackUtils.show(context, '脚本文件读取失败');
+        Notifications.sonner(context, message: '脚本文件读取失败');
         setState(() => _isImporting = false);
         return;
       }
@@ -164,12 +165,12 @@ class _EduImportPageState extends State<EduImportPage> {
       
       if (_isImporting && mounted) {
         // 如果10秒后还在导入状态，可能是脚本没有正确返回数据
-        FeedbackUtils.show(context, '导入超时，请检查脚本是否正确执行');
+        Notifications.sonner(context, message: '导入超时，请检查脚本是否正确执行');
         setState(() => _isImporting = false);
       }
     } catch (e) {
       if (mounted) {
-        FeedbackUtils.show(context, '执行脚本失败: $e');
+        Notifications.sonner(context, message: '执行脚本失败: $e');
         setState(() => _isImporting = false);
       }
     }
@@ -200,36 +201,33 @@ class _EduImportPageState extends State<EduImportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _pageTitle.isEmpty ? widget.script.name : _pageTitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+      appBar: YicoreAppBar(
+        title: _pageTitle.isEmpty ? widget.script.name : _pageTitle,
+        centerTitle: true,
         actions: [
           // 导入按钮
-          IconButton(
-            icon: _isImporting
-                ? const SizedBox(
+          _isImporting
+              ? Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.download),
-            onPressed: _isImporting ? null : _executeScriptAndImport,
-            tooltip: '导入课表',
-          ),
+                  ),
+                )
+              : YicoreAppBarAction(
+                  icon: Icons.download,
+                  onPressed: _isImporting ? null : _executeScriptAndImport,
+                ),
           // 切换User Agent按钮
-          IconButton(
-            icon: Icon(_isDesktopMode ? Icons.phone_android : Icons.computer),
+          YicoreAppBarAction(
+            icon: _isDesktopMode ? Icons.phone_android : Icons.computer,
             onPressed: _toggleUserAgent,
-            tooltip: _isDesktopMode ? '切换到移动端' : '切换到桌面端',
           ),
           // 刷新按钮
-          IconButton(
-            icon: const Icon(Icons.refresh),
+          YicoreAppBarAction(
+            icon: Icons.refresh,
             onPressed: _reloadWebView,
-            tooltip: '刷新',
           ),
         ],
       ),

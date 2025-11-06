@@ -6,7 +6,8 @@ import '../services/ai/ai_config_service.dart';
 import '../services/ai/ai_service.dart';
 import '../services/file_service.dart';
 import '../states/timetable_state.dart';
-import '../utils/feedback_utils.dart';
+import '../zujian/notifications.dart';
+import '../zujian/appbar.dart';
 
 class AIImportPage extends StatefulWidget {
   const AIImportPage({super.key});
@@ -43,11 +44,9 @@ class _AIImportPageState extends State<AIImportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('AI智能导入'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+      appBar: YicoreAppBar(
+        title: 'AI智能导入',
+        centerTitle: true,
       ),
       backgroundColor: Colors.grey[50],
       body: _isLoading
@@ -317,7 +316,7 @@ class _AIImportPageState extends State<AIImportPage> {
       if (!context.mounted) return;
       Navigator.pop(context); // 关闭"分析中"
 
-      FeedbackUtils.show(context, '导入中...');
+      Notifications.sonner(context, message: '导入中...');
       await Future.delayed(const Duration(milliseconds: 300));
 
       // AI 直接返回格式，直接使用
@@ -331,24 +330,24 @@ class _AIImportPageState extends State<AIImportPage> {
         final timetableState = context.read<TimetableState>();
         await timetableState.reload();
         
-        FeedbackUtils.show(context, '导入成功');
+        Notifications.sonner(context, message: '导入成功');
         
         // 导入成功后返回上一页
         Navigator.pop(context);
       } else {
-        FeedbackUtils.show(context, '导入失败');
+        Notifications.sonner(context, message: '导入失败');
       }
     } catch (e) {
       if (context.mounted) {
         Navigator.pop(context);
-        FeedbackUtils.show(context, '分析失败: $e');
+        Notifications.sonner(context, message: '分析失败: $e');
       }
     }
   }
 
   bool _checkConfig(BuildContext context, bool isValid, String importType) {
     if (!isValid) {
-      FeedbackUtils.show(context, '$importType功能未启用，请先在设置中配置AI服务');
+      Notifications.sonner(context, message: '$importType功能未启用，请先在设置中配置AI服务');
       return false;
     }
     return true;

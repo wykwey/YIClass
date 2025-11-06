@@ -139,7 +139,6 @@ class RepositoryDownloadService {
           }
         } catch (e) {
           // 单个文件下载失败，继续下载其他文件
-          print('下载脚本 $scriptName 失败: $e');
         }
       }
 

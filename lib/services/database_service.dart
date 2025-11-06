@@ -48,7 +48,6 @@ class DatabaseService {
 
       return true;
     } catch (e) {
-      print('初始化数据库失败: $e');
       return false;
     }
   }

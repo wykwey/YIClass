@@ -38,66 +38,27 @@ class AIService {
 
   /// 测试AI配置
   static Future<bool> testConfig() async {
-    print('🔍 [AI测试] 开始测试AI配置...');
-    
     final config = await AIConfigService.getConfig();
-    print('📋 [AI测试] 配置信息:');
-    print('   - API Key: ${config.apiKey.isNotEmpty ? "${config.apiKey.substring(0, 8)}..." : "未配置"}');
-    print('   - Endpoint: ${config.endpoint}');
-    print('   - 文本模型: ${config.textModel}');
-    print('   - 视觉模型: ${config.visionModel}');
-    print('   - 功能启用: ${config.enabled}');
-    print('   - 图片导入: ${config.enableImageImport}');
-    print('   - 表格导入: ${config.enableTableImport}');
-    print('   - 文字导入: ${config.enableTextImport}');
     
     if (!config.enabled) {
-      print(' [AI测试] AI功能未启用');
       return false;
     }
 
     if (!config.isTextValid) {
-      print(' [AI测试] 文本功能配置不完整');
-      print('   - API Key: ${config.apiKey.isNotEmpty ? "已配置" : "未配置"}');
-      print('   - Endpoint: ${config.endpoint.isNotEmpty ? "已配置" : "未配置"}');
-      print('   - 文本模型: ${config.textModel.isNotEmpty ? "已配置" : "未配置"}');
       return false;
     }
 
     try {
-      print(' [AI测试] 发送测试请求...');
       final testPrompt = '请回复"测试成功"';
-      print(' [AI测试] 测试提示词: $testPrompt');
-      
-      final startTime = DateTime.now();
       final response = await _callTextAPIForTest(config, testPrompt);
-      final endTime = DateTime.now();
-      final duration = endTime.difference(startTime);
-      
-      print(' [AI测试] API调用成功!');
-      print(' [AI测试] 响应时间: ${duration.inMilliseconds}ms');
-      print(' [AI测试] 响应内容: $response');
       
       // 检查响应是否包含"测试成功"
       if (response.contains('测试成功')) {
-        print('🎉 [AI测试] 测试完成，配置验证成功!');
         return true;
       } else {
-        print('⚠️ [AI测试] 响应内容不符合预期: $response');
         return false;
       }
     } catch (e) {
-      print(' [AI测试] API调用失败: $e');
-      print(' [AI测试] 错误类型: ${e.runtimeType}');
-      if (e.toString().contains('401')) {
-        print('💡 [AI测试] 建议: 检查API Key是否正确');
-      } else if (e.toString().contains('404')) {
-        print('💡 [AI测试] 建议: 检查Endpoint是否正确');
-      } else if (e.toString().contains('429')) {
-        print('💡 [AI测试] 建议: API调用频率过高，请稍后重试');
-      } else if (e.toString().contains('timeout')) {
-        print('💡 [AI测试] 建议: 网络连接超时，检查网络连接');
-      }
       return false;
     }
   }
@@ -168,11 +129,6 @@ class AIService {
 
   /// 发送HTTP请求
   static Future<String> _makeRequest(AIConfig config, Map<String, dynamic> requestBody) async {
-    print('🌐 [HTTP请求] 开始发送请求...');
-    print('🔗 [HTTP请求] 目标URL: ${config.endpoint}');
-    print('🤖 [HTTP请求] 使用模型: ${requestBody['model']}');
-    print('📝 [HTTP请求] 请求内容长度: ${requestBody['messages'][0]['content'].toString().length} 字符');
-    
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ${config.apiKey}',
@@ -185,59 +141,38 @@ class AIService {
         body: jsonEncode(requestBody),
       );
 
-      print('📡 [HTTP请求] 响应状态码: ${response.statusCode}');
-      print('📏 [HTTP请求] 响应内容长度: ${response.body.length} 字符');
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final content = data['choices'][0]['message']['content'];
-        print('✅ [HTTP请求] 请求成功');
-        print('📄 [HTTP请求] 响应内容预览: ${content.length > 100 ? content.substring(0, 100) + "..." : content}');
         return content;
       } else {
-        print('❌ [HTTP请求] 请求失败');
-        print('🔍 [HTTP请求] 错误响应: ${response.body}');
         throw Exception('API调用失败: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print('💥 [HTTP请求] 网络异常: $e');
       rethrow;
     }
   }
 
   /// 解析AI响应
   static Map<String, dynamic> _parseResponse(String response) {
-    print('🔍 [响应解析] 开始解析AI响应...');
-    print('📄 [响应解析] 原始响应长度: ${response.length} 字符');
-    
     try {
       // 提取JSON部分
       final jsonStart = response.indexOf('{');
       final jsonEnd = response.lastIndexOf('}') + 1;
       
-      print('🔍 [响应解析] JSON开始位置: $jsonStart');
-      print('🔍 [响应解析] JSON结束位置: $jsonEnd');
-      
       if (jsonStart == -1 || jsonEnd == 0) {
-        print('❌ [响应解析] 未找到JSON格式');
         throw Exception('响应中未找到JSON格式');
       }
 
       final jsonString = response.substring(jsonStart, jsonEnd);
-      print('📝 [响应解析] 提取的JSON长度: ${jsonString.length} 字符');
-      
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
-      print('✅ [响应解析] JSON解析成功');
 
       // 验证响应格式（settings 可选）
       if (!data.containsKey('name') || !data.containsKey('courses')) {
-        print('❌ [响应解析] 响应格式不正确，缺少 name 或 courses 字段');
-        print('🔍 [响应解析] 实际数据结构: ${data.keys.toList()}');
         throw Exception('响应格式不正确');
       }
 
       final coursesData = data['courses'] as List;
-      print('📊 [响应解析] 找到课程数据: ${coursesData.length} 门课程');
       
       // 验证课程数据
       for (final courseData in coursesData) {
@@ -246,11 +181,8 @@ class AIService {
         }
       }
       
-      print('🎉 [响应解析] 课表数据解析完成');
       return data;
     } catch (e) {
-      print('💥 [响应解析] 解析失败: $e');
-      print('🔍 [响应解析] 错误类型: ${e.runtimeType}');
       throw Exception('解析AI响应失败: $e');
     }
   }

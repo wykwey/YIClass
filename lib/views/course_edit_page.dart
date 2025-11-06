@@ -7,9 +7,13 @@ import '../states/timetable_state.dart';
 import '../services/course_service.dart';
 import '../services/factory_service.dart';
 import '../utils/color_utils.dart';
-import '../utils/feedback_utils.dart';
 import '../utils/parse_utils.dart';
-import '../components/unified_dropdown.dart';
+import '../zujian/dropdown.dart';
+import '../zujian/components.dart';
+import '../zujian/cards.dart';
+import '../zujian/dialogs.dart';
+import '../zujian/notifications.dart';
+import '../zujian/appbar.dart';
 
 /// 课程编辑页面
 class CourseEditPage extends StatefulWidget {
@@ -142,29 +146,27 @@ class _CourseEditPageState extends State<CourseEditPage> {
         await CourseService.instance.updateCourseAt(timetableId, existingIndex, newCourse);
       }
       
-      if (mounted) Navigator.pop(context, newCourse);
+      if (mounted) {
+        Notifications.sonner(context, message: '课程已保存');
+        Navigator.pop(context, newCourse);
+      }
     } catch (e) {
-      if (mounted) FeedbackUtils.show(context, '保存失败: $e');
+      if (mounted) {
+        Notifications.sonner(context, title: '保存失败', message: e.toString());
+      }
     }
   }
 
   Future<void> _confirmDeleteCourse() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('删除课程'),
-        content: const Text('确定要删除这门课程吗？此操作无法撤销。'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
+    final confirmed = await YicoreConfirm.show(
+      context,
+      title: '删除课程',
+      message: '确定要删除这门课程吗？此操作无法撤销。',
+      confirmText: '删除',
+      cancelText: '取消',
     );
-    if (confirmed == true && mounted) {
+    
+    if (confirmed && mounted) {
       try {
         final timetableId = widget.timetableId;
         // 找到要删除的课程索引
@@ -176,16 +178,16 @@ class _CourseEditPageState extends State<CourseEditPage> {
           c.teacher == widget.course.teacher) ?? -1;
         
         if (deleteIndex == -1) {
-          FeedbackUtils.show(context, '找不到要删除的课程');
+          Notifications.sonner(context, message: '找不到要删除的课程');
           return;
         }
         
         await CourseService.instance.deleteCourseAt(timetableId, deleteIndex);
         
-        FeedbackUtils.show(context, '课程已删除');
+        Notifications.sonner(context, message: '课程已删除');
         Navigator.pop(context, 'deleted');
       } catch (e) {
-        FeedbackUtils.show(context, '删除失败: $e');
+        Notifications.sonner(context, title: '删除失败', message: e.toString());
       }
     }
   }
@@ -195,26 +197,19 @@ class _CourseEditPageState extends State<CourseEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: Text(
-          _nameController.text.trim().isEmpty ? '添加课程' : '编辑课程',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+      appBar: YicoreAppBar(
+        title: _nameController.text.trim().isEmpty ? '添加课程' : '编辑课程',
         centerTitle: true,
         actions: [
           if (widget.course.name.isNotEmpty && _nameController.text.trim().isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
+            YicoreAppBarAction(
+              icon: Icons.delete_outline,
+              iconColor: Colors.red,
               onPressed: _confirmDeleteCourse,
-              tooltip: '删除课程',
             ),
-          IconButton(
-            icon: const Icon(Icons.save),
+          YicoreAppBarAction(
+            icon: Icons.save,
             onPressed: _saveCourse,
-            tooltip: '保存',
           ),
         ],
       ),
@@ -265,19 +260,14 @@ class _CourseEditPageState extends State<CourseEditPage> {
       );
 
   Widget _buildSectionCard(String title, List<Widget> children) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            ...children,
-          ],
-        ),
+    return YicoreCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          ...children,
+        ],
       ),
     );
   }
@@ -327,11 +317,11 @@ class _CourseEditPageState extends State<CourseEditPage> {
           return _buildScheduleCard(index);
         }),
         const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
+        Center(
+          child: YicoreButton(
+            text: '添加时间段',
+            isOutlined: true,
             onPressed: _addNewSchedule,
-            child: const Text('添加时间段'),
           ),
         ),
       ]);
@@ -352,7 +342,10 @@ class _CourseEditPageState extends State<CourseEditPage> {
             Text('时间段 ${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
             const Spacer(),
             if (_days.length > 1)
-              TextButton(onPressed: () => _removeScheduleAt(index), child: const Text('删除', style: TextStyle(color: Colors.red))),
+              GestureDetector(
+                onTap: () => _removeScheduleAt(index),
+                child: Text('删除', style: TextStyle(color: Colors.red[400], fontWeight: FontWeight.w600)),
+              ),
           ]),
           const SizedBox(height: 16),
           Row(children: [
@@ -362,11 +355,14 @@ class _CourseEditPageState extends State<CourseEditPage> {
                 children: [
                   const Text('星期', style: TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
-                  UnifiedDropdown<int>(
+                  YicoreDropdown<int>(
                     value: _days[index],
-                    hint: '选择星期',
+                    hintText: '选择星期',
                     items: List.generate(7, (i) => i + 1)
-                        .map((d) => DropdownMenuItem(value: d, child: Text('周${['一','二','三','四','五','六','日'][d - 1]}')))
+                        .map((d) => YicoreDropdownItem(
+                          value: d,
+                          label: '周${['一','二','三','四','五','六','日'][d - 1]}',
+                        ))
                         .toList(),
                     onChanged: (v) {
                       if (v != null) {
@@ -393,19 +389,12 @@ class _CourseEditPageState extends State<CourseEditPage> {
 
   Widget _buildTextField(String label, TextEditingController controller,
       {String? hint, String? Function(String?)? validator}) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-      const SizedBox(height: 8),
-      TextFormField(
-        controller: controller,
-        validator: validator,
-        decoration: InputDecoration(
-          hintText: hint,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        ),
-      ),
-    ]);
+    return YicoreTextField(
+      labelText: label,
+      hintText: hint,
+      controller: controller,
+      validator: validator,
+    );
   }
 }
 

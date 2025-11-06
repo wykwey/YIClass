@@ -59,7 +59,6 @@ class SchoolIndexService {
       _indexFilePath = filePath;
       return true;
     } catch (e) {
-      print('打开索引数据库失败: $e');
       return false;
     }
   }
@@ -97,7 +96,6 @@ class SchoolIndexService {
       final index = await collection.get(1);
       return index;
     } catch (e) {
-      print('获取索引数据失败: $e');
       return null;
     }
   }

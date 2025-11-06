@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../zujian/appbar.dart';
 
 class OpenSourceLicensePage extends StatelessWidget {
   const OpenSourceLicensePage({super.key});
@@ -7,11 +8,9 @@ class OpenSourceLicensePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('开源许可证'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
+      appBar: YicoreAppBar(
+        title: '开源许可证',
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

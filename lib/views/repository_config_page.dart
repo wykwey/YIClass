@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import '../utils/feedback_utils.dart';
+import '../zujian/notifications.dart';
+import '../zujian/settingscard.dart';
+import '../zujian/components.dart';
+import '../zujian/appbar.dart';
+import '../zujian/segmented_control.dart';
 import '../services/repository/repository_config_service.dart';
 import '../services/repository/repository_download_service.dart';
 
@@ -53,7 +57,9 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
       _repositoryType = config.repositoryType;
       _enableImport = config.enabled;
     } catch (e) {
-      _showErrorSnackBar('加载配置失败: $e');
+      if (mounted) {
+        Notifications.sonner(context, message: '加载配置失败: $e');
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -79,12 +85,12 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     );
 
     if (!config.isValid) {
-      FeedbackUtils.show(context, '请填写完整的配置信息');
+      Notifications.sonner(context, message: '请填写完整的配置信息');
       return;
     }
 
     if (config.repositoryType == 'private' && !config.isPrivateValid) {
-      FeedbackUtils.show(context, '私有仓库需要填写Token Key和Token Value');
+      Notifications.sonner(context, message: '私有仓库需要填写Token Key和Token Value');
       return;
     }
 
@@ -92,9 +98,9 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
 
     try {
       await RepositoryConfigService.saveConfig(config);
-      FeedbackUtils.show(context, '配置保存成功');
+      Notifications.sonner(context, message: '配置保存成功');
     } catch (e) {
-      FeedbackUtils.show(context, '保存配置失败: $e');
+      Notifications.sonner(context, message: '保存配置失败: $e');
     } finally {
       setState(() => _isSaving = false);
     }
@@ -120,12 +126,12 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     );
 
     if (!config.isValid) {
-      FeedbackUtils.show(context, '请填写完整的配置信息');
+      Notifications.sonner(context, message: '请填写完整的配置信息');
       return;
     }
 
     if (config.repositoryType == 'private' && !config.isPrivateValid) {
-      FeedbackUtils.show(context, '私有仓库需要填写Token Key和Token Value');
+      Notifications.sonner(context, message: '私有仓库需要填写Token Key和Token Value');
       return;
     }
 
@@ -134,12 +140,12 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     try {
       final filePath = await RepositoryDownloadService.downloadIndex(config);
       if (filePath != null) {
-        FeedbackUtils.show(context, '索引下载成功\n保存位置: $filePath');
+        Notifications.sonner(context, message: '索引下载成功\n保存位置: $filePath');
       } else {
-        FeedbackUtils.show(context, '下载失败: 未返回文件路径');
+        Notifications.sonner(context, message: '下载失败: 未返回文件路径');
       }
     } catch (e) {
-      FeedbackUtils.show(context, '下载失败: $e');
+      Notifications.sonner(context, message: '下载失败: $e');
     } finally {
       setState(() => _isDownloading = false);
     }
@@ -165,12 +171,12 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     );
 
     if (!config.isValid) {
-      FeedbackUtils.show(context, '请填写完整的配置信息');
+      Notifications.sonner(context, message: '请填写完整的配置信息');
       return;
     }
 
     if (config.repositoryType == 'private' && !config.isPrivateValid) {
-      FeedbackUtils.show(context, '私有仓库需要填写Token Key和Token Value');
+      Notifications.sonner(context, message: '私有仓库需要填写Token Key和Token Value');
       return;
     }
 
@@ -182,146 +188,124 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
       final scriptsPath = result['scripts'];
       
       if (indexPath != null && scriptsPath != null) {
-        FeedbackUtils.show(
+        Notifications.sonner(
           context,
-          '下载完成\n索引文件: $indexPath\n脚本目录: $scriptsPath',
+          message: '下载完成\n索引文件: $indexPath\n脚本目录: $scriptsPath',
         );
       } else {
-        FeedbackUtils.show(context, '下载完成，但部分文件可能未下载成功');
+        Notifications.sonner(context, message: '下载完成，但部分文件可能未下载成功');
       }
     } catch (e) {
-      FeedbackUtils.show(context, '下载失败: $e');
+      Notifications.sonner(context, message: '下载失败: $e');
     } finally {
       setState(() => _isDownloadingFull = false);
     }
   }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('教务导入配置'),
+      appBar: YicoreAppBar(
+        title: '教务导入配置',
+        centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
+          YicoreAppBarAction(
+            icon: Icons.save,
             onPressed: _isLoading || _isSaving ? null : _saveConfig,
           ),
         ],
       ),
+      backgroundColor: Color(0xFFF7F7F7),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               children: [
                 // 基础配置
-                _buildSection('基础配置', [
-                  _buildRepositoryTypeSelector(),
-                  // 官方仓库和镜像仓库不显示URL和分支输入框
-                  if (_repositoryType != 'official' && _repositoryType != 'mirror') ...[
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      'GitHub仓库URL',
-                      _repositoryUrlController,
-                      hintText: '',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      '脚本分支名称',
-                      _scriptsBranchController,
-                      hintText: '如: main, master',
-                    ),
+                SettingsBlock(
+                  title: '基础配置',
+                  children: [
+                    _buildRepositoryTypeSelector(),
+                    // 官方仓库和镜像仓库不显示URL和分支输入框
+                    if (_repositoryType != 'official' && _repositoryType != 'mirror') ...[
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        'GitHub仓库URL',
+                        _repositoryUrlController,
+                        hintText: '',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        '脚本分支名称',
+                        _scriptsBranchController,
+                        hintText: '如: main, master',
+                      ),
+                    ],
+                    if (_repositoryType == 'private') ...[
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        'Token Key',
+                        _tokenKeyController,
+                        hintText: '输入Token Key',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        'Token Value',
+                        _tokenValueController,
+                        obscureText: true,
+                        hintText: '输入Token Value',
+                      ),
+                    ],
                   ],
-                  if (_repositoryType == 'private') ...[
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      'Token Key',
-                      _tokenKeyController,
-                      hintText: '输入Token Key',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      'Token Value',
-                      _tokenValueController,
-                      obscureText: true,
-                      hintText: '输入Token Value',
-                    ),
-                  ],
-                ]),
+                ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // 功能开关
-                _buildSection('功能开关', [
-                  SwitchListTile(
-                    title: const Text('启用教务导入'),
-                    subtitle: const Text('启用教务系统数据导入功能'),
-                    value: _enableImport,
-                    onChanged: (value) => setState(() => _enableImport = value),
-                  ),
-                ]),
-
-                const SizedBox(height: 24),
-
-                // 操作按钮
-                Row(
+                SettingsBlock(
+                  title: '功能开关',
                   children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: (_isDownloading || _isDownloadingFull || _isSaving) ? null : _downloadIndex,
-                        icon: _isDownloading
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Icon(Icons.download),
-                        label: Text(_isDownloading ? '下载中...' : '下载索引'),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: (_isDownloading || _isDownloadingFull || _isSaving) ? null : _downloadFullRepository,
-                        icon: _isDownloadingFull
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Icon(Icons.download_for_offline),
-                        label: Text(_isDownloadingFull ? '下载中...' : '下载完整仓库'),
-                      ),
+                    SettingsItem.switch_(
+                      title: '启用教务导入',
+                      description: '启用教务系统数据导入功能',
+                      value: _enableImport,
+                      onChanged: (value) => setState(() => _enableImport = value),
+                      inBlock: true,
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 16),
+
+                // 操作按钮
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: YicoreButton(
+                          text: _isDownloading ? '下载中...' : '下载索引',
+                          onPressed: (_isDownloading || _isDownloadingFull || _isSaving) ? null : _downloadIndex,
+                          isLoading: _isDownloading,
+                          width: double.infinity,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: YicoreButton(
+                          text: _isDownloadingFull ? '下载中...' : '下载完整仓库',
+                          onPressed: (_isDownloading || _isDownloadingFull || _isSaving) ? null : _downloadFullRepository,
+                          isLoading: _isDownloadingFull,
+                          isOutlined: true,
+                          width: double.infinity,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
-    );
-  }
-
-  Widget _buildSection(String title, List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        ...children,
-      ],
     );
   }
 
@@ -331,73 +315,67 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     bool obscureText = false,
     String? hintText,
   }) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hintText,
-        border: const OutlineInputBorder(),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.black, width: 2),
+          ),
+          filled: true,
+          fillColor: Colors.grey[50],
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
       ),
     );
   }
 
   Widget _buildRepositoryTypeSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          '仓库类型',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '仓库类型',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final totalWidth = constraints.maxWidth;
-            const spacing = 8.0; // 分段间隙
-            final buttonWidth = (totalWidth - spacing * 3) / 4; // 4段，3个间隙
-
-            return SizedBox(
-              width: double.infinity,
-              child: SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(
-                  value: 'official',
-                  label: Text('官方'),
-                ),
-                ButtonSegment(
-                  value: 'mirror',
-                  label: Text('官方镜像'),
-                ),
-                ButtonSegment(
-                  value: 'custom',
-                  label: Text('自定义'),
-                ),
-                ButtonSegment(
-                  value: 'private',
-                  label: Text('私有'),
-                ),
-              ],
-              selected: {_repositoryType},
-              onSelectionChanged: (Set<String> newSelection) {
-                setState(() {
-                  _repositoryType = newSelection.first;
-                });
-              },
-              showSelectedIcon: false,
-              style: SegmentedButton.styleFrom(
-                minimumSize: Size(buttonWidth, 40),
-                maximumSize: Size(buttonWidth, 40),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                textStyle: const TextStyle(fontSize: 13),
-              ),
-            ));
-          },
-        ),
-      ],
+          const SizedBox(height: 12),
+          YicoreSegmentedControl(
+            items: const [
+              SegmentedItem(label: '官方', value: 'official'),
+              SegmentedItem(label: '镜像', value: 'mirror'),
+              SegmentedItem(label: '自定义', value: 'custom'),
+              SegmentedItem(label: '私有', value: 'private'),
+            ],
+            selectedValue: _repositoryType,
+            onChanged: (value) {
+              setState(() {
+                _repositoryType = value;
+              });
+            },
+            size: SegmentedControlSize.medium,
+            showBorder: true,
+          ),
+        ],
+      ),
     );
   }
 }

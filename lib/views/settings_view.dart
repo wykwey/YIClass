@@ -3,22 +3,25 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../states/timetable_state.dart';
 import '../states/view_state.dart';
-import '../components/start_date_picker.dart';
 import './time_settings_page.dart';
 import './license_page.dart' as license;
 import './ai_config_page.dart';
-import './repository_config_page.dart';
-import './repository/school_select_page.dart';
 import '../components/bottom_nav_bar.dart';
 import '../data/data_constants.dart';
 import '../components/timetable_management_dialog.dart';
 import '../components/advanced_features_dialog.dart';
 import './ai_import_page.dart';
-import '../utils/feedback_utils.dart';
+import './repository/school_select_page.dart';
+import './repository_config_page.dart';
 import '../services/settings_service.dart';
 import '../services/file_service.dart';
 import '../data/timetable.dart';
-import '../data/class_time.dart';
+import '../zujian/settingscard.dart';
+import '../zujian/datepicker.dart';
+import '../zujian/notifications.dart';
+import '../zujian/dialogs.dart';
+import '../zujian/appbar.dart';
+import '../zujian/segmented_control.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -30,7 +33,6 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   // 局部状态管理，避免全局广播冲突
   int _localTotalWeeks = DataConstants.defaultTotalWeeks;
-  int _localMaxPeriods = DataConstants.defaultMaxPeriods;
   bool _isInitialized = false;
 
   @override
@@ -50,9 +52,6 @@ class _SettingsPageState extends State<SettingsPage> {
     if (timetable != null && !_isInitialized) {
       setState(() {
         _localTotalWeeks = timetable.settings.totalWeeks;
-        _localMaxPeriods = (timetable.settings.maxPeriods) > 0
-            ? timetable.settings.maxPeriods
-            : DataConstants.defaultMaxPeriods;
         _isInitialized = true;
       });
       
@@ -74,42 +73,34 @@ class _SettingsPageState extends State<SettingsPage> {
     
     // 统一使用局部状态，避免混乱
     final totalWeeks = _localTotalWeeks;
-    final maxPeriods = _localMaxPeriods;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('设置'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+      appBar: YicoreAppBar(
+        title: '设置',
+        centerTitle: true,
+        showBackButton: false,
       ),
-      backgroundColor: Colors.grey[50],
-      body: Theme(
-        data: Theme.of(context).copyWith(
-          listTileTheme: const ListTileThemeData(
-            visualDensity: VisualDensity.compact,
-          ),
-        ),
-        child: ListView(
-          children: [
+      backgroundColor: Color(0xFFF7F7F7),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        children: [
           // 基础功能分区
-          _buildSectionCard(
+          SettingsBlock(
             title: '基础功能',
-            icon: Icons.settings,
             children: [
               _buildViewModeTile(selectedView, viewState, timetable, timetableState),
               _buildStartDateTile(),
               _buildTotalWeeksTile(timetable, totalWeeks, timetableState),
               _buildShowWeekendTile(showWeekend, viewState, timetable, timetableState),
-              _buildMaxPeriodsTile(maxPeriods, timetableState),
               _buildTimeSettingsTile(),
             ],
           ),
           
+          const SizedBox(height: 16),
+          
           // 课表管理分区
-          _buildSectionCard(
+          SettingsBlock(
             title: '课表管理',
-            icon: Icons.import_export,
             children: [
               _buildImportTimetableTile(),
               _buildEduSystemImportTile(),
@@ -119,10 +110,11 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
           
+          const SizedBox(height: 16),
+          
           // 扩展功能分区
-          _buildSectionCard(
+          SettingsBlock(
             title: '扩展功能',
-            icon: Icons.extension,
             children: [
               _buildThemeSettingsTile(),
               _buildNotificationSettingsTile(),
@@ -131,10 +123,11 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
           
+          const SizedBox(height: 16),
+          
           // 高级功能分区
-          _buildSectionCard(
+          SettingsBlock(
             title: '高级功能',
-            icon: Icons.build,
             children: [
               _buildAdvancedFeaturesToggleTile(),
               _buildScriptRepositoryTile(),
@@ -143,10 +136,11 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
           
+          const SizedBox(height: 16),
+          
           // 关于我们分区
-          _buildSectionCard(
+          SettingsBlock(
             title: '关于我们',
-            icon: Icons.info,
             children: [
               _buildAboutTile(),
               _buildHelpTile(),
@@ -154,8 +148,9 @@ class _SettingsPageState extends State<SettingsPage> {
               _buildPrivacyPolicyTile(),
             ],
           ),
+          
+          const SizedBox(height: 16),
         ],
-        ),
       ),
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: 2,
@@ -171,219 +166,135 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  /// 构建分区卡片
-  Widget _buildSectionCard({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-        // 分区标题放在卡片外面
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.black54,
-            ),
-          ),
-        ),
-        // 白色卡片内容
-        Card(
-          margin: const EdgeInsets.symmetric(horizontal: 8.0),
-          elevation: 2,
-          color: Colors.white,
-          child: Column(
-            children: children,
-          ),
-        ),
-      ],
-    );
-  }
-
   /// 构建视图模式设置
   Widget _buildViewModeTile(String selectedView, ViewState viewState, Timetable timetable, TimetableState timetableState) {
-    return ListTile(
-      title: const Text('视图模式'),
-      subtitle: Text('当前: $selectedView'),
-            trailing: ToggleButtons(
-              borderRadius: BorderRadius.circular(8),
-              borderColor: Colors.grey,
-              selectedColor: Colors.white,
-              fillColor: Colors.blue.shade400,
-              color: Colors.black87,
-              isSelected: [
-                selectedView == '周视图',
-                selectedView == '日视图',
-                selectedView == '列表视图'
-              ],
-              splashColor: Colors.transparent,
-              onPressed: (index) async {
-                if (!mounted) return;
-                final view = index == 0 ? '周视图' : index == 1 ? '日视图' : '列表视图';
-                viewState.changeView(view);
-                if (mounted) setState(() {});
-                Navigator.pop(context);
-              },
-              children: const [
-                Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('周')),
-                Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('日')),
-                Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('列表')),
-              ],
-            ),
+    return SettingsItem.segmented(
+      title: '视图模式',
+      description: '切换课表显示方式',
+      items: const [
+        SegmentedItem(label: '周视图', value: '周视图'),
+        SegmentedItem(label: '日视图', value: '日视图'),
+        SegmentedItem(label: '列表', value: '列表视图'),
+      ],
+      selectedValue: selectedView,
+      onChanged: (value) {
+        if (!mounted) return;
+        viewState.changeView(value);
+        if (mounted) {
+          setState(() {});
+          // 切换视图后返回主页面，让用户立即看到切换效果
+          Navigator.pop(context);
+        }
+      },
+      inBlock: true,
     );
   }
 
   /// 构建开始日期设置
   Widget _buildStartDateTile() {
-    return const StartDatePicker();
+    final timetableState = Provider.of<TimetableState>(context);
+    final timetable = timetableState.current;
+    if (timetable == null) return const SizedBox();
+
+    final dateStr = DateFormat('yyyy-MM-dd').format(timetable.settings.startDate);
+
+    return SettingsItem.value(
+      title: '开始上课日期',
+      value: dateStr,
+      showArrow: true,
+      onTap: () async {
+        final currentDate = timetable.settings.startDate;
+        
+        final picked = await YicoreDatePicker.show(
+          context: context,
+          initialDate: currentDate,
+          firstDate: DateTime(2020, 1, 1),
+          lastDate: DateTime(2099, 12, 31),
+        );
+
+        if (picked != null && mounted) {
+          try {
+            timetable.settings.startDate = picked;
+            await timetableState.put(timetable);
+            
+            if (mounted) {
+              Notifications.sonner(context, message: '开始日期已设置为 ${DateFormat('yyyy-MM-dd').format(picked)}');
+              setState(() {}); // 刷新显示
+            }
+          } catch (e) {
+            if (mounted) {
+              Notifications.sonner(context, title: '保存失败', message: e.toString());
+            }
+          }
+        }
+      },
+    );
+  }
+  
+  String _formatDateRange(DateTime startDate, int weeks) {
+    final firstWeek = DateFormat('MM/dd').format(startDate);
+    final lastWeek = DateFormat('MM/dd').format(
+      startDate.add(Duration(days: 7 * (weeks - 1)))
+    );
+    return '$firstWeek - $lastWeek';
   }
 
   /// 构建总周数设置
   Widget _buildTotalWeeksTile(Timetable timetable, int totalWeeks, TimetableState timetableState) {
-    return ListTile(
-      title: const Text('总周数'),
-            subtitle: Builder(
-              builder: (context) {
-                final startDate = timetable.settings.startDate;
-                final firstWeek = DateFormat('MM/dd').format(startDate);
-                final lastWeek = DateFormat('MM/dd').format(
-                  startDate.add(Duration(days: 7 * (totalWeeks - 1)))
-                );
-                return Text('$firstWeek - $lastWeek');
-              },
-            ),
-            trailing: SizedBox(
-        width: 120,
-              child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: Colors.blue.shade400,
-                  inactiveTrackColor: Colors.blue.shade100,
-                  thumbColor: Colors.blue.shade400,
-                  overlayColor: Colors.blue.shade100.withOpacity(0.2),
-                  valueIndicatorColor: Colors.blue.shade400,
-                ),
-                child: Slider(
-                  value: totalWeeks.toDouble(),
-                  min: DataConstants.minTotalWeeks.toDouble(),
-                  max: DataConstants.maxTotalWeeks.toDouble(),
-                  divisions: DataConstants.maxTotalWeeks - DataConstants.minTotalWeeks,
-                  label: '$totalWeeks',
-                  onChanged: (value) {
-                    setState(() {
-                      _localTotalWeeks = value.round();
-                    });
-                  },
-                  onChangeEnd: (value) async {
-                    if (mounted) {
-                      timetable.settings.totalWeeks = value.round();
-                      await timetableState.put(timetable);
-                    }
-                  },
-                ),
-              ),
-            ),
+    return SettingsItem.slider(
+      title: '总周数 ($totalWeeks周)',
+      description: _formatDateRange(timetable.settings.startDate, totalWeeks),
+      value: totalWeeks.toDouble(),
+      min: DataConstants.minTotalWeeks.toDouble(),
+      max: DataConstants.maxTotalWeeks.toDouble(),
+      onChanged: (value) {
+        setState(() {
+          _localTotalWeeks = value.round();
+        });
+        
+        // 延迟保存以避免频繁写入
+        Future.delayed(const Duration(milliseconds: 500), () async {
+          if (mounted && _localTotalWeeks == value.round()) {
+            timetable.settings.totalWeeks = value.round();
+            await timetableState.put(timetable);
+          }
+        });
+      },
     );
   }
 
   /// 构建显示周末设置
   Widget _buildShowWeekendTile(bool showWeekend, ViewState viewState, Timetable timetable, TimetableState timetableState) {
-    return SwitchListTile(
-      title: const Text('显示周末'),
-      subtitle: const Text('在课程表中显示周六和周日'),
-            value: showWeekend,
-            onChanged: (value) async {
-              timetable.settings.showWeekend = value;
-              await timetableState.put(timetable);
-              viewState.loadFromTimetable(timetable);
-              if (mounted) setState(() {});
-            },
+    return SettingsItem.switch_(
+      title: '显示周末',
+      description: '在课程表中显示周六和周日',
+      value: showWeekend,
+      onChanged: (value) async {
+        timetable.settings.showWeekend = value;
+        await timetableState.put(timetable);
+        viewState.loadFromTimetable(timetable);
+        if (mounted) setState(() {});
+      },
     );
   }
 
-  /// 构建最大节数设置
-  Widget _buildMaxPeriodsTile(int maxPeriods, TimetableState timetableState) {
-    return ListTile(
-      title: const Text('课程节数'),
-            subtitle: Text('当前最大节数: $maxPeriods'),
-            trailing: SizedBox(
-        width: 120,
-              child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: Colors.blue.shade400,
-                  inactiveTrackColor: Colors.blue.shade100,
-                  thumbColor: Colors.blue.shade400,
-                  overlayColor: Colors.blue.shade100.withOpacity(0.2),
-                  valueIndicatorColor: Colors.blue.shade400,
-                ),
-                child: Slider(
-                  value: maxPeriods.toDouble(),
-                  min: DataConstants.minMaxPeriods.toDouble(),
-                  max: DataConstants.maxMaxPeriods.toDouble(),
-                  divisions: DataConstants.maxMaxPeriods - DataConstants.minMaxPeriods,
-                  label: '$maxPeriods',
-                  onChanged: (value) {
-                    setState(() {
-                      _localMaxPeriods = value.round();
-                    });
-                  },
-                  onChangeEnd: (value) async {
-                    if (!mounted) return;
-                    final timetable = timetableState.current;
-                    if (timetable == null) return;
-
-                    final newMax = value.round();
-                    timetable.settings.maxPeriods = newMax;
-                    final existing = {for (final ct in timetable.settings.classTimes) ct.period: ct};
-
-                    final List<ClassTime> updated = [];
-                    for (int i = 1; i <= newMax; i++) {
-                      if (existing.containsKey(i)) {
-                        updated.add(existing[i]!);
-                      } else {
-                        final def = DataConstants.defaultPeriodTimes[i.toString()] ?? '08:00-08:45';
-                        final parts = def.split('-');
-                        final ct = ClassTime()
-                          ..period = i
-                          ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-                          ..endTime = parts.length > 1 ? parts.last : '08:45';
-                        updated.add(ct);
-                      }
-                    }
-
-                    timetable.settings.classTimes = updated;
-                    await timetableState.put(timetable);
-                    if (mounted) {
-                      setState(() {
-                        _localMaxPeriods = newMax;
-                      });
-                    }
-                  },
-                ),
-              ),
-            ),
-    );
-  }
 
   /// 构建时间设置
   Widget _buildTimeSettingsTile() {
-    return ListTile(
-      title: const Text('设置上课时间'),
-      subtitle: const Text('自定义每节课的时间'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const TimeSettingsPage(),
-                ),
-              );
-              if (mounted) setState(() {});
-            },
+    return SettingsItem.value(
+      title: '上课时间',
+      description: '自定义每节课的开始和结束时间',
+      value: '点击设置',
+      showArrow: true,
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const TimeSettingsPage(),
+          ),
+        );
+        if (mounted) setState(() {});
+      },
     );
   }
 
@@ -393,10 +304,11 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildTimetableManagementTile() {
     return Consumer<TimetableState>(
       builder: (context, timetableState, child) {
-        return ListTile(
-          title: const Text('课表管理'),
-          subtitle: Text('当前: ${timetableState.current?.name ?? '无'}'),
-          trailing: const Icon(Icons.chevron_right),
+        return SettingsItem.value(
+          title: '课表管理',
+          description: '创建、切换、删除课表',
+          value: timetableState.current?.name ?? '无',
+          showArrow: true,
           onTap: () {
             _showTimetableManagementDialog(timetableState);
           },
@@ -409,26 +321,23 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showTimetableManagementDialog(TimetableState timetableState) {
     if (!mounted) return;
 
-    showDialog(
-      context: context,
-      builder: (context) => const TimetableManagementDialog(),
-    );
+    TimetableManagementDialog.show(context);
   }
 
   /// 构建导入课表
   Widget _buildImportTimetableTile() {
-    return ListTile(
-      title: const Text('导入课表'),
-      subtitle: const Text('从JSON文件导入课表数据'),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsItem.text(
+      title: '导入课表',
+      description: '从JSON文件导入课表数据',
+      showArrow: true,
       onTap: () async {
         final ok = await FileService.importAndSave();
         if (!mounted) return;
         if (ok) {
           await Provider.of<TimetableState>(context, listen: false).reload();
-          FeedbackUtils.show(context, '导入成功');
+          Notifications.sonner(context, message: '导入成功');
         } else {
-          FeedbackUtils.show(context, '已取消或导入失败');
+          Notifications.sonner(context, message: '已取消或导入失败');
         }
       },
     );
@@ -441,19 +350,19 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context, snapshot) {
         final advancedEnabled = snapshot.data ?? false;
         
-        return ListTile(
-          title: const Text('教务系统导入'),
-          subtitle: const Text('从学校教务系统导入课表'),
-          trailing: const Icon(Icons.chevron_right),
+        return SettingsItem.text(
+          title: '教务系统导入',
+          description: advancedEnabled ? '从学校教务系统导入课表' : '需要启用高级功能',
+          showArrow: true,
           enabled: advancedEnabled,
-          onTap: advancedEnabled ? () {
+          onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const SchoolSelectPage(),
               ),
             );
-          } : null,
+          },
         );
       },
     );
@@ -466,19 +375,19 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context, snapshot) {
         final advancedEnabled = snapshot.data ?? false;
         
-        return ListTile(
-          title: const Text('AI智能导入'),
-          subtitle: const Text('使用AI识别图片或文档中的课表信息'),
-          trailing: const Icon(Icons.chevron_right),
+        return SettingsItem.text(
+          title: 'AI智能导入',
+          description: advancedEnabled ? '使用AI识别图片或文档中的课表' : '需要启用高级功能',
+          showArrow: true,
           enabled: advancedEnabled,
-          onTap: advancedEnabled ? () {
+          onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const AIImportPage(),
               ),
             );
-          } : null,
+          },
         );
       },
     );
@@ -486,23 +395,23 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 构建导出课表
   Widget _buildExportTimetableTile() {
-    return ListTile(
-      title: const Text('导出课表'),
-      subtitle: const Text('将课表数据导出为JSON文件'),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsItem.text(
+      title: '导出课表',
+      description: '将课表数据导出为JSON文件',
+      showArrow: true,
       onTap: () async {
         final timetableState = Provider.of<TimetableState>(context, listen: false);
         final timetable = timetableState.current;
         if (timetable == null) {
-          FeedbackUtils.show(context, '请先选择一个课表');
+          Notifications.sonner(context, message: '请先选择一个课表');
           return;
         }
         final pathOrName = await FileService.exportTimetable(timetable);
         if (!mounted) return;
         if (pathOrName != null) {
-          FeedbackUtils.show(context, '导出成功: $pathOrName');
+          Notifications.sonner(context, message: '导出成功: $pathOrName');
         } else {
-          FeedbackUtils.show(context, '已取消或当前平台不支持');
+          Notifications.sonner(context, message: '已取消或当前平台不支持');
         }
       },
     );
@@ -513,10 +422,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 构建主题设置
   Widget _buildThemeSettingsTile() {
-    return ListTile(
-      title: const Text('主题设置'),
-      subtitle: const Text('自定义应用外观和颜色'),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsItem.text(
+      title: '主题设置',
+      description: '自定义应用外观和颜色',
+      showArrow: true,
       onTap: () {
         _showComingSoonDialog('主题设置功能');
       },
@@ -525,10 +434,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 构建通知设置
   Widget _buildNotificationSettingsTile() {
-    return ListTile(
-      title: const Text('通知设置'),
-      subtitle: const Text('课程提醒和通知管理'),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsItem.text(
+      title: '通知设置',
+      description: '课程提醒和通知管理',
+      showArrow: true,
       onTap: () {
         _showComingSoonDialog('通知设置功能');
       },
@@ -537,10 +446,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 构建小组件设置
   Widget _buildWidgetSettingsTile() {
-    return ListTile(
-      title: const Text('桌面小组件'),
-      subtitle: const Text('在主屏幕显示课程信息'),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsItem.text(
+      title: '桌面小组件',
+      description: '在主屏幕显示课程信息',
+      showArrow: true,
       onTap: () {
         _showComingSoonDialog('桌面小组件功能');
       },
@@ -549,10 +458,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 构建同步设置
   Widget _buildSyncSettingsTile() {
-    return ListTile(
-      title: const Text('数据同步'),
-      subtitle: const Text('多设备间同步课表数据'),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsItem.text(
+      title: '数据同步',
+      description: '多设备间同步课表数据',
+      showArrow: true,
       onTap: () {
         _showComingSoonDialog('数据同步功能');
       },
@@ -568,18 +477,15 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context, snapshot) {
         final advancedEnabled = snapshot.data ?? false;
         
-        return SwitchListTile(
-          title: const Text('高级功能'),
-          subtitle: Text(advancedEnabled ? '已启用高级功能' : '启用高级功能'),
+        return SettingsItem.switch_(
+          title: '高级功能',
+          description: advancedEnabled ? '已启用高级功能' : '启用后可使用AI导入、脚本等功能',
           value: advancedEnabled,
           onChanged: (value) async {
             if (value) {
               // 打开开关前显示确认弹窗
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (context) => const AdvancedFeaturesDialog(),
-              );
-              if (confirmed != true) {
+              final confirmed = await AdvancedFeaturesDialog.show(context);
+              if (!confirmed) {
                 return; // 用户取消，不执行开关操作
               }
             }
@@ -589,7 +495,7 @@ class _SettingsPageState extends State<SettingsPage> {
             if (!mounted) return;
             setState(() {});
             if (!mounted) return;
-            FeedbackUtils.show(context, value ? '高级功能已启用' : '高级功能已禁用');
+            Notifications.sonner(context, message: value ? '高级功能已启用' : '高级功能已禁用');
           },
         );
       },
@@ -603,19 +509,19 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context, snapshot) {
         final advancedEnabled = snapshot.data ?? false;
         
-        return ListTile(
-          title: const Text('教务导入配置'),
-          subtitle: const Text('配置GitHub脚本仓库'),
-          trailing: const Icon(Icons.chevron_right),
+        return SettingsItem.text(
+          title: '脚本仓库',
+          description: advancedEnabled ? '配置和管理脚本仓库' : '需要启用高级功能',
+          showArrow: true,
           enabled: advancedEnabled,
-          onTap: advancedEnabled ? () {
+          onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const RepositoryConfigPage(),
               ),
             );
-          } : null,
+          },
         );
       },
     );
@@ -628,19 +534,19 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context, snapshot) {
         final advancedEnabled = snapshot.data ?? false;
         
-        return ListTile(
-          title: const Text('AI导入配置'),
-          subtitle: const Text('配置AI服务用于课程表识别'),
-          trailing: const Icon(Icons.chevron_right),
+        return SettingsItem.text(
+          title: 'AI导入配置',
+          description: advancedEnabled ? '配置AI服务用于课程表识别' : '需要启用高级功能',
+          showArrow: true,
           enabled: advancedEnabled,
-          onTap: advancedEnabled ? () {
+          onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const AIConfigPage(),
               ),
             );
-          } : null,
+          },
         );
       },
     );
@@ -648,10 +554,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 构建开发者选项
   Widget _buildDeveloperOptionsTile() {
-    return ListTile(
-      title: const Text('开发者选项'),
-      subtitle: const Text('高级调试和开发工具'),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsItem.text(
+      title: '开发者选项',
+      description: '高级调试和开发工具',
+      showArrow: true,
       onTap: () {
         _showComingSoonDialog('开发者选项');
       },
@@ -662,20 +568,21 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 构建关于页面
   Widget _buildAboutTile() {
-    return ListTile(
-      title: const Text('关于应用'),
-      subtitle: const Text('版本信息和应用详情'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _showAboutDialog,
+    return SettingsItem.value(
+      title: '关于应用',
+      description: '版本信息和应用详情',
+      value: 'v1.0.2',
+      showArrow: true,
+      onTap: _showAboutDialog,
     );
   }
 
   /// 构建帮助页面
   Widget _buildHelpTile() {
-    return ListTile(
-      title: const Text('使用帮助'),
-      subtitle: const Text('常见问题和使用指南'),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsItem.text(
+      title: '使用帮助',
+      description: '常见问题和使用指南',
+      showArrow: true,
       onTap: () {
         _showComingSoonDialog('使用帮助功能');
       },
@@ -684,10 +591,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 构建反馈页面
   Widget _buildFeedbackTile() {
-    return ListTile(
-      title: const Text('意见反馈'),
-      subtitle: const Text('提交建议和问题报告'),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsItem.text(
+      title: '意见反馈',
+      description: '提交建议和问题报告',
+      showArrow: true,
       onTap: () {
         _showComingSoonDialog('意见反馈功能');
       },
@@ -696,10 +603,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 构建开源许可证
   Widget _buildPrivacyPolicyTile() {
-    return ListTile(
-      title: const Text('开源许可证'),
-      subtitle: const Text('查看项目使用的开源许可证'),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsItem.text(
+      title: '开源许可证',
+      description: '查看项目使用的开源许可证',
+      showArrow: true,
       onTap: () {
         Navigator.push(
           context,
@@ -713,18 +620,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 显示即将推出对话框
   void _showComingSoonDialog(String featureName) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('功能开发中'),
-        content: Text('$featureName 正在开发中，敬请期待！'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('确定'),
-          ),
-        ],
-      ),
+    YicoreAlert.show(
+      context,
+      title: '功能开发中',
+      message: '$featureName 正在开发中，敬请期待！',
     );
   }
 

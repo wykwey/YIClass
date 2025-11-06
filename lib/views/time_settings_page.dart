@@ -4,10 +4,21 @@ import 'package:provider/provider.dart';
 import '../states/timetable_state.dart';
 import '../data/data_constants.dart';
 import '../data/class_time.dart';
-import '../components/start_date_picker.dart';
-import '../components/time_picker_bottom_sheet.dart';
-import '../utils/feedback_utils.dart';
+import '../zujian/timepicker.dart';
+import '../zujian/datepicker.dart';
+import '../zujian/notifications.dart';
+import '../zujian/appbar.dart';
+import '../zujian/settingscard.dart';
+import '../zujian/components.dart';
+import '../zujian/cards.dart';
 
+/// 课程时间设置页面
+/// 
+/// 功能：
+/// - 设置学期开始日期
+/// - 设置最大节数
+/// - 设置每节课的时间
+/// - 支持统一时长快捷设置
 class TimeSettingsPage extends StatefulWidget {
   const TimeSettingsPage({super.key});
 
@@ -16,364 +27,385 @@ class TimeSettingsPage extends StatefulWidget {
 }
 
 class _TimeSettingsPageState extends State<TimeSettingsPage> {
-  late Map<int, ClassTime> _classTimes; // 使用节次作为key
+  // ==================== 状态变量 ====================
+  late Map<int, ClassTime> _classTimes;
   DateTime? _selectedDate;
-  int _localMaxPeriods = DataConstants.defaultMaxPeriods;
-  bool _isSameDuration = false;
-  String _sameDurationValue = '';
+  int _maxPeriods = DataConstants.defaultMaxPeriods;
+  bool _useSameDuration = false;
+  final TextEditingController _durationController = TextEditingController();
 
+  // ==================== 生命周期 ====================
   @override
   void initState() {
     super.initState();
-    final timetableState = Provider.of<TimetableState>(context, listen: false);
-    final timetable = timetableState.current;
-    
-    // 初始化 ClassTime Map
-    _classTimes = {};
-    if (timetable != null && timetable.settings.classTimes.isNotEmpty) {
-      for (final ct in timetable.settings.classTimes) {
-        _classTimes[ct.period] = ClassTime()
-          ..period = ct.period
-          ..startTime = ct.startTime
-          ..endTime = ct.endTime;
-      }
-    } else {
-      // 使用默认值
-      DataConstants.defaultPeriodTimes.forEach((key, value) {
-        final period = int.tryParse(key) ?? 0;
-        if (period > 0) {
-          final parts = value.split('-');
-          _classTimes[period] = ClassTime()
-            ..period = period
-            ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-            ..endTime = parts.length > 1 ? parts.last : '08:45';
-        }
-      });
-    }
-    
-    _localMaxPeriods = (timetable?.settings.maxPeriods ?? 0) > 0
-        ? timetable!.settings.maxPeriods
-        : DataConstants.defaultMaxPeriods;
-    _selectedDate = timetable?.settings.startDate;
-    
-    // 确保所有节次都有时间设置
-    for (int i = 1; i <= _localMaxPeriods; i++) {
-      _classTimes.putIfAbsent(i, () {
-        final defaultTime = DataConstants.defaultPeriodTimes[i.toString()] ?? '08:00-08:45';
-        final parts = defaultTime.split('-');
-        return ClassTime()
-          ..period = i
-          ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-          ..endTime = parts.length > 1 ? parts.last : '08:45';
-      });
-    }
+    _loadSettings();
   }
 
   @override
   void dispose() {
+    _durationController.dispose();
     super.dispose();
   }
 
+  // ==================== 数据加载 ====================
+  
+  /// 从课表加载设置
+  void _loadSettings() {
+    final timetable = context.read<TimetableState>().current;
+    if (timetable == null) return;
 
+    _selectedDate = timetable.settings.startDate;
+    _maxPeriods = timetable.settings.maxPeriods > 0
+        ? timetable.settings.maxPeriods
+        : DataConstants.defaultMaxPeriods;
 
-  void _saveSettings() async {
+    _loadClassTimes(timetable);
+  }
+
+  /// 加载课程时间
+  void _loadClassTimes(timetable) {
+    _classTimes = {};
+
+    // 从课表加载已有的时间设置
+    for (final ct in timetable.settings.classTimes) {
+      _classTimes[ct.period] = ClassTime()
+        ..period = ct.period
+        ..startTime = ct.startTime
+        ..endTime = ct.endTime;
+    }
+
+    // 确保所有节次都有默认值
+    for (int i = 1; i <= _maxPeriods; i++) {
+      _classTimes.putIfAbsent(i, () => _createDefaultClassTime(i));
+    }
+  }
+
+  /// 创建默认的课程时间
+  ClassTime _createDefaultClassTime(int period) {
+    final defaultTime = DataConstants.defaultPeriodTimes[period.toString()] ?? '08:00-08:45';
+    final parts = defaultTime.split('-');
+    return ClassTime()
+      ..period = period
+      ..startTime = parts.isNotEmpty ? parts.first : '08:00'
+      ..endTime = parts.length > 1 ? parts.last : '08:45';
+  }
+
+  // ==================== 数据保存 ====================
+  
+  /// 保存设置
+  Future<void> _saveSettings() async {
     try {
-      final timetableState = Provider.of<TimetableState>(context, listen: false);
+      final timetableState = context.read<TimetableState>();
       final timetable = timetableState.current;
       if (timetable == null) return;
-      
-      // 更新 ClassTime 列表（只保留有效的节次）
+
+      // 构建课程时间列表
       final classTimesList = <ClassTime>[];
-      for (int i = 1; i <= _localMaxPeriods; i++) {
+      for (int i = 1; i <= _maxPeriods; i++) {
         if (_classTimes.containsKey(i)) {
           classTimesList.add(_classTimes[i]!);
         }
       }
-      
+
       // 更新设置
       timetable.settings.classTimes = classTimesList;
-      timetable.settings.maxPeriods = _localMaxPeriods;
+      timetable.settings.maxPeriods = _maxPeriods;
       if (_selectedDate != null) {
         timetable.settings.startDate = _selectedDate!;
       }
-      
+
       // 保存到数据库
       await timetableState.put(timetable);
-      
-      // 直接关闭页面，无成功提示
+
+      // 关闭页面
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      // 显示错误提示
       if (mounted) {
-        FeedbackUtils.show(context, '保存失败：${e.toString()}');
+        Notifications.sonner(context, message: '保存失败：${e.toString()}');
       }
     }
   }
 
+  // ==================== 事件处理 ====================
+  
+  /// 更新最大节数
   void _updateMaxPeriods(int value) {
     setState(() {
-      _localMaxPeriods = value;
-      // 实时更新UI，但不立即保存到数据库
-      for (int i = 1; i <= _localMaxPeriods; i++) {
-        _classTimes.putIfAbsent(i, () {
-          final defaultTime = DataConstants.defaultPeriodTimes[i.toString()] ?? '08:00-08:45';
-          final parts = defaultTime.split('-');
-          return ClassTime()
-            ..period = i
-            ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-            ..endTime = parts.length > 1 ? parts.last : '08:45';
-        });
+      _maxPeriods = value;
+      
+      // 添加新增的节次
+      for (int i = 1; i <= _maxPeriods; i++) {
+        _classTimes.putIfAbsent(i, () => _createDefaultClassTime(i));
       }
-      _classTimes.removeWhere((key, _) => key > _localMaxPeriods);
+      
+      // 删除超出的节次
+      _classTimes.removeWhere((key, _) => key > _maxPeriods);
     });
   }
 
-  void _applySameDurationDuration() {
-    // 以 08:00 为起点，依次推算每节课时间
-    int duration = int.tryParse(_sameDurationValue) ?? 45;
-    DateTime start = DateTime(2000, 1, 1, 8, 0);
-    for (int i = 1; i <= _localMaxPeriods; i++) {
-      final end = start.add(Duration(minutes: duration));
-      final startStr = '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}';
-      final endStr = '${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}';
-      
-      _classTimes[i] = ClassTime()
-        ..period = i
-        ..startTime = startStr
-        ..endTime = endStr;
-      
-      start = end;
-    }
-    setState(() {});
-  }
-
-  List<int> _morningPeriods() => [1, 2, 3, 4].where((i) => i <= _localMaxPeriods).toList();
-  List<int> _afternoonPeriods() => [5, 6, 7, 8, 9].where((i) => i <= _localMaxPeriods).toList();
-  List<int> _eveningPeriods() => [10, 11, 12, 13, 14, 15, 16].where((i) => i <= _localMaxPeriods).toList();
-
-  // 将数字转换为汉字
-  String _getChineseNumber(int number) {
-    const chineseNumbers = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五', '十六'];
-    if (number >= 1 && number <= 16) {
-      return chineseNumbers[number - 1];
-    }
-    return number.toString();
-  }
-
-  Widget _buildTimeList(String title, List<int> periods) {
-    if (periods.isEmpty) return const SizedBox();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          child: Text(title, style: const TextStyle(color: Colors.grey)),
-        ),
-        ...periods.map((period) => InkWell(
-          onTap: _isSameDuration ? null : () => _showTimePickerBottomSheet(period),
-          child: ListTile(
-            title: Text(
-              '第${_getChineseNumber(period)}节',
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.black87,
-              ),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _classTimes[period] != null 
-                      ? '${_classTimes[period]!.startTime}-${_classTimes[period]!.endTime}'
-                      : "未设置",
-                  style: TextStyle(
-                    color: _isSameDuration ? Colors.grey : Colors.black87,
-                    fontSize: 14,
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  size: 18,
-                  color: _isSameDuration ? Colors.grey : Colors.black54,
-                ),
-              ],
-            ),
-          ),
-        )),
-      ],
-    );
-  }
-
-  void _showTimePickerBottomSheet(int period) {
-    final classTime = _classTimes[period];
-    final initialTime = classTime != null 
-        ? '${classTime.startTime}-${classTime.endTime}'
-        : '08:00-08:45';
-    
-    showModalBottomSheet(
+  /// 选择开始日期
+  Future<void> _pickStartDate() async {
+    final currentDate = _selectedDate ?? DateTime.now();
+    final picked = await YicoreDatePicker.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return TimePickerBottomSheet(
-          initialTimeRange: initialTime,
-          periodNumber: period,
-          onTimeSelected: (timeRange) {
-            setState(() {
-              final parts = timeRange.split('-');
-              _classTimes[period] = ClassTime()
-                ..period = period
-                ..startTime = parts.isNotEmpty ? parts.first : '08:00'
-                ..endTime = parts.length > 1 ? parts.last : '08:45';
-            });
-          },
-        );
-      },
+      initialDate: currentDate,
+      firstDate: DateTime(2020, 1, 1),
+      lastDate: DateTime(2099, 12, 31),
     );
+
+    if (picked != null && mounted) {
+      setState(() => _selectedDate = picked);
+    }
   }
 
+  /// 选择课程时间
+  Future<void> _pickClassTime(int period) async {
+    final classTime = _classTimes[period];
+    if (classTime == null) return;
+
+    // 解析当前时间
+    final startParts = classTime.startTime.split(':');
+    final endParts = classTime.endTime.split(':');
+    final initial = TimeRange(
+      startHour: int.tryParse(startParts[0]) ?? 8,
+      startMinute: int.tryParse(startParts[1]) ?? 0,
+      endHour: int.tryParse(endParts[0]) ?? 8,
+      endMinute: int.tryParse(endParts[1]) ?? 45,
+    );
+
+    // 显示时间选择器
+    final result = await YicoreTimeRangePicker.show(
+      context: context,
+      initial: initial,
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _classTimes[period] = ClassTime()
+          ..period = period
+          ..startTime = result.formatStart()
+          ..endTime = result.formatEnd();
+      });
+    }
+  }
+
+  /// 应用统一时长
+  void _applySameDuration() {
+    final duration = int.tryParse(_durationController.text);
+    if (duration == null || duration <= 0) {
+      Notifications.sonner(context, message: '请输入有效的时长（分钟）');
+      return;
+    }
+
+    setState(() {
+      DateTime start = DateTime(2000, 1, 1, 8, 0);
+      for (int i = 1; i <= _maxPeriods; i++) {
+        final end = start.add(Duration(minutes: duration));
+        _classTimes[i] = ClassTime()
+          ..period = i
+          ..startTime = _formatTime(start)
+          ..endTime = _formatTime(end);
+        start = end;
+      }
+    });
+
+    Notifications.sonner(context, message: '已应用统一时长');
+  }
+
+  // ==================== 辅助方法 ====================
+  
+  /// 格式化时间
+  String _formatTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  /// 获取中文数字
+  String _getChineseNumber(int number) {
+    const numbers = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', 
+                     '十一', '十二', '十三', '十四', '十五', '十六'];
+    return (number >= 1 && number <= 16) ? numbers[number - 1] : number.toString();
+  }
+
+  /// 获取时间段的节次列表
+  List<int> _getPeriodsForTimeSlot(String slot) {
+    final ranges = {
+      '上午': [1, 2, 3, 4],
+      '下午': [5, 6, 7, 8, 9],
+      '晚上': [10, 11, 12, 13, 14, 15, 16],
+    };
+    return ranges[slot]!.where((i) => i <= _maxPeriods).toList();
+  }
+
+  // ==================== UI 构建 ====================
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('课程时间设置'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: YicoreAppBar(
+        title: '课程时间设置',
+        centerTitle: true,
+        onBackPressed: () => Navigator.pop(context),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
+          YicoreAppBarAction(
+            icon: Icons.check,
             onPressed: _saveSettings,
           ),
         ],
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F7F7),
       body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
-          ListTile(
-            splashColor: Colors.transparent,
-            title: const Text('学期开始日期', style: TextStyle(color: Colors.black)),
-            subtitle: Text(
-              _selectedDate != null
-                  ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
-                  : '未设置',
-            ),
-            trailing: const Icon(Icons.edit_calendar),
-            onTap: () async {
-              final currentDate = _selectedDate ?? DateTime.now();
-              await showDialog(
-                context: context,
-                builder: (_) => SimpleDatePicker(
-                  initialDate: currentDate,
-                  onDateSelected: (picked) async {
-                    // 使用局部状态，不立即保存到数据库
-                    setState(() {
-                      _selectedDate = picked;
-                    });
-                  },
-                ),
-              );
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                const Text('最大节数:', style: TextStyle(color: Colors.black)),
-                Expanded(
-                child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: Colors.blue.shade400,
-                    inactiveTrackColor: Colors.blue.shade100,
-                    thumbColor: Colors.blue.shade400,
-                    overlayColor: Colors.blue.shade100.withOpacity(0.2),
-                    valueIndicatorColor: Colors.blue.shade400,
-                  ),
-                  child: Slider(
-                    value: _localMaxPeriods.toDouble(),
-                    min: DataConstants.minMaxPeriods.toDouble(),
-                    max: DataConstants.maxMaxPeriods.toDouble(),
-                    divisions: DataConstants.maxMaxPeriods - DataConstants.minMaxPeriods,
-                    label: '$_localMaxPeriods',
-                    onChanged: (value) {
-                      // ✅ 使用局部状态，立即更新UI，避免全局广播冲突
-                      _updateMaxPeriods(value.round());
-                    },
-                  ),
-                ),
-                ),
-                Text('$_localMaxPeriods 节'),
-              ],
-            ),
-          ),
-          SwitchListTile(
-            title: const Text('每节课时长相同', style: TextStyle(color: Colors.black)),
-            subtitle: const Text('如45分钟，自动推算每节时间'),
-            value: _isSameDuration,
-            onChanged: (val) {
-              setState(() {
-                _isSameDuration = val;
-                if (val && _sameDurationValue.isNotEmpty) {
-                  _applySameDurationDuration();
-                }
-              });
-            },
-          ),
-          if (_isSameDuration)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  const Text('统一时长(分钟):'),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 80,
-                    child: TextFormField(
-                      keyboardType: TextInputType.number,
-                      onChanged: (val) {
-                        _sameDurationValue = val;
-                        if (_isSameDuration && val.isNotEmpty) {
-                          _applySameDurationDuration();
-                        }
-                      },
-                      decoration: const InputDecoration(
-                        hintText: '45',
-                        isDense: true,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed: () {
-                      if (_sameDurationValue.isNotEmpty) {
-                        _applySameDurationDuration();
-                      }
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.blue.shade400,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                    ),
-                    child: const Text('应用'),
-                  ),
-                ],
-              ),
-            ),
-          const Divider(),
-          _buildTimeList('上午', _morningPeriods()),
-          _buildTimeList('下午', _afternoonPeriods()),
-          _buildTimeList('晚上', _eveningPeriods()),
+          _buildBasicSettings(),
+          const SizedBox(height: 16),
+          _buildQuickSettings(),
+          if (_useSameDuration) ...[
+            const SizedBox(height: 16),
+            _buildDurationInput(),
+          ],
+          const SizedBox(height: 16),
+          _buildTimeSlots(),
           const SizedBox(height: 32),
         ],
       ),
     );
   }
-} 
+
+  /// 构建基础设置
+  Widget _buildBasicSettings() {
+    return SettingsBlock(
+      title: '基础设置',
+      children: [
+        SettingsItem.value(
+          title: '学期开始日期',
+          value: _selectedDate != null
+              ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
+              : '未设置',
+          showArrow: true,
+          onTap: _pickStartDate,
+          inBlock: true,
+        ),
+        SettingsItem.slider(
+          title: '最大节数 ($_maxPeriods节)',
+          description: '每天最多显示的课程节数',
+          value: _maxPeriods.toDouble(),
+          min: DataConstants.minMaxPeriods.toDouble(),
+          max: DataConstants.maxMaxPeriods.toDouble(),
+          onChanged: (value) => _updateMaxPeriods(value.round()),
+          inBlock: true,
+        ),
+      ],
+    );
+  }
+
+  /// 构建快捷设置
+  Widget _buildQuickSettings() {
+    return SettingsBlock(
+      title: '快捷设置',
+      children: [
+        SettingsItem.switch_(
+          title: '每节课时长相同',
+          description: '自动推算每节课的开始和结束时间',
+          value: _useSameDuration,
+          onChanged: (value) => setState(() => _useSameDuration = value),
+          inBlock: true,
+        ),
+      ],
+    );
+  }
+
+  /// 构建统一时长输入
+  Widget _buildDurationInput() {
+    return YicoreCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '统一时长设置',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[800],
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: YicoreTextField(
+                  labelText: '统一时长（分钟）',
+                  hintText: '45',
+                  controller: _durationController,
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+              const SizedBox(width: 12),
+              YicoreButton(
+                text: '应用',
+                onPressed: _applySameDuration,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 构建时间段设置
+  Widget _buildTimeSlots() {
+    return SettingsBlock(
+      title: '时间段设置',
+      children: [
+        ..._buildTimeSlotSection('上午'),
+        ..._buildTimeSlotSection('下午'),
+        ..._buildTimeSlotSection('晚上'),
+      ],
+    );
+  }
+
+  /// 构建时间段区块
+  List<Widget> _buildTimeSlotSection(String slot) {
+    final periods = _getPeriodsForTimeSlot(slot);
+    if (periods.isEmpty) return [];
+
+    final items = <Widget>[
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        child: Text(
+          slot,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[600],
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+    ];
+
+    for (int i = 0; i < periods.length; i++) {
+      final period = periods[i];
+      final classTime = _classTimes[period];
+      final timeStr = classTime != null
+          ? '${classTime.startTime}-${classTime.endTime}'
+          : '未设置';
+      final isLast = (i == periods.length - 1 && slot == '晚上');
+
+      items.add(
+        SettingsItem(
+          title: '第${_getChineseNumber(period)}节',
+          value: timeStr,
+          showArrow: true,
+          enabled: !_useSameDuration,
+          onTap: _useSameDuration ? null : () => _pickClassTime(period),
+          inBlock: true,
+          isLastInBlock: isLast,
+        ),
+      );
+    }
+
+    return items;
+  }
+}

@@ -74,6 +74,11 @@ class CourseListViewUI extends StatelessWidget {
 
   /// 构建按周次分组的课程列表
   Widget _buildCourseList() {
+    // 如果没有课程，显示空状态提示
+    if (groupedCourses.isEmpty) {
+      return _buildEmptyState();
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(8),
       itemCount: groupedCourses.length,
@@ -83,6 +88,34 @@ class CourseListViewUI extends StatelessWidget {
 
         return _WeekSection(week: week, courses: weekCourses);
       },
+    );
+  }
+
+  /// 构建空状态提示
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 16),
+          Text(
+            '暂无课程',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '点击右下角按钮添加课程',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -13,9 +13,7 @@ import 'timetable_management_dialog.dart';
 /// - 课表管理：打开课表管理对话框
 /// 
 /// 状态依赖：
-/// - TimetableStateV2: 获取课表信息和总周数
-/// - ViewStateV2: 管理视图切换
-/// - WeekStateV2: 管理当前周次
+/// - TimetableState: 获取课表信息和总周数
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
 
@@ -115,71 +113,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   /// 显示课表管理对话框
   void _showTimetableManagementDialog(BuildContext context) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: '',
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const TimetableManagementDialog();
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return _buildDialogTransition(animation, secondaryAnimation, child);
-      },
-    );
-  }
-
-  /// 构建对话框动画效果
-  Widget _buildDialogTransition(
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    // 弹出动画：从中心缩放 + 淡入
-    final scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: animation,
-      curve: Curves.elasticOut,
-    ));
-
-    final fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: animation,
-      curve: Curves.easeInOut,
-    ));
-
-    // 回收动画：反向缩放和淡出
-    final reverseScaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: secondaryAnimation,
-      curve: Curves.easeInBack,
-    ));
-
-    final reverseFadeAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: secondaryAnimation,
-      curve: Curves.easeInOut,
-    ));
-
-    return FadeTransition(
-      opacity: animation.status == AnimationStatus.reverse
-          ? reverseFadeAnimation
-          : fadeAnimation,
-      child: ScaleTransition(
-        scale: animation.status == AnimationStatus.reverse
-            ? reverseScaleAnimation
-            : scaleAnimation,
-        child: child,
-      ),
-    );
+    TimetableManagementDialog.show(context);
   }
 }

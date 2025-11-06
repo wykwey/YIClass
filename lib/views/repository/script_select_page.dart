@@ -3,7 +3,8 @@ import '../../data/school_index.dart';
 import '../../services/repository/script_file_service.dart';
 import '../../services/repository/repository_config_service.dart';
 import '../../services/repository/repository_download_service.dart';
-import '../../utils/feedback_utils.dart';
+import '../../zujian/notifications.dart';
+import '../../zujian/appbar.dart';
 import 'edu_import_page.dart';
 
 /// 脚本选择页
@@ -55,7 +56,7 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
     try {
       final config = await RepositoryConfigService.getConfig();
       if (!config.isValid) {
-        FeedbackUtils.show(context, '请先配置仓库信息');
+        Notifications.sonner(context, message: '请先配置仓库信息');
         return;
       }
 
@@ -70,16 +71,16 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
 
       if (mounted) {
         if (successCount > 0) {
-          FeedbackUtils.show(context, '成功下载 $successCount/${scriptNames.length} 个脚本');
+          Notifications.sonner(context, message: '成功下载 $successCount/${scriptNames.length} 个脚本');
           // 重新检查脚本文件状态
           await _checkScriptsExist();
         } else {
-          FeedbackUtils.show(context, '下载失败，请检查网络连接或仓库配置');
+          Notifications.sonner(context, message: '下载失败，请检查网络连接或仓库配置');
         }
       }
     } catch (e) {
       if (mounted) {
-        FeedbackUtils.show(context, '下载失败: $e');
+        Notifications.sonner(context, message: '下载失败: $e');
       }
     } finally {
       if (mounted) {
@@ -91,11 +92,12 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.school.school),
+      appBar: YicoreAppBar(
+        title: widget.school.school,
+        centerTitle: true,
         actions: [
           if (_isChecking || _isDownloading)
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(16.0),
               child: SizedBox(
                 width: 20,
@@ -104,15 +106,13 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
               ),
             )
           else ...[
-            IconButton(
-              icon: const Icon(Icons.download),
+            YicoreAppBarAction(
+              icon: Icons.download,
               onPressed: _downloadAllScripts,
-              tooltip: '下载所有脚本',
             ),
-            IconButton(
-              icon: const Icon(Icons.refresh),
+            YicoreAppBarAction(
+              icon: Icons.refresh,
               onPressed: _checkScriptsExist,
-              tooltip: '刷新',
             ),
           ],
         ],

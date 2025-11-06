@@ -4,7 +4,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import '../../services/repository/school_index_service.dart';
 import '../../data/school_index.dart';
-import '../../utils/feedback_utils.dart';
+import '../../zujian/notifications.dart';
+import '../../zujian/appbar.dart';
 import '../repository_config_page.dart';
 import 'script_select_page.dart';
 
@@ -64,7 +65,7 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        FeedbackUtils.show(context, '加载学校列表失败: $e');
+        Notifications.sonner(context, message: '加载学校列表失败: $e');
       }
     }
   }
@@ -127,13 +128,13 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('选择学校'),
+      appBar: YicoreAppBar(
+        title: '选择学校',
+        centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
+          YicoreAppBarAction(
+            icon: Icons.refresh,
             onPressed: _loadSchools,
-            tooltip: '刷新',
           ),
         ],
       ),
