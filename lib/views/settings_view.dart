@@ -3,22 +3,16 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../states/timetable_state.dart';
 import '../states/view_state.dart';
-import './time_settings_page.dart';
-import './license_page.dart' as license;
-import './ai_config_page.dart';
-import '../components/bottom_nav_bar.dart';
 import '../data/data_constants.dart';
 import '../components/timetable_management_dialog.dart';
 import '../components/advanced_features_dialog.dart';
-import './ai_import_page.dart';
-import './repository/school_select_page.dart';
-import './repository_config_page.dart';
 import '../services/settings_service.dart';
 import '../services/file_service.dart';
 import '../data/timetable.dart';
 import '../zujian/settingscard.dart';
 import '../zujian/datepicker.dart';
 import '../zujian/notifications.dart';
+import '../routes/route_utils.dart';
 import '../zujian/dialogs.dart';
 import '../zujian/appbar.dart';
 import '../zujian/segmented_control.dart';
@@ -30,7 +24,10 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   // 局部状态管理，避免全局广播冲突
   int _localTotalWeeks = DataConstants.defaultTotalWeeks;
   bool _isInitialized = false;
@@ -62,6 +59,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // 必须调用以支持 AutomaticKeepAliveClientMixin
+    
     final timetableState = Provider.of<TimetableState>(context, listen: false);
     final viewState = Provider.of<ViewState>(context, listen: false);
     
@@ -82,7 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       backgroundColor: Color(0xFFF7F7F7),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 80),
         children: [
           // 基础功能分区
           SettingsBlock(
@@ -112,19 +111,6 @@ class _SettingsPageState extends State<SettingsPage> {
           
           const SizedBox(height: 16),
           
-          // 扩展功能分区
-          SettingsBlock(
-            title: '扩展功能',
-            children: [
-              _buildThemeSettingsTile(),
-              _buildNotificationSettingsTile(),
-              _buildWidgetSettingsTile(),
-              _buildSyncSettingsTile(),
-            ],
-          ),
-          
-          const SizedBox(height: 16),
-          
           // 高级功能分区
           SettingsBlock(
             title: '高级功能',
@@ -133,6 +119,19 @@ class _SettingsPageState extends State<SettingsPage> {
               _buildScriptRepositoryTile(),
               _buildAiSettingsTile(),
               _buildDeveloperOptionsTile(),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // 扩展功能分区
+          SettingsBlock(
+            title: '扩展功能',
+            children: [
+              _buildThemeSettingsTile(),
+              _buildNotificationSettingsTile(),
+              _buildWidgetSettingsTile(),
+              _buildSyncSettingsTile(),
             ],
           ),
           
@@ -152,22 +151,15 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 16),
         ],
       ),
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 2,
-        onTabChanged: (index) {
-          if (index != 2) {
-            final views = ['周视图', '日视图'];
-            final viewState = Provider.of<ViewState>(context, listen: false);
-            viewState.changeView(views[index]);
-            Navigator.pop(context);
-          }
-        },
-      ),
     );
   }
 
   /// 构建视图模式设置
   Widget _buildViewModeTile(String selectedView, ViewState viewState, Timetable timetable, TimetableState timetableState) {
+    // 在设置页面时，锁定显示为"周视图"，避免重复计算滑块位置
+    // 这样可以减少不必要的UI计算，提升性能
+    const lockedView = '周视图';
+
     return SettingsItem.segmented(
       title: '视图模式',
       description: '切换课表显示方式',
@@ -176,14 +168,15 @@ class _SettingsPageState extends State<SettingsPage> {
         SegmentedItem(label: '日视图', value: '日视图'),
         SegmentedItem(label: '列表', value: '列表视图'),
       ],
-      selectedValue: selectedView,
+      selectedValue: lockedView,
       onChanged: (value) {
         if (!mounted) return;
-        viewState.changeView(value);
-        if (mounted) {
-          setState(() {});
-          // 切换视图后返回主页面，让用户立即看到切换效果
-          Navigator.pop(context);
+        if (value == '列表视图') {
+          // 跳转到列表视图页面
+          RouteUtils.pushListView(context);
+        } else {
+          // 切换主界面视图
+          viewState.changeView(value);
         }
       },
       inBlock: true,
@@ -287,12 +280,7 @@ class _SettingsPageState extends State<SettingsPage> {
       value: '点击设置',
       showArrow: true,
       onTap: () async {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const TimeSettingsPage(),
-          ),
-        );
+        await RouteUtils.pushTimeSettings(context);
         if (mounted) setState(() {});
       },
     );
@@ -356,12 +344,7 @@ class _SettingsPageState extends State<SettingsPage> {
           showArrow: true,
           enabled: advancedEnabled,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const SchoolSelectPage(),
-              ),
-            );
+            RouteUtils.pushSchoolSelect(context);
           },
         );
       },
@@ -381,12 +364,7 @@ class _SettingsPageState extends State<SettingsPage> {
           showArrow: true,
           enabled: advancedEnabled,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AIImportPage(),
-              ),
-            );
+            RouteUtils.pushAIImport(context);
           },
         );
       },
@@ -515,12 +493,7 @@ class _SettingsPageState extends State<SettingsPage> {
           showArrow: true,
           enabled: advancedEnabled,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const RepositoryConfigPage(),
-              ),
-            );
+            RouteUtils.pushRepositoryConfig(context);
           },
         );
       },
@@ -540,12 +513,7 @@ class _SettingsPageState extends State<SettingsPage> {
           showArrow: true,
           enabled: advancedEnabled,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AIConfigPage(),
-              ),
-            );
+            RouteUtils.pushAIConfig(context);
           },
         );
       },
@@ -571,7 +539,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return SettingsItem.value(
       title: '关于应用',
       description: '版本信息和应用详情',
-      value: 'v1.0.2',
+      value: 'v2.0.1',
       showArrow: true,
       onTap: _showAboutDialog,
     );
@@ -608,12 +576,7 @@ class _SettingsPageState extends State<SettingsPage> {
       description: '查看项目使用的开源许可证',
       showArrow: true,
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const license.OpenSourceLicensePage(),
-          ),
-        );
+        RouteUtils.pushLicense(context);
       },
     );
   }
@@ -649,7 +612,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Icon(Icons.school, size: 48),
                 SizedBox(height: 8),
                 Text('课程表应用', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                Text('版本: v1.0.2'),
+                Text('版本: v2.0.1'),
                 Text('© 2025 wykwe'),
                 SizedBox(height: 16),
                 Text('这是一个用于查看课程表的应用，支持每日、每周、列表等视图，并可设置课程周数、开课时间、是否显示周末等。'),

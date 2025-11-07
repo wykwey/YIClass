@@ -6,10 +6,19 @@ import '../components/course_card.dart';
 import '../components/add_course_fab.dart';
 import '../states/timetable_state.dart';
 import '../data/timetable.dart';
+import '../zujian/appbar.dart';
 
 /// 按周次分组显示课程的列表视图（V2）
-class CourseListView extends StatelessWidget {
+class CourseListView extends StatefulWidget {
   const CourseListView({super.key});
+
+  @override
+  State<CourseListView> createState() => _CourseListViewState();
+}
+
+class _CourseListViewState extends State<CourseListView> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
 
   // ================= 业务逻辑 =================
   /// 将课程按周次分组
@@ -30,6 +39,8 @@ class CourseListView extends StatelessWidget {
   // ================= UI构建 =================
   @override
   Widget build(BuildContext context) {
+    super.build(context); // 必须调用以支持 AutomaticKeepAliveClientMixin
+    
     final timetableState = context.watch<TimetableState>();
     final timetable = timetableState.current;
     
@@ -62,7 +73,11 @@ class CourseListViewUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F7F7),
+      appBar: const YicoreAppBar(
+        title: '列表视图',
+        centerTitle: true,
+      ),
       body: Stack(
         children: [
           _buildCourseList(),

@@ -6,8 +6,7 @@ import '../../services/repository/school_index_service.dart';
 import '../../data/school_index.dart';
 import '../../zujian/notifications.dart';
 import '../../zujian/appbar.dart';
-import '../repository_config_page.dart';
-import 'script_select_page.dart';
+import '../../routes/route_utils.dart';
 
 /// 学校选择页
 class SchoolSelectPage extends StatefulWidget {
@@ -104,12 +103,7 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const RepositoryConfigPage(),
-                ),
-              ).then((_) {
+              RouteUtils.pushRepositoryConfig(context).then((_) {
                 // 从配置页返回后，尝试重新加载学校列表
                 _loadSchools();
               });
@@ -128,6 +122,7 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F7F7),
       appBar: YicoreAppBar(
         title: '选择学校',
         centerTitle: true,
@@ -203,12 +198,7 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
             const SizedBox(height: 8),
             TextButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RepositoryConfigPage(),
-                  ),
-                ).then((_) {
+        RouteUtils.pushRepositoryConfig(context).then((_) {
                   // 从配置页返回后，尝试重新加载学校列表
                   _loadSchools();
                 });
@@ -298,11 +288,9 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
       title: Text(school.school),
       subtitle: Text('${school.scripts.length} 个脚本'),
       onTap: () {
-        Navigator.push(
+        RouteUtils.pushScriptSelect(
           context,
-          MaterialPageRoute(
-            builder: (context) => ScriptSelectPage(school: school),
-          ),
+          school: school,
         );
       },
     );

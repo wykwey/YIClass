@@ -98,6 +98,7 @@ class SettingsItem extends StatelessWidget {
     required ValueChanged<double> onChanged,
     bool inBlock = false,
     bool enabled = true,
+    double? width,
   }) {
     return SettingsItem(
       title: title,
@@ -109,6 +110,7 @@ class SettingsItem extends StatelessWidget {
         min: min,
         max: max,
         onChanged: enabled ? onChanged : (_) {},
+        width: width ?? 180, // 默认宽度从 250 减小到 180
       ),
     );
   }

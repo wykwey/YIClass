@@ -196,7 +196,7 @@ class _CourseEditPageState extends State<CourseEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF7F7F7),
       appBar: YicoreAppBar(
         title: _nameController.text.trim().isEmpty ? '添加课程' : '编辑课程',
         centerTitle: true,

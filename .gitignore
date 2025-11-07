@@ -45,7 +45,6 @@ app.*.map.json
 /android/app/release
 
 # Web related
-lib/generated_plugin_registrant.dart
 
 # Windows related
 windows/flutter/generated_plugin_registrant.cc

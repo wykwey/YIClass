@@ -48,7 +48,7 @@ class _AIImportPageState extends State<AIImportPage> {
         title: 'AI智能导入',
         centerTitle: true,
       ),
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF7F7F7),
       body: _isLoading
           ? const Center(
               child: Column(

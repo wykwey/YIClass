@@ -12,6 +12,7 @@ class OpenSourceLicensePage extends StatelessWidget {
         title: '开源许可证',
         centerTitle: true,
       ),
+      backgroundColor: const Color(0xFFF7F7F7),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

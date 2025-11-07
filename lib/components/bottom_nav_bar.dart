@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../states/view_state.dart';
-import '../views/settings_view.dart';
 import '../zujian/navigation.dart';
 
 class AppBottomNavBar extends StatelessWidget {
@@ -21,19 +20,9 @@ class AppBottomNavBar extends StatelessWidget {
         if (onTabChanged != null) {
           onTabChanged!(index);
         } else {
-          if (index == 2) {
-            // 导航到设置页
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const SettingsPage(),
-              ),
-            );
-          } else {
-            // 切换周视图/日视图
-            final views = ['周视图', '日视图'];
-            viewState.changeView(views[index]);
-          }
+          // 直接切换视图，不使用 Navigator
+          final views = ['周视图', '日视图', '设置'];
+          viewState.changeView(views[index]);
         }
       },
       items: const [
@@ -53,6 +42,8 @@ class AppBottomNavBar extends StatelessWidget {
         return 1;
       case '列表视图':
         return 0; // 列表视图使用周视图的索引
+      case '设置':
+        return 2;
       default:
         return 0;
     }

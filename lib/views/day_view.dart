@@ -8,7 +8,7 @@ import '../states/week_state.dart';
 import '../states/view_state.dart';
 import '../components/add_course_fab.dart';
 import '../components/course_card.dart';
-import 'course_edit_page.dart';
+import '../routes/route_utils.dart';
 import '../data/timetable.dart';
 
 /// 日视图组件（V2）
@@ -21,15 +21,19 @@ class DayView extends StatefulWidget {
   State<DayView> createState() => _DayViewState();
 }
 
-class _DayViewState extends State<DayView> {
+class _DayViewState extends State<DayView> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   // ================= 业务逻辑 =================
   Future<void> _handleEditCourse(Course course) async {
     if (!mounted) return;
     
     final timetableId = Provider.of<TimetableState>(context, listen: false).current?.id ?? 0;
-    final result = await Navigator.push<dynamic>(
+    final result = await RouteUtils.pushCourseEdit(
       context,
-      MaterialPageRoute(builder: (_) => CourseEditPage(course: course, timetableId: timetableId)), 
+      course: course,
+      timetableId: timetableId,
     );
     
     if (result != null && mounted) {
@@ -42,6 +46,8 @@ class _DayViewState extends State<DayView> {
   // ================= UI构建 =================
   @override
   Widget build(BuildContext context) {
+    super.build(context); // 必须调用以支持 AutomaticKeepAliveClientMixin
+    
     final timetableState = context.watch<TimetableState>();
     final weekState = context.watch<WeekState>();
     final viewState = context.watch<ViewState>();
@@ -82,7 +88,7 @@ class DayViewUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F7F7),
       body: Stack(
         children: [
           Column(
@@ -160,12 +166,19 @@ class DaySelector extends StatelessWidget {
     final timetable = timetableState.current;
     final isSelected = selectedDay == weekday;
     
-    return InkWell(
+    return GestureDetector(
       onTap: () => onDaySelected(weekday),
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(6),
+          // 未选中：灰色块（次要按钮样式），选中：白色背景+边框（轮廓按钮样式）
+          color: isSelected ? Colors.white : Colors.grey[200],
+          borderRadius: BorderRadius.circular(8),
+          border: isSelected
+              ? Border.all(
+                  color: Colors.black.withOpacity(0.4), // 轮廓按钮边框颜色
+                  width: 1,
+                )
+              : null,
         ),
         child: Center(child: _buildDayContent(weekday, isSelected, timetable)),
       ),
@@ -173,7 +186,8 @@ class DaySelector extends StatelessWidget {
   }
 
   Widget _buildDayContent(int weekday, bool isSelected, Timetable? timetable) {
-    final textColor = isSelected ? Colors.white : Colors.grey[800];
+    // 统一文字颜色
+    final textColor = Colors.black.withOpacity(0.85);
     const weekDays = ['周一','周二','周三','周四','周五','周六','周日'];
     final dayName = weekDays[weekday - 1];
     
@@ -181,8 +195,8 @@ class DaySelector extends StatelessWidget {
       return Text(
         dayName,
         style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
           color: textColor,
         ),
         textAlign: TextAlign.center,
@@ -198,16 +212,18 @@ class DaySelector extends StatelessWidget {
         Text(
           dayName,
           style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
             color: textColor,
           ),
         ),
+        const SizedBox(height: 2),
         Text(
           DateFormat('MM/dd').format(courseDate),
           style: TextStyle(
             fontSize: 11,
-            color: textColor?.withOpacity(0.85),
+            fontWeight: FontWeight.w500,
+            color: textColor?.withOpacity(0.8),
           ),
         ),
       ],

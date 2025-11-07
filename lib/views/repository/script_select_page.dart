@@ -5,7 +5,7 @@ import '../../services/repository/repository_config_service.dart';
 import '../../services/repository/repository_download_service.dart';
 import '../../zujian/notifications.dart';
 import '../../zujian/appbar.dart';
-import 'edu_import_page.dart';
+import '../../routes/route_utils.dart';
 
 /// 脚本选择页
 class ScriptSelectPage extends StatefulWidget {
@@ -92,6 +92,7 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F7F7),
       appBar: YicoreAppBar(
         title: widget.school.school,
         centerTitle: true,
@@ -143,11 +144,9 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
       elevation: 2,
         child: InkWell(
         onTap: () {
-          Navigator.push(
+          RouteUtils.pushEduImport(
             context,
-            MaterialPageRoute(
-              builder: (context) => EduImportPage(script: script),
-            ),
+            script: script,
           );
         },
         borderRadius: BorderRadius.circular(12),

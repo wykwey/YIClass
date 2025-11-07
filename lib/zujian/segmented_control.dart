@@ -39,11 +39,11 @@ class YicoreSegmentedControl extends StatelessWidget {
     switch (size) {
       case SegmentedControlSize.small:
         return {
-          'height': 32.0,
+          'height': 36.0,
           'fontSize': 12.0,
-          'vPadding': 5.0,
+          'vPadding': 6.0,
           'hPadding': 8.0,
-          'maxWidth': 220.0,
+          'maxWidth': 200.0,
         };
       case SegmentedControlSize.large:
         return {

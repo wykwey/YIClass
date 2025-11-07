@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../data/course.dart';
 import '../data/course_schedule.dart';
 import '../utils/color_utils.dart';
-import '../views/course_edit_page.dart';
 import 'package:provider/provider.dart';
 import '../states/timetable_state.dart';
+import '../routes/route_utils.dart';
 /// 
 /// 支持多种显示模式：日视图模式、列表视图模式
 class CourseCard extends StatelessWidget {
@@ -203,9 +203,10 @@ class CourseCard extends StatelessWidget {
 
   
     final timetableId = Provider.of<TimetableState>(context, listen: false).current?.id ?? 0;
-    final result = await Navigator.push<dynamic>(
+    final result = await RouteUtils.pushCourseEdit(
       context,
-      MaterialPageRoute(builder: (_) => CourseEditPage(course: course, timetableId: timetableId)), 
+      course: course,
+      timetableId: timetableId,
     );
 
     if (result != null && context.mounted) {

@@ -4,14 +4,13 @@ import '../data/course.dart';
 import '../services/query_service.dart';
 import '../services/factory_service.dart';
 import '../data/data_constants.dart';
-import 'course_edit_page.dart';
 import '../components/week_view_components/week_header.dart';
 import '../components/week_view_components/period_label.dart';
 import '../components/week_view_components/course_card.dart';
 import '../states/timetable_state.dart';
 import '../states/week_state.dart';
 import '../components/add_course_fab.dart';
-import '../views/time_settings_page.dart';
+import '../routes/route_utils.dart';
 import '../data/timetable.dart';
 import '../data/class_time.dart';
 
@@ -22,7 +21,10 @@ class WeekView extends StatefulWidget {
   State<WeekView> createState() => _WeekViewState();
 }
 
-class _WeekViewState extends State<WeekView> {
+class _WeekViewState extends State<WeekView> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   // ================= 业务逻辑 =================
   Future<void> _showCourseEditDialog(Course? course, int weekday, int period, int week) async {
     // 如果是空课程，创建一个默认的课程对象，并设置日期和节次信息
@@ -43,11 +45,10 @@ class _WeekViewState extends State<WeekView> {
 
     
     final timetableId = context.read<TimetableState>().current?.id ?? 0;
-    final result = await Navigator.push<dynamic>(
+    final result = await RouteUtils.pushCourseEdit(
       context,
-      MaterialPageRoute(
-        builder: (context) => CourseEditPage(course: courseToEdit, timetableId: timetableId), 
-      ),
+      course: courseToEdit,
+      timetableId: timetableId,
     );
 
     if (result != null && mounted) {
@@ -66,18 +67,15 @@ class _WeekViewState extends State<WeekView> {
   }
 
   Future<void> _handleTimeSettingsTap() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const TimeSettingsPage(),
-      ),
-    );
+    await RouteUtils.pushTimeSettings(context);
     if (mounted) setState(() {});
   }
 
   // ================= UI构建 =================
   @override
   Widget build(BuildContext context) {
+    super.build(context); // 必须调用以支持 AutomaticKeepAliveClientMixin
+    
     final timetableState = context.watch<TimetableState>();
     final weekState = context.watch<WeekState>();
     final timetable = timetableState.current;

@@ -1,10 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'components/bottom_nav_bar.dart';
-import 'components/custom_app_bar.dart';
-import 'views/week_view.dart';
-import 'views/day_view.dart';
-import 'views/list_view.dart';
 import 'package:provider/provider.dart';
 import 'states/timetable_state.dart';
 import 'states/view_state.dart';
@@ -15,6 +11,8 @@ import 'services/timetable_service.dart';
 import 'services/course_service.dart';
 import 'services/settings_service.dart';
 import 'package:isar_plus/isar_plus.dart';
+import 'routes/app_routes.dart';
+import 'routes/route_names.dart';
 
 /// 自定义 ScrollBehavior 完全禁用滚动条
 class NoScrollbarBehavior extends MaterialScrollBehavior {
@@ -60,22 +58,6 @@ void main() async {
   final weekState = WeekState();
   final viewState = ViewState();
 
-  // 初始化状态（注入 Isar，内部已调用 reload()）
-  await timetableState.init(isar);
-  
-  // 同步视图状态
-  if (timetableState.current != null) {
-    await viewState.loadFromTimetable(timetableState.current);
-  }
-
-  // 仅在非Web平台请求存储权限
-  if (!kIsWeb) {
-    final status = await Permission.storage.request();
-    if (!status.isGranted) {
-      // 如果权限被拒绝，可以在这里处理
-    }
-  }
-
   // 使用MultiProvider注册多个状态管理类
   runApp(
     MultiProvider(
@@ -87,6 +69,28 @@ void main() async {
       child: const MyApp(),
     ),
   );
+
+  // 延迟初始化操作，避免阻塞首屏渲染
+  // 使用 scheduleMicrotask 确保在首帧渲染后执行
+  scheduleMicrotask(() async {
+    // 初始化状态（注入 Isar，内部已调用 reload()）
+    await timetableState.init(isar);
+    
+    // 同步视图状态
+    if (timetableState.current != null) {
+      await viewState.loadFromTimetable(timetableState.current);
+    }
+  });
+
+  // 仅在非Web平台请求存储权限（延迟执行，不阻塞启动）
+  if (!kIsWeb) {
+    scheduleMicrotask(() async {
+      final status = await Permission.storage.request();
+      if (!status.isGranted) {
+        // 如果权限被拒绝，可以在这里处理
+      }
+    });
+  }
 }
 
 /// 应用根组件
@@ -105,6 +109,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      // 配置路由生成器
+      onGenerateRoute: AppRoutes.generateRoute,
+      initialRoute: RouteNames.home,
       theme: ThemeData(
         fontFamily: 'PingFang',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
@@ -122,53 +129,7 @@ class MyApp extends StatelessWidget {
       ),
       // 使用自定义 ScrollBehavior 完全禁用滚动条
       scrollBehavior: const NoScrollbarBehavior(),
-      home: const CourseScheduleScreen(),
     );
   }
 }
 
-/// 课程表主界面
-/// 显示当前视图
-/// 周视图、日视图、列表视图
- 
-class CourseScheduleScreen extends StatelessWidget {
-  const CourseScheduleScreen({super.key});
-
-  /// 获取视图对应的索引
-  /// 0: 周视图, 1: 日视图, 2: 列表视图
-  int _getViewIndex(String viewName) {
-    switch (viewName) {
-      case '周视图':
-        return 0;
-      case '日视图':
-        return 1;
-      case '列表视图':
-        return 2;
-      default:
-        return 0; // 默认返回周视图
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final viewState = context.watch<ViewState>();
-    final idx = _getViewIndex(viewState.selectedView);
-
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: idx == 2 ? null : const CustomAppBar(),
-      bottomNavigationBar: const AppBottomNavBar(),
-      body: IndexedStack(
-        index: idx,
-        children: const [
-          // 0: 周视图
-          WeekView(),
-          // 1: 日视图
-          DayView(),
-          // 2: 列表视图
-          CourseListView(),
-        ],
-      ),
-    );
-  }
-}
