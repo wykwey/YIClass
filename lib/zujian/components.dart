@@ -400,3 +400,111 @@ class YicoreTextField extends StatelessWidget {
     );
   }
 }
+
+// ================== 自定义图标按钮 ==================
+class YicoreIconButton extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final double size;
+  final Color? iconColor;
+  final bool showBorder;
+
+  const YicoreIconButton({
+    required this.icon,
+    this.onPressed,
+    this.size = 40,
+    this.iconColor,
+    this.showBorder = true,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _YicoreIconButtonState createState() => _YicoreIconButtonState();
+}
+
+class _YicoreIconButtonState extends State<YicoreIconButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    if (widget.onPressed != null) {
+      setState(() => _isPressed = true);
+      _controller.forward();
+    }
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    if (_isPressed) {
+      setState(() => _isPressed = false);
+      _controller.reverse();
+      widget.onPressed?.call();
+    }
+  }
+
+  void _handleTapCancel() {
+    if (_isPressed) {
+      setState(() => _isPressed = false);
+      _controller.reverse();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Container(
+              width: widget.size,
+              height: widget.size,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+                border: widget.showBorder
+                    ? Border.all(
+                        color: widget.onPressed == null
+                            ? (widget.iconColor ?? Colors.black).withValues(alpha: 0.2)
+                            : (widget.iconColor ?? Colors.black).withValues(alpha: 0.4),
+                        width: 1,
+                      )
+                    : null,
+              ),
+              child: Icon(
+                widget.icon,
+                size: widget.size * 0.5,
+                color: widget.onPressed == null
+                    ? (widget.iconColor ?? Colors.black).withValues(alpha: 0.3)
+                    : (widget.iconColor ?? Colors.black).withValues(alpha: 0.85),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}

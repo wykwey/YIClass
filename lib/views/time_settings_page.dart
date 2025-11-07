@@ -286,8 +286,8 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
           inBlock: true,
         ),
         SettingsItem.slider(
-          title: '最大节数 ($_maxPeriods节)',
-          description: '每天最多显示的课程节数',
+          title: '最大节数',
+          description: '共$_maxPeriods节',
           value: _maxPeriods.toDouble(),
           min: DataConstants.minMaxPeriods.toDouble(),
           max: DataConstants.maxMaxPeriods.toDouble(),

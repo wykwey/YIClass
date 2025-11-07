@@ -53,7 +53,7 @@ class WeekState extends ChangeNotifier {
 
   /// 判断当前周/日/节次是否存在课程冲突（需传入当前课表）
   bool hasConflict(Timetable t, int period) {
-    return QueryService.hasConflict(t, _week, _day, period);
+    return QueryService.periodCourses(t, _week, _day, period).length > 1;
   }
 }
 

@@ -13,6 +13,7 @@ import '../components/add_course_fab.dart';
 import '../routes/route_utils.dart';
 import '../data/timetable.dart';
 import '../data/class_time.dart';
+import '../zujian/course_selector.dart';
 
 class WeekView extends StatefulWidget {
   const WeekView({super.key});
@@ -27,9 +28,13 @@ class _WeekViewState extends State<WeekView> with AutomaticKeepAliveClientMixin 
 
   // ================= 业务逻辑 =================
   Future<void> _showCourseEditDialog(Course? course, int weekday, int period, int week) async {
-    // 如果是空课程，创建一个默认的课程对象，并设置日期和节次信息
-    Course courseToEdit;
+    final timetable = context.read<TimetableState>().current;
+    if (timetable == null) return;
+
+    Course? courseToEdit;
+
     if (course == null) {
+      // 空课程，直接创建新课程
       final schedule = FactoryService.createSchedule(
         weekday: weekday,
         periods: [period],
@@ -40,9 +45,31 @@ class _WeekViewState extends State<WeekView> with AutomaticKeepAliveClientMixin 
         schedules: [schedule], // 颜色使用工厂默认色
       );
     } else {
-      courseToEdit = course;
-    }
+      // 非空课程，检查是否有冲突
+      final coursesAtTime = QueryService.periodCourses(timetable, week, weekday, period);
+      
+      if (coursesAtTime.length > 1) {
+        // 有冲突，显示课程选择器
+        final selectedCourseIndex = await YicoreCourseSelector.show(
+          context,
+          courses: coursesAtTime.asMap().entries.map((entry) => CourseItem(
+            id: entry.key.toString(),
+            name: entry.value.name,
+          )).toList(),
+          currentCourseId: coursesAtTime.indexOf(course).toString(),
+          title: '选择要编辑的课程',
+        );
 
+        if (selectedCourseIndex == null || !mounted) return;
+
+        // 找到选中的课程
+        final index = int.tryParse(selectedCourseIndex) ?? 0;
+        courseToEdit = coursesAtTime[index];
+      } else {
+        // 无冲突，直接编辑
+        courseToEdit = course;
+      }
+    }
     
     final timetableId = context.read<TimetableState>().current?.id ?? 0;
     final result = await RouteUtils.pushCourseEdit(
@@ -301,10 +328,12 @@ class WeekViewUI extends StatelessWidget {
 
   Widget _buildCourseCell(Course course, int weekday, int period, Course? originalCourse) {
     final isEmpty = course.name.isEmpty;
+    final hasConflict = QueryService.periodCourses(timetable, currentWeek, weekday, period).length > 1;
     return CourseCard(
       course: course,
       showWeekend: showWeekend,
       onTap: () => onCourseEdit(isEmpty ? null : (originalCourse ?? course), weekday, period),
+      hasConflict: hasConflict,
     );
   }
 }

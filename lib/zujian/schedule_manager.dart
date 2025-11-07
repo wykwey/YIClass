@@ -185,30 +185,21 @@ class _ScheduleManagerDialogState extends State<_ScheduleManagerDialog> {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.calendar_today,
-            color: Colors.black.withValues(alpha: 0.85),
-            size: 24,
-          ),
-          const SizedBox(width: 12),
-          const Text(
-            '课表管理',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
+          const Expanded(
+            child: Text(
+              '课表管理',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
             ),
           ),
-          const Spacer(),
-          IconButton(
+          YicoreIconButton(
+            icon: Icons.close,
+            size: 36,
+            showBorder: true,
             onPressed: () => Navigator.pop(context),
-            icon: Icon(
-              Icons.close,
-              color: Colors.grey[600],
-              size: 24,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
           ),
         ],
       ),

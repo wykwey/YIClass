@@ -342,9 +342,11 @@ class _CourseEditPageState extends State<CourseEditPage> {
             Text('时间段 ${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
             const Spacer(),
             if (_days.length > 1)
-              GestureDetector(
-                onTap: () => _removeScheduleAt(index),
-                child: Text('删除', style: TextStyle(color: Colors.red[400], fontWeight: FontWeight.w600)),
+              YicoreIconButton(
+                icon: Icons.delete_outline,
+                iconColor: Colors.red[400],
+                showBorder: false,
+                onPressed: () => _removeScheduleAt(index),
               ),
           ]),
           const SizedBox(height: 16),

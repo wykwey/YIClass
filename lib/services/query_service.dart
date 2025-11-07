@@ -61,23 +61,23 @@ class QueryService {
     return 0;
   }
 
-  /// 是否有冲突（同一时间超过 1 门课）
+  /// 获取某周某天某节的所有课程（用于处理冲突）
   /// - t: 课表
   /// - week: 周次
   /// - weekday: 周几（1-7）
   /// - period: 节次
-  /// 返回：是否存在冲突
-  static bool hasConflict(Timetable t, int week, int weekday, int period) {
-    int n = 0;
+  /// 返回：所有匹配的课程列表
+  static List<Course> periodCourses(Timetable t, int week, int weekday, int period) {
+    final courses = <Course>[];
     for (final c in t.courses) {
       for (final s in c.schedules) {
         if (s.weekday == weekday && s.weekPattern.contains(week) && s.periods.contains(period)) {
-          n++;
-          if (n > 1) return true;
+          courses.add(c);
+          break; // 同一课程只添加一次
         }
       }
     }
-    return false;
+    return courses;
   }
 }
 

@@ -17,6 +17,7 @@ import '../data/school_index.dart';
 import '../states/view_state.dart';
 import '../components/custom_app_bar.dart';
 import '../components/bottom_nav_bar.dart';
+import '../zujian/notifications.dart';
 import 'route_names.dart';
 
 /// 路由生成器
@@ -30,7 +31,22 @@ class AppRoutes {
       // 主页面
       case RouteNames.home:
         return MaterialPageRoute(
-          builder: (_) => const _CourseScheduleScreen(),
+          builder: (context) {
+            // 检查是否有错误消息需要显示
+            if (args is Map<String, dynamic> && args['error'] != null) {
+              final errorMessage = args['error'] as String;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) {
+                  Notifications.sonner(
+                    context,
+                    title: '路由错误',
+                    message: errorMessage,
+                  );
+                }
+              });
+            }
+            return const _CourseScheduleScreen();
+          },
           settings: settings,
         );
 
@@ -130,33 +146,25 @@ class AppRoutes {
   }
 
   /// 错误路由
+  /// 返回主页面并显示错误提示
   static Route<dynamic> _errorRoute(RouteSettings settings, String message) {
     return MaterialPageRoute(
-      builder: (_) => Scaffold(
-        appBar: AppBar(
-          title: const Text('路由错误'),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(
-                message,
-                style: const TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => Navigator.of(_).pop(),
-                child: const Text('返回'),
-              ),
-            ],
-          ),
-        ),
+      builder: (context) {
+        // 检查是否有错误消息需要显示
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            Notifications.sonner(
+              context,
+              title: '路由错误',
+              message: message,
+            );
+          }
+        });
+        return const _CourseScheduleScreen();
+      },
+      settings: RouteSettings(
+        name: RouteNames.home,
       ),
-      settings: settings,
     );
   }
 }

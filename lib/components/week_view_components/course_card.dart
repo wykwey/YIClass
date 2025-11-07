@@ -6,12 +6,14 @@ class CourseCard extends StatelessWidget {
   final Course course;
   final bool showWeekend;
   final VoidCallback onTap;
+  final bool hasConflict;
 
   const CourseCard({
     super.key,
     required this.course,
     required this.showWeekend,
     required this.onTap,
+    this.hasConflict = false,
   });
 
   @override
@@ -60,32 +62,50 @@ class CourseCard extends StatelessWidget {
                       color: textColor,
                     );
 
-                    return SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            course.name,
-                            style: nameStyle,
-                            textAlign: TextAlign.left,
-                            softWrap: true,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  course.name,
+                                  style: nameStyle,
+                                  textAlign: TextAlign.left,
+                                  softWrap: true,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  course.teacher,
+                                  style: subStyle,
+                                  textAlign: TextAlign.left,
+                                  softWrap: true,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  course.location.isNotEmpty ? '@${course.location}' : '',
+                                  style: subStyle,
+                                  textAlign: TextAlign.left,
+                                  softWrap: true,
+                                ),
+                              ],
+                            ),
                           ),
+                        ),
+                        if (hasConflict) ...[
                           const SizedBox(height: 4),
                           Text(
-                            course.teacher,
-                            style: subStyle,
-                            textAlign: TextAlign.left,
-                            softWrap: true,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            course.location.isNotEmpty ? '@${course.location}' : '',
-                            style: subStyle,
-                            textAlign: TextAlign.left,
-                            softWrap: true,
+                            '冲突',
+                            style: TextStyle(
+                              fontSize: small ? 10 : 12,
+                              color: Colors.red.shade700,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
-                      ),
+                      ],
                     );
                   },
                 ),

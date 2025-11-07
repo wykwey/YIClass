@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'components.dart';
 
 // ================== 自定义 AppBar ==================
 class YicoreAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -112,26 +113,22 @@ class YicoreAppBarAction extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onPressed;
   final Color? iconColor;
-  final Color? backgroundColor;
 
   const YicoreAppBarAction({
     required this.icon,
     this.onPressed,
     this.iconColor,
-    this.backgroundColor,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Icon(
-        icon,
-        size: 20,
-        color: iconColor ?? Colors.black,
-      ),
+    return YicoreIconButton(
+      icon: icon,
+      onPressed: onPressed,
+      iconColor: iconColor,
+      size: 36,
+      showBorder: false,
     );
   }
 }
-

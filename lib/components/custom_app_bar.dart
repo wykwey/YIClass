@@ -4,6 +4,7 @@ import '../states/timetable_state.dart';
 import '../states/view_state.dart';
 import '../states/week_state.dart';
 import 'timetable_management_dialog.dart';
+import '../zujian/components.dart';
 
 /// 自定义应用栏组件（V2）
 /// 
@@ -38,8 +39,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   /// 构建返回按钮
   Widget _buildBackButton(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back, color: Colors.black87),
+    return YicoreIconButton(
+      icon: Icons.arrow_back,
+      showBorder: false,
       onPressed: () {
         final viewState = Provider.of<ViewState>(context, listen: false);
         viewState.changeView('周视图');
@@ -61,13 +63,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         // 上一周按钮
-        IconButton(
-          icon: Icon(
-            Icons.chevron_left,
-            color: weekState.week > 1
-                ? Colors.black87
-                : Colors.black26,
-          ),
+        YicoreIconButton(
+          icon: Icons.chevron_left,
+          showBorder: false,
           onPressed: weekState.week > 1
               ? () => weekState.setWeek(weekState.week - 1)
               : null,
@@ -82,13 +80,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         // 下一周按钮
-        IconButton(
-          icon: Icon(
-            Icons.chevron_right,
-            color: weekState.week < totalWeeks
-                ? Colors.black87
-                : Colors.black26,
-          ),
+        YicoreIconButton(
+          icon: Icons.chevron_right,
+          showBorder: false,
           onPressed: weekState.week < totalWeeks
               ? () => weekState.setWeek(weekState.week + 1)
               : null,
@@ -103,8 +97,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       padding: const EdgeInsets.only(right: 8.0),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: IconButton(
-          icon: const Icon(Icons.swap_horiz, color: Colors.black54),
+        child: YicoreIconButton(
+          icon: Icons.swap_horiz,
+          showBorder: false,
           onPressed: () => _showTimetableManagementDialog(context),
         ),
       ),
