@@ -43,7 +43,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
   void _initializeLocalState() {
     final timetableState = Provider.of<TimetableState>(context, listen: false);
-    final viewState = Provider.of<ViewState>(context, listen: false);
     
     final timetable = timetableState.current;
     if (timetable != null && !_isInitialized) {
@@ -51,9 +50,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
         _localTotalWeeks = timetable.settings.totalWeeks;
         _isInitialized = true;
       });
-      
-      // 确保ViewState也正确加载了设置
-      viewState.loadFromTimetable(timetable);
+      // ViewState 已在 main.dart 启动时初始化，此处无需重复加载
     }
   }
 
@@ -77,9 +74,11 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
       appBar: YicoreAppBar(
         title: '设置',
         centerTitle: true,
-        showBackButton: false,
+        onBackPressed: () {
+          viewState.changeView('周视图');
+        },
       ),
-      backgroundColor: Color(0xFFF7F7F7),
+      backgroundColor: const Color(0xFFF7F7F7),
       body: ListView(
         padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 80),
         children: [
@@ -265,7 +264,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
       onChanged: (value) async {
         timetable.settings.showWeekend = value;
         await timetableState.put(timetable);
-        viewState.loadFromTimetable(timetable);
         if (mounted) setState(() {});
       },
     );

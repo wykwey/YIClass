@@ -39,20 +39,6 @@ void main() async {
     await Isar.initialize();
   }
 
-  // 初始化 Isar 数据库
-  final dbService = DatabaseService.instance;
-  final success = await dbService.initialize();
-  if (!success) {
-    print('数据库初始化失败，应用可能无法正常工作');
-  }
-
-  final isar = dbService.isar;
-
-  // 初始化服务
-  await TimetableService.instance.init(isar);
-  await CourseService.instance.init(isar);
-  await SettingsService.instance.init(isar);
-
   // 创建状态实例
   final timetableState = TimetableState();
   final weekState = WeekState();
@@ -70,16 +56,20 @@ void main() async {
     ),
   );
 
-  // 延迟初始化操作，避免阻塞首屏渲染
-  // 使用 scheduleMicrotask 确保在首帧渲染后执行
-  scheduleMicrotask(() async {
-    // 初始化状态（注入 Isar，内部已调用 reload()）
+  // 延迟初始化数据库和服务，避免阻塞首屏渲染
+  Future.microtask(() async {
+    // 初始化数据库
+    final dbService = DatabaseService.instance;
+    await dbService.initialize();
+    final isar = dbService.isar;
+
+    // 初始化服务
+    await TimetableService.instance.init(isar);
+    await CourseService.instance.init(isar);
+    await SettingsService.instance.init(isar);
+
+    // 加载课表数据
     await timetableState.init(isar);
-    
-    // 同步视图状态
-    if (timetableState.current != null) {
-      await viewState.loadFromTimetable(timetableState.current);
-    }
   });
 
   // 仅在非Web平台请求存储权限（延迟执行，不阻塞启动）
@@ -94,13 +84,8 @@ void main() async {
 }
 
 /// 应用根组件
-///
-/// 负责配置应用的全局设置，包括：
-/// - 主题样式(字体、颜色方案)
 /// - 本地化支持(中文)
 /// - 路由导航设置
-/// - 调试标志控制
-///
 /// 使用MaterialApp作为基础框架，集成所有子组件
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -114,20 +99,13 @@ class MyApp extends StatelessWidget {
       initialRoute: RouteNames.home,
       theme: ThemeData(
         fontFamily: 'PingFang',
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
         useMaterial3: true,
         // 全局禁用波纹效果
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
-        // 全局隐藏滚动条
-        scrollbarTheme: const ScrollbarThemeData(
-          thumbVisibility: WidgetStatePropertyAll(false),
-          trackVisibility: WidgetStatePropertyAll(false),
-          interactive: false,
-          thickness: WidgetStatePropertyAll(0.0),
-        ),
       ),
-      // 使用自定义 ScrollBehavior 完全禁用滚动条
+      // 完全禁用滚动条
       scrollBehavior: const NoScrollbarBehavior(),
     );
   }

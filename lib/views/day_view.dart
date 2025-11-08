@@ -10,8 +10,9 @@ import '../components/add_course_fab.dart';
 import '../components/course_card.dart';
 import '../routes/route_utils.dart';
 import '../data/timetable.dart';
+import '../zujian/appbar.dart';
 
-/// 日视图组件（V2）
+/// 日视图组件
 ///
 /// 显示单日的课程安排，包括日期选择器和课程列表
 class DayView extends StatefulWidget {
@@ -28,14 +29,15 @@ class _DayViewState extends State<DayView> with AutomaticKeepAliveClientMixin {
   // ================= 业务逻辑 =================
   Future<void> _handleEditCourse(Course course) async {
     if (!mounted) return;
-    
-    final timetableId = Provider.of<TimetableState>(context, listen: false).current?.id ?? 0;
+
+    final timetableId =
+        Provider.of<TimetableState>(context, listen: false).current?.id ?? 0;
     final result = await RouteUtils.pushCourseEdit(
       context,
       course: course,
       timetableId: timetableId,
     );
-    
+
     if (result != null && mounted) {
       final timetableState = context.read<TimetableState>();
       await timetableState.reload();
@@ -47,14 +49,14 @@ class _DayViewState extends State<DayView> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context); // 必须调用以支持 AutomaticKeepAliveClientMixin
-    
+
     final timetableState = context.watch<TimetableState>();
     final weekState = context.watch<WeekState>();
     final viewState = context.watch<ViewState>();
     final timetable = timetableState.current;
-    
+
     if (timetable == null) return const SizedBox();
-    
+
     return DayViewUI(
       timetable: timetable,
       currentWeek: weekState.week,
@@ -88,7 +90,14 @@ class DayViewUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F7F7),
+      appBar: YicoreAppBar(
+        title: '日视图',
+        centerTitle: true,
+        onBackPressed: () {
+          context.read<ViewState>().changeView('周视图');
+        },
+      ),
       body: Stack(
         children: [
           Column(
@@ -117,7 +126,7 @@ class DayViewUI extends StatelessWidget {
   }
 }
 
-/// 日期选择器组件（V2）
+/// 日期选择器
 class DaySelector extends StatelessWidget {
   final int currentWeek;
   final bool showWeekend;
@@ -134,94 +143,62 @@ class DaySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    final timetable = context.read<TimetableState>().current;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
-      child: LayoutBuilder(
-        builder: (context, constraints) => _buildDayGrid(constraints),
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: List.generate(showWeekend ? 7 : 5, (i) {
+          final day = i + 1;
+          final selected = selectedDay == day;
+
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(left: i > 0 ? 8 : 0),
+              child: GestureDetector(
+                onTap: () => onDaySelected(day),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: selected ? Colors.white : Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                    border: selected
+                        ? Border.all(color: Colors.black.withValues(alpha: 0.4))
+                        : null,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(days[day - 1],
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600)),
+                      if (timetable != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          DateFormat('MM/dd').format(
+                            timetable.settings.startDate.add(Duration(
+                                days: 7 * (currentWeek - 1) + day - 1)),
+                          ),
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black.withValues(alpha: 0.6)),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
       ),
-    );
-  }
-
-  Widget _buildDayGrid(BoxConstraints constraints) {
-    final dayCount = showWeekend ? 7 : 5;
-    final spacing = 8.0;
-    final itemWidth = (constraints.maxWidth - spacing * (dayCount - 1)) / dayCount;
-    final itemAspectRatio = itemWidth / 50.0;
-
-    return Builder(
-      builder: (context) => GridView.count(
-        crossAxisCount: dayCount,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: spacing,
-        crossAxisSpacing: spacing,
-        childAspectRatio: itemAspectRatio,
-        children: List.generate(dayCount, (i) => _buildDayButton(context, i + 1)),
-      ),
-    );
-  }
-
-  Widget _buildDayButton(BuildContext context, int weekday) {
-    final timetableState = Provider.of<TimetableState>(context, listen: false);
-    final timetable = timetableState.current;
-    final isSelected = selectedDay == weekday;
-    
-    return InkWell(
-      onTap: () => onDaySelected(weekday),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Center(child: _buildDayContent(weekday, isSelected, timetable)),
-      ),
-    );
-  }
-
-  Widget _buildDayContent(int weekday, bool isSelected, Timetable? timetable) {
-    final textColor = isSelected ? Colors.white : Colors.grey[800];
-    const weekDays = ['周一','周二','周三','周四','周五','周六','周日'];
-    final dayName = weekDays[weekday - 1];
-    
-    if (timetable == null) {
-      return Text(
-        dayName,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
-          color: textColor,
-        ),
-        textAlign: TextAlign.center,
-      );
-    }
-    
-    final startDate = timetable.settings.startDate;
-    final courseDate = startDate.add(Duration(days: 7 * (currentWeek - 1) + (weekday - 1)));
-    
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          dayName,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        Text(
-          DateFormat('MM/dd').format(courseDate),
-          style: TextStyle(
-            fontSize: 11,
-            color: textColor?.withOpacity(0.85),
-          ),
-        ),
-      ],
     );
   }
 }
 
-/// 课程列表组件（V2）
+/// 课程列表组件
 class CourseList extends StatelessWidget {
   final Timetable timetable;
   final int currentWeek;
@@ -243,7 +220,7 @@ class CourseList extends StatelessWidget {
     }
 
     final dayCourses = _getDayCourses();
-    
+
     if (dayCourses.isEmpty) {
       return _buildEmptyState("今日无课程");
     }
@@ -277,4 +254,3 @@ class CourseList extends StatelessWidget {
     );
   }
 }
-

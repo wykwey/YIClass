@@ -5,6 +5,8 @@ import '../../services/repository/repository_config_service.dart';
 import '../../services/repository/repository_download_service.dart';
 import '../../zujian/notifications.dart';
 import '../../zujian/appbar.dart';
+import '../../zujian/cards.dart';
+import '../../zujian/components.dart';
 import '../../routes/route_utils.dart';
 
 /// 脚本选择页
@@ -89,6 +91,38 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
     }
   }
 
+  /// 下载单个脚本
+  Future<void> _downloadScript(String scriptName) async {
+    try {
+      final config = await RepositoryConfigService.getConfig();
+      if (!config.isValid) {
+        if (mounted) {
+          Notifications.sonner(context, message: '请先配置仓库信息');
+        }
+        return;
+      }
+
+      final successCount = await RepositoryDownloadService.downloadScripts(
+        config,
+        [scriptName],
+      );
+
+      if (mounted) {
+        if (successCount > 0) {
+          Notifications.sonner(context, message: '脚本下载成功');
+          // 重新检查脚本文件状态
+          await _checkScriptsExist();
+        } else {
+          Notifications.sonner(context, message: '下载失败，请检查网络连接或仓库配置');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Notifications.sonner(context, message: '下载失败: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,7 +132,7 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
         centerTitle: true,
         actions: [
           if (_isChecking || _isDownloading)
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(16.0),
               child: SizedBox(
                 width: 20,
@@ -139,46 +173,45 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
     ScriptEntry script,
     bool isDownloaded,
   ) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-        child: InkWell(
-        onTap: () {
-          RouteUtils.pushEduImport(
-            context,
-            script: script,
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
+      child: Opacity(
+        opacity: isDownloaded ? 1.0 : 0.5,
+        child: YicoreCard(
           padding: const EdgeInsets.all(16),
+          onTap: isDownloaded
+              ? () {
+                  RouteUtils.pushEduImport(
+                    context,
+                    script: script,
+                  );
+                }
+              : null,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 名称和下载状态图标
+              // 名称和右侧按钮
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
                       script.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: isDownloaded
+                            ? Colors.black
+                            : Colors.grey[600],
                       ),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: isDownloaded ? Colors.green : Colors.grey,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      isDownloaded ? Icons.check : Icons.download,
-                      size: 16,
-                      color: Colors.white,
-                    ),
+                  const SizedBox(width: 8),
+                  YicoreIconButton(
+                    icon: isDownloaded ? Icons.check_circle : Icons.download,
+                    size: 36,
+                    showBorder: true,
+                    onPressed: isDownloaded ? null : () => _downloadScript(script.scriptName),
                   ),
                 ],
               ),
@@ -187,9 +220,9 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
                 const SizedBox(height: 8),
                 Text(
                   script.description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Colors.black87,
+                    color: isDownloaded ? Colors.black87 : Colors.grey[500],
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -200,9 +233,9 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
                 const SizedBox(height: 8),
                 Text(
                   '贡献者: ${script.author}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey,
+                    color: isDownloaded ? Colors.grey : Colors.grey[400],
                   ),
                 ),
               ],

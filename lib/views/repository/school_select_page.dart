@@ -6,6 +6,8 @@ import '../../services/repository/school_index_service.dart';
 import '../../data/school_index.dart';
 import '../../zujian/notifications.dart';
 import '../../zujian/appbar.dart';
+import '../../zujian/components.dart';
+import '../../zujian/dialogs.dart';
 import '../../routes/route_utils.dart';
 
 /// 学校选择页
@@ -90,28 +92,18 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
   }
 
   void _showLoadIndexDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('索引文件未找到'),
-        content: const Text('请先在"教务导入配置"页面下载索引文件'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              RouteUtils.pushRepositoryConfig(context).then((_) {
-                // 从配置页返回后，尝试重新加载学校列表
-                _loadSchools();
-              });
-            },
-            child: const Text('前往配置'),
-          ),
-        ],
-      ),
+    YicoreConfirm.show(
+      context,
+      title: '索引文件未找到',
+      message: '请先在"教务导入配置"页面下载索引文件',
+      confirmText: '前往配置',
+      cancelText: '取消',
+      onConfirm: () {
+        RouteUtils.pushRepositoryConfig(context).then((_) {
+          // 从配置页返回后，尝试重新加载学校列表
+          _loadSchools();
+        });
+      },
     );
   }
 
@@ -146,8 +138,10 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
                       hintText: '搜索学校名称',
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
+                          ? YicoreIconButton(
+                              icon: Icons.clear,
+                              size: 36,
+                              showBorder: false,
                               onPressed: () {
                                 _searchController.clear();
                               },
@@ -195,15 +189,16 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
             const Icon(Icons.school_outlined, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             const Text('暂无学校数据'),
-            const SizedBox(height: 8),
-            TextButton(
+            const SizedBox(height: 16),
+            YicoreButton(
+              text: '前往配置',
+              isOutlined: true,
               onPressed: () {
-        RouteUtils.pushRepositoryConfig(context).then((_) {
+                RouteUtils.pushRepositoryConfig(context).then((_) {
                   // 从配置页返回后，尝试重新加载学校列表
                   _loadSchools();
                 });
               },
-              child: const Text('前往配置'),
             ),
           ],
         ),
@@ -271,9 +266,9 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Text(
                 letter,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: Colors.blue,
+                  color: Colors.black.withValues(alpha: 0.6),
                 ),
               ),
             ),

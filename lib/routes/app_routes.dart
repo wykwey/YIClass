@@ -12,9 +12,11 @@ import '../views/ai_import_page.dart';
 import '../views/repository/edu_import_page.dart';
 import '../views/repository/school_select_page.dart';
 import '../views/repository/script_select_page.dart';
+import '../views/license_page.dart';
 import '../data/course.dart';
 import '../data/school_index.dart';
 import '../states/view_state.dart';
+import '../states/timetable_state.dart';
 import '../components/custom_app_bar.dart';
 import '../components/bottom_nav_bar.dart';
 import '../zujian/notifications.dart';
@@ -31,22 +33,7 @@ class AppRoutes {
       // 主页面
       case RouteNames.home:
         return MaterialPageRoute(
-          builder: (context) {
-            // 检查是否有错误消息需要显示
-            if (args is Map<String, dynamic> && args['error'] != null) {
-              final errorMessage = args['error'] as String;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted) {
-                  Notifications.sonner(
-                    context,
-                    title: '路由错误',
-                    message: errorMessage,
-                  );
-                }
-              });
-            }
-            return const _CourseScheduleScreen();
-          },
+          builder: (_) => const _CourseScheduleScreen(),
           settings: settings,
         );
 
@@ -96,7 +83,7 @@ class AppRoutes {
       // 许可证页面
       case RouteNames.license:
         return MaterialPageRoute(
-          builder: (_) => const LicensePage(),
+          builder: (_) => const OpenSourceLicensePage(),
           settings: settings,
         );
 
@@ -150,7 +137,7 @@ class AppRoutes {
   static Route<dynamic> _errorRoute(RouteSettings settings, String message) {
     return MaterialPageRoute(
       builder: (context) {
-        // 检查是否有错误消息需要显示
+        // 显示错误提示
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             Notifications.sonner(
@@ -162,7 +149,7 @@ class AppRoutes {
         });
         return const _CourseScheduleScreen();
       },
-      settings: RouteSettings(
+      settings: const RouteSettings(
         name: RouteNames.home,
       ),
     );
@@ -192,11 +179,20 @@ class _CourseScheduleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewState = context.watch<ViewState>();
+    final timetableState = context.watch<TimetableState>();
     final idx = _getViewIndex(viewState.selectedView);
 
+    // 显示加载指示器（数据未初始化时）
+    if (!timetableState.initialized) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: idx == 2 ? null : const CustomAppBar(),
+      appBar: idx == 0 ? const CustomAppBar() : null,
       bottomNavigationBar: const AppBottomNavBar(),
       body: IndexedStack(
         index: idx,

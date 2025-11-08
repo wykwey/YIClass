@@ -9,7 +9,6 @@ class RouteNames {
   static const String listView = '/list';
   
   // 设置相关
-  static const String settings = '/settings';
   static const String timeSettings = '/settings/time';
   static const String repositoryConfig = '/settings/repository';
   static const String aiConfig = '/settings/ai';

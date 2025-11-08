@@ -8,6 +8,7 @@ import '../services/file_service.dart';
 import '../states/timetable_state.dart';
 import '../zujian/notifications.dart';
 import '../zujian/appbar.dart';
+import '../zujian/components.dart';
 
 class AIImportPage extends StatefulWidget {
   const AIImportPage({super.key});
@@ -99,7 +100,6 @@ class _AIImportPageState extends State<AIImportPage> {
         _buildImportOption(
           title: '图片导入',
           subtitle: '上传课程表图片，AI自动识别课程信息',
-          icon: Icons.image,
           enabled: config.enableImageImport,
           onTap: () => _handleImageImport(),
         ),
@@ -107,7 +107,6 @@ class _AIImportPageState extends State<AIImportPage> {
         _buildImportOption(
           title: '表格/CSV导入',
           subtitle: '粘贴表格数据或CSV格式的课程信息',
-          icon: Icons.table_chart,
           enabled: config.enableTableImport,
           onTap: () => _handleTableImport(),
         ),
@@ -115,7 +114,6 @@ class _AIImportPageState extends State<AIImportPage> {
         _buildImportOption(
           title: '文字导入',
           subtitle: '输入课程描述，AI解析课程安排',
-          icon: Icons.text_fields,
           enabled: config.enableTextImport,
           onTap: () => _handleTextImport(),
         ),
@@ -126,79 +124,52 @@ class _AIImportPageState extends State<AIImportPage> {
   Widget _buildImportOption({
     required String title,
     required String subtitle,
-    required IconData icon,
     required bool enabled,
     required VoidCallback onTap,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: enabled ? Colors.white : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: enabled ? Colors.blue.shade200 : Colors.grey.shade300,
-          width: 1,
-        ),
-        boxShadow: enabled ? [
-          BoxShadow(
-            color: Colors.blue.shade50,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ] : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: enabled ? Colors.white : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
-          onTap: enabled ? onTap : null,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: enabled ? Colors.blue.shade50 : Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: enabled ? Colors.blue.shade600 : Colors.grey.shade500,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: enabled ? Colors.black87 : Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: enabled ? Colors.black54 : Colors.grey[500],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: enabled ? Colors.grey[600] : Colors.grey[400],
-                ),
-              ],
-            ),
+          border: Border.all(
+            color: enabled ? Colors.black.withValues(alpha: 0.2) : Colors.grey.shade300,
+            width: 1,
           ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: enabled ? Colors.black87 : Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: enabled ? Colors.black54 : Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: enabled ? Colors.grey[600] : Colors.grey[400],
+            ),
+          ],
         ),
       ),
     );
@@ -215,19 +186,13 @@ class _AIImportPageState extends State<AIImportPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.privacy_tip_outlined, color: Colors.red.shade700, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                '隐私注意事项',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.red.shade800,
-                ),
-              ),
-            ],
+          Text(
+            '隐私注意事项',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.red.shade800,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -359,30 +324,51 @@ class _AIImportPageState extends State<AIImportPage> {
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('输入表格数据'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              '请粘贴表格数据或CSV格式的课程信息：',
-              style: TextStyle(fontSize: 14, color: Colors.black54),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              maxLines: 8,
-              decoration: const InputDecoration(
-                hintText: '课程名称,时间,地点,教师\n高等数学,周一1-2节,教学楼A101,张老师',
-                border: OutlineInputBorder(),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '输入表格数据',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              const Text(
+                '请粘贴表格数据或CSV格式的课程信息：',
+                style: TextStyle(fontSize: 14, color: Colors.black54),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                maxLines: 8,
+                decoration: const InputDecoration(
+                  hintText: '课程名称,时间,地点,教师\n高等数学,周一1-2节,教学楼A101,张老师',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  YicoreButton(
+                    text: '取消',
+                    isOutlined: true,
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 12),
+                  YicoreButton(
+                    text: '确定',
+                    onPressed: () => Navigator.pop(context, controller.text),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
-          TextButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('确定')),
-        ],
       ),
     );
   }
@@ -391,26 +377,46 @@ class _AIImportPageState extends State<AIImportPage> {
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('输入课程描述'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              maxLines: 8,
-              decoration: const InputDecoration(
-                hintText: '例如：\n周一上午有高等数学课，在A101教室，老师是张老师\n周二下午有英语课，在B201教室，老师是李老师',
-                border: OutlineInputBorder(),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '输入课程描述',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                maxLines: 8,
+                decoration: const InputDecoration(
+                  hintText: '例如：\n周一上午有高等数学课，在A101教室，老师是张老师\n周二下午有英语课，在B201教室，老师是李老师',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  YicoreButton(
+                    text: '取消',
+                    isOutlined: true,
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 12),
+                  YicoreButton(
+                    text: '确定',
+                    onPressed: () => Navigator.pop(context, controller.text),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
-          TextButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('确定')),
-        ],
       ),
     );
   }
@@ -419,13 +425,18 @@ class _AIImportPageState extends State<AIImportPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        content: Row(
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(width: 16),
-            Text(message),
-          ],
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 16),
+              Text(message),
+            ],
+          ),
         ),
       ),
     );

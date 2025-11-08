@@ -34,17 +34,3 @@ flutter:
   assets:
     - assets/icon/
     - LICENSE
-
-# 设置应用图标（桌面图标）
-flutter_icons:
-  android: true
-  ios: true
-  image_path: "assets/icon/app_icon.png"
-
-# 设置启动页动画
-flutter_native_splash:
-  color: "#ffffff"                # 启动页背景色
-  image: assets/icon/app_logo.png # 居中 Logo 图像
-  android: true
-  ios: true
-  web: false

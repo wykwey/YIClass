@@ -1,6 +1,6 @@
 import '../settings_service.dart';
 
-/// AI配置模型（轻量级，包装 AppSettings）
+/// AI配置模型（包装 AppSettings）
 class AIConfig {
   final String apiKey;
   final String endpoint;
