@@ -132,25 +132,29 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
                 // 搜索框
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: '搜索学校名称',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? YicoreIconButton(
-                              icon: Icons.clear,
-                              size: 36,
-                              showBorder: false,
-                              onPressed: () {
-                                _searchController.clear();
-                              },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
+                  child: StatefulBuilder(
+                    builder: (context, setStateLocal) {
+                      return YicoreTextField(
+                        controller: _searchController,
+                        hintText: '搜索学校名称',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? YicoreIconButton(
+                                icon: Icons.clear,
+                                size: 36,
+                                showBorder: false,
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setStateLocal(() {});
+                                },
+                              )
+                            : null,
+                        onChanged: (value) {
+                          setStateLocal(() {});
+                          // _onSearchChanged 已经通过监听器自动调用
+                        },
+                      );
+                    },
                   ),
                 ),
                 // 学校列表

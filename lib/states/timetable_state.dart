@@ -124,24 +124,11 @@ class TimetableState extends ChangeNotifier {
   }
 
   /// 删除课表（按 ID）
-  /// 如果删除的是当前课表，自动切换到其他课表
+  /// 当前课表不会被删除，此方法仅用于删除非当前课表
   Future<bool> delete(int id) async {
     final ok = await _service.delete(id);
     if (ok) {
-      // 如果删除的是当前课表，需要切换
-      if (_current?.id == id) {
-        _timetables = await _service.getAll();
-        if (_timetables.isNotEmpty) {
-          // 切换到第一个课表
-          await setCurrentById(_timetables.first.id);
-        } else {
-          _current = null;
-          await SettingsService.instance.setCurrentTimetableId('');
-        }
-        notifyListeners();
-      } else {
-        await reload();
-      }
+      await reload();
     }
     return ok;
   }
@@ -153,4 +140,3 @@ class TimetableState extends ChangeNotifier {
     return count;
   }
 }
-

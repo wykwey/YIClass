@@ -4,7 +4,7 @@ import 'components.dart';
 // ================== 常量定义 ==================
 class _NotificationConstants {
   static const double defaultSpacing = 72.0;
-  static const double defaultSonnerSpacing = 80.0;
+  static const double defaultSonnerSpacing = 70.0;
   static const double bottomOffset = 60.0;
   static const double horizontalPadding = 20.0;
   static const Duration defaultDuration = Duration(seconds: 3);
@@ -350,7 +350,7 @@ class Notifications {
   /// [duration] 通知显示时长，默认 3 秒
   /// [actionText] 操作按钮文本（可选）
   /// [onAction] 操作按钮回调（可选）
-  /// [spacing] 多个通知之间的间距，默认 80.0
+  /// [spacing] 多个通知之间的间距，默认 70.0
   /// 
   /// 返回 [NotificationHandle] 可用于手动关闭通知
   static NotificationHandle sonner(

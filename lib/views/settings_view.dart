@@ -411,11 +411,11 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
   /// 构建通知设置
   Widget _buildNotificationSettingsTile() {
     return SettingsItem.text(
-      title: '通知设置',
+      title: '课程提醒',
       description: '课程提醒和通知管理',
       showArrow: true,
       onTap: () {
-        _showComingSoonDialog('通知设置功能');
+        RouteUtils.pushCourseReminder(context);
       },
     );
   }

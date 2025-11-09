@@ -47,6 +47,11 @@ class RouteUtils {
     return Navigator.pushNamed(context, RouteNames.license);
   }
 
+  /// 导航到课程提醒页面
+  static Future<dynamic> pushCourseReminder(BuildContext context) {
+    return Navigator.pushNamed(context, RouteNames.courseReminder);
+  }
+
   /// 导航到AI导入页面
   static Future<dynamic> pushAIImport(BuildContext context) {
     return Navigator.pushNamed(context, RouteNames.aiImport);

@@ -13,6 +13,7 @@ class RouteNames {
   static const String repositoryConfig = '/settings/repository';
   static const String aiConfig = '/settings/ai';
   static const String license = '/settings/license';
+  static const String courseReminder = '/settings/course-reminder';
   
   // 导入相关
   static const String aiImport = '/import/ai';

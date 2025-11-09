@@ -13,6 +13,7 @@ import '../views/repository/edu_import_page.dart';
 import '../views/repository/school_select_page.dart';
 import '../views/repository/script_select_page.dart';
 import '../views/license_page.dart';
+import '../views/course_reminder_page.dart';
 import '../data/course.dart';
 import '../data/school_index.dart';
 import '../states/view_state.dart';
@@ -84,6 +85,13 @@ class AppRoutes {
       case RouteNames.license:
         return MaterialPageRoute(
           builder: (_) => const OpenSourceLicensePage(),
+          settings: settings,
+        );
+
+      // 课程提醒页面
+      case RouteNames.courseReminder:
+        return MaterialPageRoute(
+          builder: (_) => const CourseReminderPage(),
           settings: settings,
         );
 

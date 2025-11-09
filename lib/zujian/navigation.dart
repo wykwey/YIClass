@@ -26,6 +26,9 @@ class YicoreBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 获取底部安全区域高度（手势条高度）
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -33,7 +36,9 @@ class YicoreBottomNavigationBar extends StatelessWidget {
           top: BorderSide(color: Colors.grey[200]!, width: 1),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6).copyWith(
+        bottom: 6 + bottomPadding, // 添加底部安全区域高度
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: items.asMap().entries.map((entry) {

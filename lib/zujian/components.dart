@@ -301,6 +301,8 @@ class YicoreTextField extends StatelessWidget {
   final bool enabled;
   final String? errorText;
   final TextInputType? keyboardType;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
 
   const YicoreTextField({
     this.hintText,
@@ -312,6 +314,8 @@ class YicoreTextField extends StatelessWidget {
     this.enabled = true,
     this.errorText,
     this.keyboardType,
+    this.prefixIcon,
+    this.suffixIcon,
     Key? key,
   }) : super(key: key);
 
@@ -348,6 +352,8 @@ class YicoreTextField extends StatelessWidget {
               fontSize: 16,
               color: Colors.grey[400],
             ),
+            prefixIcon: prefixIcon,
+            suffixIcon: suffixIcon,
             filled: true,
             fillColor: enabled ? Colors.white : Colors.grey[100],
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
