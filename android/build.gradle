@@ -13,7 +13,7 @@ subprojects {
     // 设置每个子项目的构建目录（不一定需要）
     buildDir = new File(rootProject.buildDir, project.name)
     
-    // ⚠️ 一般不需要，如果不是必须，建议删掉：
+    //  一般不需要，如果不是必须，建议删掉：
     evaluationDependsOn(":app")
 }
 

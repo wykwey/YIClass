@@ -224,6 +224,13 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
     );
   }
 
+  /// 获取指定日期所在周的周一
+  DateTime _getMondayOfWeek(DateTime date) {
+    // weekday: 1=Monday, 2=Tuesday, ..., 7=Sunday
+    final daysFromMonday = (date.weekday - 1) % 7;
+    return DateTime(date.year, date.month, date.day).subtract(Duration(days: daysFromMonday));
+  }
+
   Widget _buildActions() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -237,7 +244,11 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
         const SizedBox(width: 12),
         YicoreButton(
           text: '确定',
-          onPressed: () => Navigator.pop(context, _selectedDate),
+          onPressed: () {
+            // 自动设置为该周的周一
+            final monday = _getMondayOfWeek(_selectedDate);
+            Navigator.pop(context, monday);
+          },
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         ),
       ],

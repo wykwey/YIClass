@@ -5,11 +5,11 @@ import 'package:provider/provider.dart';
 import 'states/timetable_state.dart';
 import 'states/view_state.dart';
 import 'states/week_state.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'services/database_service.dart';
 import 'services/timetable_service.dart';
 import 'services/course_service.dart';
 import 'services/settings_service.dart';
+import 'services/course_reminder_service.dart';
 import 'package:isar_plus/isar_plus.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_names.dart';
@@ -28,7 +28,6 @@ class NoScrollbarBehavior extends MaterialScrollBehavior {
 /// 应用入口函数
 /// 初始化应用
 /// 初始化Isar数据库
-/// 请求存储权限
 /// 使用MultiProvider注册多个状态管理类
 /// 启动应用
 void main() async {
@@ -70,16 +69,31 @@ void main() async {
 
     // 加载课表数据
     await timetableState.init(isar);
-  });
 
-  // 仅在非Web平台请求存储权限（延迟执行，不阻塞启动）
-  if (!kIsWeb) {
-    scheduleMicrotask(() async {
-      final status = await Permission.storage.request();
-      if (!status.isGranted) {
-        // 如果权限被拒绝，可以在这里处理
-      }
-    });
+    // 初始化课程提醒（如果提醒已启用）
+    _initializeCourseReminders(timetableState);
+  });
+}
+
+/// 初始化课程提醒
+/// 
+/// 检查提醒设置，如果需要则设置今日的提醒
+Future<void> _initializeCourseReminders(TimetableState timetableState) async {
+  try {
+    // 检查提醒是否启用
+    final settings = await SettingsService.instance.loadSettings();
+    if (!settings.courseReminder) return;
+
+    // 获取当前课表
+    final currentTimetable = timetableState.current;
+    if (currentTimetable == null) return;
+
+    // 设置今日的课程提醒
+    await CourseReminderService.instance.scheduleTodayReminders(currentTimetable);
+  } catch (e) {
+    if (kDebugMode) {
+      print('初始化课程提醒失败: $e');
+    }
   }
 }
 
