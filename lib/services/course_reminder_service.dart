@@ -2,7 +2,7 @@ import '../data/timetable.dart';
 import '../data/course.dart';
 import '../data/course_schedule.dart';
 import '../data/class_time.dart';
-import '../zujian/system_notifications.dart';
+import '../components/feedback/system_notifications.dart';
 import '../utils/get_weekday.dart';
 import 'query_service.dart';
 

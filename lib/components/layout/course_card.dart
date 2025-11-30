@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../data/course.dart';
-import '../data/course_schedule.dart';
-import '../utils/color_utils.dart';
+import '../../data/course.dart';
+import '../../data/course_schedule.dart';
+import '../../utils/color_utils.dart';
 import 'package:provider/provider.dart';
-import '../states/timetable_state.dart';
-import '../routes/route_utils.dart';
+import '../../states/timetable_state.dart';
+import '../../routes/route_utils.dart';
 /// 
 /// 支持多种显示模式：日视图模式、列表视图模式
 class CourseCard extends StatelessWidget {

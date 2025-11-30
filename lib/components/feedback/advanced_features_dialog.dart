@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../zujian/dialogs.dart';
-import '../zujian/components.dart';
+import 'dialogs.dart';
+import '../inputs/components.dart';
 
 /// 高级功能确认对话框（带计时功能）
 class AdvancedFeaturesDialog {

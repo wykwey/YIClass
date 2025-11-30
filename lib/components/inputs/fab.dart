@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../states/timetable_state.dart';
+import '../../services/file_service.dart';
+import '../feedback/notifications.dart' show Notifications;
 
 // ================== 悬浮窗菜单项 ==================
 class YicoreFabItem {
@@ -15,7 +19,7 @@ class YicoreFabItem {
   });
 }
 
-// ================== 悬浮窗按钮 ==================
+// ================== 通用悬浮按钮 ==================
 class YicoreFab extends StatefulWidget {
   final IconData icon;
   final VoidCallback? onPressed;
@@ -47,7 +51,7 @@ class _YicoreFabState extends State<YicoreFab>
   bool _isDragging = false;
   Offset _dragStartPosition = Offset.zero;
   
-  static const double _dragThreshold = 5.0; // 拖动阈值（像素）
+  static const double _dragThreshold = 5.0;
 
   @override
   void initState() {
@@ -115,26 +119,18 @@ class _YicoreFabState extends State<YicoreFab>
 
   void _onPanStart(DragStartDetails details) {
     _dragStartPosition = details.globalPosition;
-    // 不立即设置 _isDragging，等到真正移动时再判断
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
     if (!mounted) return;
     
-    // 计算从起始位置的总移动距离
     final dragDistance = (details.globalPosition - _dragStartPosition).distance;
     
-    // 只有移动距离超过阈值才认为是拖动
     if (!_isDragging && dragDistance > _dragThreshold) {
-      setState(() {
-        _isDragging = true;
-      });
-      if (_isExpanded) {
-        _closeMenu();
-      }
+      setState(() => _isDragging = true);
+      if (_isExpanded) _closeMenu();
     }
     
-    // 只有确认是拖动后才更新位置
     if (_isDragging) {
       final screenSize = MediaQuery.of(context).size;
       final expandedHeight = _getExpandedHeight();
@@ -148,13 +144,8 @@ class _YicoreFabState extends State<YicoreFab>
   }
 
   void _onPanEnd(DragEndDetails details) {
-    // 延迟重置，确保点击事件能正确判断
     Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        setState(() {
-          _isDragging = false;
-        });
-      }
+      if (mounted) setState(() => _isDragging = false);
     });
   }
 
@@ -177,8 +168,7 @@ class _YicoreFabState extends State<YicoreFab>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (_isExpanded && _hasMenuItems)
-                ..._buildMenuItems(),
+              if (_isExpanded && _hasMenuItems) ..._buildMenuItems(),
               _buildMainButton(),
             ],
           ),
@@ -213,13 +203,8 @@ class _YicoreFabState extends State<YicoreFab>
       onPanUpdate: _onPanUpdate,
       onPanEnd: _onPanEnd,
       onPanCancel: () {
-        // 延迟重置，确保点击事件能正确判断
         Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) {
-            setState(() {
-              _isDragging = false;
-            });
-          }
+          if (mounted) setState(() => _isDragging = false);
         });
       },
       child: _buildCircleButton(
@@ -262,17 +247,9 @@ class _YicoreFabState extends State<YicoreFab>
           child: rotation != null
               ? RotationTransition(
                   turns: rotation,
-                  child: Icon(
-                    icon,
-                    color: Colors.black.withValues(alpha: 0.85),
-                    size: widget.size * 0.5,
-                  ),
+                  child: Icon(icon, color: Colors.black.withValues(alpha: 0.85), size: widget.size * 0.5),
                 )
-              : Icon(
-                  icon,
-                  color: Colors.black.withValues(alpha: 0.85),
-                  size: widget.size * 0.5,
-                ),
+              : Icon(icon, color: Colors.black.withValues(alpha: 0.85), size: widget.size * 0.5),
         ),
       ),
     );
@@ -280,12 +257,11 @@ class _YicoreFabState extends State<YicoreFab>
     if (tooltip != null && tooltip.isNotEmpty) {
       return Tooltip(message: tooltip, child: button);
     }
-    
     return button;
   }
 }
 
-// ================== 菜单项按钮（带点击反馈） ==================
+// ================== 菜单项按钮 ==================
 class _MenuItemButton extends StatefulWidget {
   final double size;
   final IconData icon;
@@ -326,25 +302,15 @@ class _MenuItemButtonState extends State<_MenuItemButton>
     super.dispose();
   }
 
-  void _handleTapDown(TapDownDetails details) {
-    _controller.forward();
-  }
-
-  void _handleTapUp(TapUpDetails details) {
-    _controller.reverse();
-    widget.onTap?.call();
-  }
-
-  void _handleTapCancel() {
-    _controller.reverse();
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) {
+        _controller.reverse();
+        widget.onTap?.call();
+      },
+      onTapCancel: () => _controller.reverse(),
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: Material(
@@ -372,6 +338,60 @@ class _MenuItemButtonState extends State<_MenuItemButton>
           ),
         ),
       ),
+    );
+  }
+}
+
+// ================== 课程操作悬浮按钮 ==================
+class AddCourseFab extends StatelessWidget {
+  final String? viewIdentifier;
+  
+  const AddCourseFab({super.key, this.viewIdentifier});
+
+  Future<void> _importFromFile(BuildContext context) async {
+    final ok = await FileService.importAndSave();
+    if (!context.mounted) return;
+    if (ok) {
+      await Provider.of<TimetableState>(context, listen: false).reload();
+      Notifications.sonner(context, message: '导入成功');
+    } else {
+      Notifications.sonner(context, message: '已取消或导入失败');
+    }
+  }
+
+  Future<void> _exportToFile(BuildContext context) async {
+    final timetableState = Provider.of<TimetableState>(context, listen: false);
+    final current = timetableState.current;
+    if (current == null) {
+      Notifications.sonner(context, message: '请先选择一个课表');
+      return;
+    }
+    final result = await FileService.exportTimetable(current);
+    if (!context.mounted) return;
+    if (result != null) {
+      Notifications.sonner(context, message: '导出成功: $result');
+    } else {
+      Notifications.sonner(context, message: '已取消或当前平台不支持');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return YicoreFab(
+      icon: Icons.add,
+      tooltip: '快速操作',
+      menuItems: [
+        YicoreFabItem(
+          icon: Icons.file_download,
+          label: '导入',
+          onPressed: () => _importFromFile(context),
+        ),
+        YicoreFabItem(
+          icon: Icons.file_upload,
+          label: '导出',
+          onPressed: () => _exportToFile(context),
+        ),
+      ],
     );
   }
 }

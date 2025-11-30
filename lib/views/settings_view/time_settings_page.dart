@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../states/timetable_state.dart';
-import '../data/data_constants.dart';
-import '../data/class_time.dart';
-import '../zujian/timepicker.dart';
-import '../zujian/datepicker.dart';
-import '../zujian/notifications.dart';
-import '../zujian/appbar.dart';
-import '../zujian/settingscard.dart';
-import '../zujian/components.dart';
-import '../zujian/cards.dart';
+import '../../states/timetable_state.dart';
+import '../../data/data_constants.dart';
+import '../../data/class_time.dart';
+import '../../components/inputs/timepicker.dart';
+import '../../components/inputs/datepicker.dart';
+import '../../components/feedback/notifications.dart';
+import '../../components/layout/appbar.dart';
+import '../../components/layout/settingscard.dart';
+import '../../components/inputs/components.dart';
+import '../../components/layout/cards.dart';
 
 /// 课程时间设置页面
 /// 

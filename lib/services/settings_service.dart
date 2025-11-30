@@ -87,12 +87,14 @@ class SettingsService {
     bool? imageImport,
     bool? tableImport,
     bool? textImport,
+    bool? webImport,
   }) async {
     try {
       final settings = await loadSettings();
       if (imageImport != null) settings.aiImageImport = imageImport;
       if (tableImport != null) settings.aiTableImport = tableImport;
       if (textImport != null) settings.aiTextImport = textImport;
+      if (webImport != null) settings.aiWebImport = webImport;
       return await saveSettings(settings);
     } catch (_) {
       return false;

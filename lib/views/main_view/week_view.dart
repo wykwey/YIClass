@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../data/course.dart';
-import '../services/query_service.dart';
-import '../services/factory_service.dart';
-import '../data/data_constants.dart';
-import '../components/week_view_components/week_header.dart';
-import '../components/week_view_components/period_label.dart';
-import '../components/week_view_components/course_card.dart';
-import '../states/timetable_state.dart';
-import '../states/week_state.dart';
-import '../components/add_course_fab.dart';
-import '../routes/route_utils.dart';
-import '../data/timetable.dart';
-import '../data/class_time.dart';
-import '../zujian/course_selector.dart';
+import '../../data/course.dart';
+import '../../services/query_service.dart';
+import '../../services/factory_service.dart';
+import '../../data/data_constants.dart';
+import '../../components/layout/week_header.dart';
+import '../../components/layout/period_label.dart';
+import '../../components/layout/week_course_card.dart';
+import '../../states/timetable_state.dart';
+import '../../states/week_state.dart';
+import '../../components/inputs/fab.dart';
+import '../../routes/route_utils.dart';
+import '../../data/timetable.dart';
+import '../../data/class_time.dart';
+import '../../components/layout/course_selector.dart';
 
 class WeekView extends StatefulWidget {
   const WeekView({super.key});

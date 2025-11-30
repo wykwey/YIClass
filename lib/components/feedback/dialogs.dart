@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'components.dart';
+import '../inputs/components.dart';
 
 // 统一样式
 const _kDialogTitleStyle = TextStyle(

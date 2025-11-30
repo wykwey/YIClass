@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../states/timetable_state.dart';
-import '../services/factory_service.dart';
-import '../zujian/schedule_manager.dart';
+import '../../states/timetable_state.dart';
+import '../../services/factory_service.dart';
+import '../layout/schedule_manager.dart';
+// 注意：此文件被 layout/appbar.dart 引用
 
 /// 课表管理对话框 - 使用 YicoreScheduleManager 组件，只保留数据转换逻辑
 class TimetableManagementDialog {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../zujian/appbar.dart';
+import '../../components/layout/appbar.dart';
 
 class OpenSourceLicensePage extends StatelessWidget {
   const OpenSourceLicensePage({super.key});

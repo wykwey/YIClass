@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../zujian/notifications.dart';
-import '../zujian/settingscard.dart';
-import '../zujian/components.dart';
-import '../zujian/appbar.dart';
-import '../zujian/segmented_control.dart';
-import '../services/repository/repository_config_service.dart';
-import '../services/repository/repository_download_service.dart';
+import '../../components/feedback/notifications.dart';
+import '../../components/layout/settingscard.dart';
+import '../../components/inputs/components.dart';
+import '../../components/layout/appbar.dart';
+import '../../components/inputs/segmented_control.dart';
+import '../../services/repository/repository_config_service.dart';
+import '../../services/repository/repository_download_service.dart';
 
 class RepositoryConfigPage extends StatefulWidget {
   const RepositoryConfigPage({super.key});

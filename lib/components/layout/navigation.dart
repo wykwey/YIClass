@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../states/view_state.dart';
 
 // ================== 底部导航项 ==================
 class BottomNavItem {
@@ -11,7 +13,7 @@ class BottomNavItem {
   });
 }
 
-// ================== 自定义底部导航栏 ==================
+// ================== 通用底部导航栏 ==================
 class YicoreBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -26,7 +28,6 @@ class YicoreBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 获取底部安全区域高度（手势条高度）
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     
     return Container(
@@ -37,7 +38,7 @@ class YicoreBottomNavigationBar extends StatelessWidget {
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6).copyWith(
-        bottom: 6 + bottomPadding, // 添加底部安全区域高度
+        bottom: 6 + bottomPadding,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -81,7 +82,6 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 图标
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.all(5),
@@ -96,7 +96,6 @@ class _NavItem extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 3),
-            // 标签
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
@@ -110,5 +109,46 @@ class _NavItem extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// ================== 应用专用底部导航栏 ==================
+class AppBottomNavBar extends StatelessWidget {
+  final int? currentIndex;
+  final ValueChanged<int>? onTabChanged;
+  
+  const AppBottomNavBar({super.key, this.currentIndex, this.onTabChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final viewState = context.watch<ViewState>();
+    final idx = currentIndex ?? _getIndex(viewState.selectedView);
+
+    return YicoreBottomNavigationBar(
+      currentIndex: idx,
+      onTap: (index) {
+        if (onTabChanged != null) {
+          onTabChanged!(index);
+        } else {
+          final views = ['周视图', '日视图', '设置'];
+          viewState.changeView(views[index]);
+        }
+      },
+      items: const [
+        BottomNavItem(icon: Icons.calendar_view_week, label: '周视图'),
+        BottomNavItem(icon: Icons.calendar_today, label: '日视图'),
+        BottomNavItem(icon: Icons.settings, label: '设置'),
+      ],
+    );
+  }
+
+  int _getIndex(String view) {
+    switch (view) {
+      case '周视图': return 0;
+      case '日视图': return 1;
+      case '列表视图': return 0;
+      case '设置': return 2;
+      default: return 0;
+    }
   }
 }

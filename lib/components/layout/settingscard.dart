@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'components.dart';
-import 'segmented_control.dart';
+import '../inputs/components.dart';
+import '../inputs/segmented_control.dart';
 
 // ================== 设置项块 ==================
 class SettingsItem extends StatelessWidget {

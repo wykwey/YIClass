@@ -10,6 +10,7 @@ class AIConfig {
   final bool enableImageImport;
   final bool enableTableImport;
   final bool enableTextImport;
+  final bool enableWebImport;
 
   const AIConfig({
     this.apiKey = '',
@@ -20,6 +21,7 @@ class AIConfig {
     this.enableImageImport = false,
     this.enableTableImport = false,
     this.enableTextImport = false,
+    this.enableWebImport = false,
   });
 
   /// 验证配置是否完整
@@ -118,6 +120,7 @@ class AIConfigService {
       enableImageImport: settings.aiImageImport,
       enableTableImport: settings.aiTableImport,
       enableTextImport: settings.aiTextImport,
+      enableWebImport: settings.aiWebImport,
     );
   }
 
@@ -128,6 +131,7 @@ class AIConfigService {
       imageImport: config.enableImageImport,
       tableImport: config.enableTableImport,
       textImport: config.enableTextImport,
+      webImport: config.enableWebImport,
     );
     await SettingsService.instance.updateAiConfig(
       apiKey: config.apiKey,
@@ -144,6 +148,7 @@ class AIConfigService {
       imageImport: false,
       tableImport: false,
       textImport: false,
+      webImport: false,
     );
     await SettingsService.instance.updateAiConfig(
       apiKey: '',

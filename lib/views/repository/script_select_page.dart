@@ -3,10 +3,10 @@ import '../../data/school_index.dart';
 import '../../services/repository/script_file_service.dart';
 import '../../services/repository/repository_config_service.dart';
 import '../../services/repository/repository_download_service.dart';
-import '../../zujian/notifications.dart';
-import '../../zujian/appbar.dart';
-import '../../zujian/cards.dart';
-import '../../zujian/components.dart';
+import '../../components/feedback/notifications.dart';
+import '../../components/layout/appbar.dart';
+import '../../components/layout/cards.dart';
+import '../../components/inputs/components.dart';
 import '../../routes/route_utils.dart';
 
 /// 脚本选择页
@@ -162,7 +162,10 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
               itemBuilder: (context, index) {
                 final script = widget.school.scripts[index];
                 final isDownloaded = _scriptExistsMap[script.scriptName] ?? false;
-                return _buildScriptCard(context, script, isDownloaded);
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildScriptCard(context, script, isDownloaded),
+                );
               },
             ),
     );
@@ -173,74 +176,69 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
     ScriptEntry script,
     bool isDownloaded,
   ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Opacity(
-        opacity: isDownloaded ? 1.0 : 0.5,
-        child: YicoreCard(
-          padding: const EdgeInsets.all(16),
-          onTap: isDownloaded
-              ? () {
-                  RouteUtils.pushEduImport(
-                    context,
-                    script: script,
-                  );
-                }
-              : null,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 名称和右侧按钮
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      script.name,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: isDownloaded
-                            ? Colors.black
-                            : Colors.grey[600],
-                      ),
+    return Opacity(
+      opacity: isDownloaded ? 1.0 : 0.5,
+      child: YicoreCard(
+        padding: const EdgeInsets.all(16),
+        onTap: isDownloaded
+            ? () {
+                RouteUtils.pushEduImport(
+                  context,
+                  script: script,
+                );
+              }
+            : null,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 名称和右侧按钮
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    script.name,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDownloaded ? Colors.black : Colors.grey[600],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  YicoreIconButton(
-                    icon: isDownloaded ? Icons.check_circle : Icons.download,
-                    size: 36,
-                    showBorder: true,
-                    onPressed: isDownloaded ? null : () => _downloadScript(script.scriptName),
-                  ),
-                ],
+                ),
+                const SizedBox(width: 8),
+                YicoreIconButton(
+                  icon: isDownloaded ? Icons.check_circle : Icons.download,
+                  size: 36,
+                  showBorder: true,
+                  onPressed: isDownloaded ? null : () => _downloadScript(script.scriptName),
+                ),
+              ],
+            ),
+            // 说明
+            if (script.description.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                script.description,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDownloaded ? Colors.black87 : Colors.grey[500],
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              // 说明
-              if (script.description.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  script.description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDownloaded ? Colors.black87 : Colors.grey[500],
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-              // 贡献者
-              if (script.author.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  '贡献者: ${script.author}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDownloaded ? Colors.grey : Colors.grey[400],
-                  ),
-                ),
-              ],
             ],
-          ),
+            // 贡献者
+            if (script.author.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                '贡献者: ${script.author}',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDownloaded ? Colors.grey : Colors.grey[400],
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

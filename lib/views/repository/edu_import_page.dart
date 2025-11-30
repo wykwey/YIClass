@@ -6,8 +6,8 @@ import '../../data/school_index.dart';
 import '../../services/repository/script_file_service.dart';
 import '../../services/file_service.dart';
 import '../../states/timetable_state.dart';
-import '../../zujian/notifications.dart';
-import '../../zujian/appbar.dart';
+import '../../components/feedback/notifications.dart';
+import '../../components/layout/appbar.dart';
 
 /// 教务系统导入页
 class EduImportPage extends StatefulWidget {

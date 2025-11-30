@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'components.dart';
+import '../inputs/components.dart';
 
 // ================== 常量定义 ==================
 class _NotificationConstants {
@@ -16,30 +16,20 @@ class _NotificationConstants {
   static const double closeButtonPadding = 4.0;
 }
 
-// ================== 通知卡片装饰 ==================
 BoxDecoration _defaultNotificationDecoration() {
   return BoxDecoration(
     color: Colors.white,
     borderRadius: BorderRadius.circular(_NotificationConstants.cardBorderRadius),
-    border: Border.all(
-      color: Colors.grey[300]!,
-      width: 1,
-    ),
+    border: Border.all(color: Colors.grey[300]!, width: 1),
   );
 }
 
-// ================== 通知条目 ==================
 class _NotificationEntry {
   final String id;
   final Widget card;
-  
-  _NotificationEntry({
-    required this.id,
-    required this.card,
-  });
+  _NotificationEntry({required this.id, required this.card});
 }
 
-// ================== 通知管理器 ==================
 class _NotificationsManager {
   static OverlayEntry? _entry;
   static OverlayState? _overlay;
@@ -62,9 +52,7 @@ class _NotificationsManager {
     _NotificationEntry entry, {
     double spacing = _NotificationConstants.defaultSpacing,
   }) {
-    if (!_ensureOverlay(context)) {
-      return NotificationHandle('');
-    }
+    if (!_ensureOverlay(context)) return NotificationHandle('');
     
     _spacing = spacing;
     _entries.add(entry);
@@ -84,11 +72,7 @@ class _NotificationsManager {
     
     if (_entries.isEmpty) {
       _visible = false;
-      try {
-        _entry?.remove();
-      } catch (_) {
-        // 忽略移除错误
-      }
+      try { _entry?.remove(); } catch (_) {}
       _entry = null;
       _overlay = null;
     } else {
@@ -107,8 +91,7 @@ class _NotificationsManager {
             children: _entries.asMap().entries.map((entry) {
               final index = entry.key;
               final item = entry.value;
-              final offset = _NotificationConstants.bottomOffset + 
-                           index * _spacing;
+              final offset = _NotificationConstants.bottomOffset + index * _spacing;
               
               return Positioned(
                 bottom: offset,
@@ -117,9 +100,7 @@ class _NotificationsManager {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: _NotificationConstants.horizontalPadding,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: _NotificationConstants.horizontalPadding),
                     child: item.card,
                   ),
                 ),
@@ -138,18 +119,12 @@ class _NotificationsManager {
   }
 }
 
-// ================== 通知句柄 ==================
 class NotificationHandle {
   final String id;
-  
   NotificationHandle(this.id);
-  
-  void dismiss() {
-    _NotificationsManager.remove(id);
-  }
+  void dismiss() => _NotificationsManager.remove(id);
 }
 
-// ================== 通知卡片 ==================
 class _NotificationCard extends StatefulWidget {
   final String id;
   final String? title;
@@ -187,47 +162,25 @@ class _NotificationCardState extends State<_NotificationCard>
       vsync: this,
       duration: _NotificationConstants.animationDuration,
     );
-    _slide = Tween<Offset>(
-      begin: Offset(0, 1),
-      end: Offset(0, 0),
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOut,
-      ),
+    _slide = Tween<Offset>(begin: Offset(0, 1), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-    _fade = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOut,
-      ),
+    _fade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
     
     if (mounted) {
       _controller.forward();
       Future.delayed(widget.duration, () {
-        if (mounted) {
-          _dismiss();
-        }
+        if (mounted) _dismiss();
       });
     }
   }
 
   Future<void> _dismiss() async {
     if (!mounted) return;
-    
-    try {
-      await _controller.reverse();
-    } catch (e) {
-      // 忽略动画错误
-    }
-    
-    if (mounted) {
-      widget.onClose();
-    }
+    try { await _controller.reverse(); } catch (_) {}
+    if (mounted) widget.onClose();
   }
 
   @override
@@ -259,15 +212,25 @@ class _NotificationCardState extends State<_NotificationCard>
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: _buildContent(),
-                  ),
+                  Expanded(child: _buildContent()),
                   if (widget.actionText != null && widget.onAction != null) ...[
                     SizedBox(width: 16),
-                    _buildActionButton(),
+                    YicoreButton(
+                      text: widget.actionText!,
+                      isOutlined: true,
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      onPressed: widget.onAction,
+                    ),
                   ],
                   SizedBox(width: 12),
-                  _buildCloseButton(),
+                  InkWell(
+                    onTap: _dismiss,
+                    borderRadius: BorderRadius.circular(4),
+                    child: Container(
+                      padding: EdgeInsets.all(_NotificationConstants.closeButtonPadding),
+                      child: Icon(Icons.close, size: _NotificationConstants.closeIconSize, color: Colors.grey[600]),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -283,76 +246,18 @@ class _NotificationCardState extends State<_NotificationCard>
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.title != null && widget.title!.isNotEmpty)
-          Text(
-            widget.title!,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black,
-              fontWeight: FontWeight.w600,
-              height: 1.3,
-              letterSpacing: 0.2,
-            ),
-          ),
-        if (widget.title != null &&
-            widget.title!.isNotEmpty &&
-            widget.message != null &&
-            widget.message!.isNotEmpty)
+          Text(widget.title!, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600, height: 1.3)),
+        if (widget.title != null && widget.title!.isNotEmpty && widget.message != null && widget.message!.isNotEmpty)
           SizedBox(height: 6),
         if (widget.message != null && widget.message!.isNotEmpty)
-          Text(
-            widget.message!,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700]!,
-              fontWeight: FontWeight.w400,
-              height: 1.5,
-              letterSpacing: 0.2,
-            ),
-          ),
+          Text(widget.message!, style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.5)),
       ],
-    );
-  }
-
-  Widget _buildActionButton() {
-    return YicoreButton(
-      text: widget.actionText!,
-      isOutlined: true,
-      padding: EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 8,
-      ),
-      onPressed: widget.onAction,
-    );
-  }
-
-  Widget _buildCloseButton() {
-    return InkWell(
-      onTap: _dismiss,
-      borderRadius: BorderRadius.circular(4),
-      child: Container(
-        padding: EdgeInsets.all(_NotificationConstants.closeButtonPadding),
-        child: Icon(
-          Icons.close,
-          size: _NotificationConstants.closeIconSize,
-          color: Colors.grey[600] ?? Colors.grey,
-        ),
-      ),
     );
   }
 }
 
-// ================== 对外 API ==================
+/// 应用内通知（Sonner 风格）
 class Notifications {
-  /// 显示一个 Sonner 风格的通知
-  /// 
-  /// [title] 通知标题（可选）
-  /// [message] 通知消息（可选，但至少需要 title 或 message 之一）
-  /// [duration] 通知显示时长，默认 3 秒
-  /// [actionText] 操作按钮文本（可选）
-  /// [onAction] 操作按钮回调（可选）
-  /// [spacing] 多个通知之间的间距，默认 70.0
-  /// 
-  /// 返回 [NotificationHandle] 可用于手动关闭通知
   static NotificationHandle sonner(
     BuildContext context, {
     String? title,
@@ -362,34 +267,26 @@ class Notifications {
     VoidCallback? onAction,
     double spacing = _NotificationConstants.defaultSonnerSpacing,
   }) {
-    // 验证至少需要标题或消息之一
-    if ((title == null || title.isEmpty) &&
-        (message == null || message.isEmpty)) {
+    if ((title == null || title.isEmpty) && (message == null || message.isEmpty)) {
       return NotificationHandle('');
     }
     
     final id = 'sonner_${DateTime.now().microsecondsSinceEpoch}';
-    final notificationId = id;
     
     final card = _NotificationCard(
-      key: ValueKey(notificationId),
-      id: notificationId,
+      key: ValueKey(id),
+      id: id,
       title: title,
       message: message,
       duration: duration,
-      onClose: () {
-        _NotificationsManager.remove(notificationId);
-      },
+      onClose: () => _NotificationsManager.remove(id),
       actionText: actionText,
       onAction: onAction,
     );
     
     return _NotificationsManager.add(
       context,
-      _NotificationEntry(
-        id: id,
-        card: card,
-      ),
+      _NotificationEntry(id: id, card: card),
       spacing: spacing,
     );
   }

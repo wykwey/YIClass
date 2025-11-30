@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../data/course.dart';
-import '../services/query_service.dart';
-import '../components/course_card.dart';
-import '../components/add_course_fab.dart';
-import '../states/timetable_state.dart';
-import '../data/timetable.dart';
-import '../zujian/appbar.dart';
+import '../../data/course.dart';
+import '../../services/query_service.dart';
+import '../../components/layout/course_card.dart';
+import '../../components/inputs/fab.dart';
+import '../../states/timetable_state.dart';
+import '../../data/timetable.dart';
+import '../../components/layout/appbar.dart';
 
 /// 按周次分组显示课程的列表视图（V2）
 class CourseListView extends StatefulWidget {

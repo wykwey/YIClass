@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../services/ai/ai_config_service.dart';
-import '../services/ai/ai_service.dart';
-import '../zujian/notifications.dart';
-import '../zujian/appbar.dart';
-import '../zujian/settingscard.dart';
-import '../zujian/components.dart';
-import '../zujian/cards.dart';
+import '../../services/ai/ai_config_service.dart';
+import '../../services/ai/ai_service.dart';
+import '../../components/feedback/notifications.dart';
+import '../../components/layout/appbar.dart';
+import '../../components/layout/settingscard.dart';
+import '../../components/inputs/components.dart';
+import '../../components/layout/cards.dart';
 
 class AIConfigPage extends StatefulWidget {
   const AIConfigPage({super.key});
@@ -23,6 +23,7 @@ class _AIConfigPageState extends State<AIConfigPage> {
   bool _enableImageImport = true;
   bool _enableTableImport = true;
   bool _enableTextImport = true;
+  bool _enableWebImport = false;
   bool _isLoading = false;
   bool _isTesting = false;
 
@@ -53,6 +54,7 @@ class _AIConfigPageState extends State<AIConfigPage> {
       _enableImageImport = config.enableImageImport;
       _enableTableImport = config.enableTableImport;
       _enableTextImport = config.enableTextImport;
+      _enableWebImport = config.enableWebImport;
     } catch (e) {
       if (mounted) {
         Notifications.sonner(context, message: '加载配置失败: $e');
@@ -72,6 +74,7 @@ class _AIConfigPageState extends State<AIConfigPage> {
       enableImageImport: _enableImageImport,
       enableTableImport: _enableTableImport,
       enableTextImport: _enableTextImport,
+      enableWebImport: _enableWebImport,
     );
 
     if (!config.isValid) {
@@ -267,6 +270,13 @@ class _AIConfigPageState extends State<AIConfigPage> {
                       description: '支持文字描述解析',
                       value: _enableTextImport,
                       onChanged: (value) => setState(() => _enableTextImport = value),
+                      inBlock: true,
+                    ),
+                    SettingsItem.switch_(
+                      title: 'AI 教务导入',
+                      description: '支持教务网页 AI 分析导入',
+                      value: _enableWebImport,
+                      onChanged: (value) => setState(() => _enableWebImport = value),
                       inBlock: true,
                     ),
                   ],

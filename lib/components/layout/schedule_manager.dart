@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'components.dart';
-import 'dialogs.dart';
+import '../inputs/components.dart';
+import '../feedback/dialogs.dart';
 
 // ================== 课表数据模型 ==================
 class Schedule {

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../zujian/appbar.dart';
-import '../zujian/settingscard.dart';
-import '../zujian/dropdown.dart';
-import '../zujian/cards.dart';
-import '../zujian/notifications.dart';
-import '../services/settings_service.dart';
-import '../services/course_reminder_service.dart';
-import '../states/timetable_state.dart';
+import '../../components/layout/appbar.dart';
+import '../../components/layout/settingscard.dart';
+import '../../components/inputs/dropdown.dart';
+import '../../components/layout/cards.dart';
+import '../../components/feedback/notifications.dart';
+import '../../services/settings_service.dart';
+import '../../services/course_reminder_service.dart';
+import '../../states/timetable_state.dart';
 
 /// 课程提醒设置页面
 /// 

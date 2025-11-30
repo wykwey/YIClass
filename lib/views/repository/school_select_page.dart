@@ -4,10 +4,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import '../../services/repository/school_index_service.dart';
 import '../../data/school_index.dart';
-import '../../zujian/notifications.dart';
-import '../../zujian/appbar.dart';
-import '../../zujian/components.dart';
-import '../../zujian/dialogs.dart';
+import '../../components/feedback/notifications.dart';
+import '../../components/layout/appbar.dart';
+import '../../components/inputs/components.dart';
+import '../../components/feedback/dialogs.dart';
 import '../../routes/route_utils.dart';
 
 /// 学校选择页

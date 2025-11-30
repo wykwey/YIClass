@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../services/ai/ai_config_service.dart';
-import '../services/ai/ai_service.dart';
-import '../services/file_service.dart';
-import '../states/timetable_state.dart';
-import '../zujian/notifications.dart';
-import '../zujian/appbar.dart';
-import '../zujian/components.dart';
+import '../../services/ai/ai_config_service.dart';
+import '../../services/ai/ai_service.dart';
+import '../../services/file_service.dart';
+import '../../states/timetable_state.dart';
+import '../../components/feedback/notifications.dart';
+import '../../components/layout/appbar.dart';
+import '../../components/inputs/components.dart';
+import 'ai_edu_import_page.dart';
 
 class AIImportPage extends StatefulWidget {
   const AIImportPage({super.key});
@@ -116,6 +117,13 @@ class _AIImportPageState extends State<AIImportPage> {
           subtitle: '输入课程描述，AI解析课程安排',
           enabled: config.enableTextImport,
           onTap: () => _handleTextImport(),
+        ),
+        const SizedBox(height: 12),
+        _buildImportOption(
+          title: 'AI 教务导入',
+          subtitle: '打开教务网页，AI 自动分析课表内容',
+          enabled: config.enableWebImport,
+          onTap: () => _handleWebImport(),
         ),
       ],
     );
@@ -260,6 +268,19 @@ class _AIImportPageState extends State<AIImportPage> {
       context: context,
       importType: '文字',
       analyzer: () => AIService.analyzeText(text),
+    );
+  }
+
+  Future<void> _handleWebImport() async {
+    final config = await AIConfigService.getConfig();
+    if (!_checkConfig(context, config.enabled && config.enableWebImport, 'AI 教务导入')) return;
+
+    // 跳转到 AI 教务导入页面
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AiEduImportPage(),
+      ),
     );
   }
 

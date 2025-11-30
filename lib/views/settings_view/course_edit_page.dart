@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../data/course.dart';
-import '../data/course_schedule.dart';
-import '../states/timetable_state.dart';
-import '../services/course_service.dart';
-import '../services/factory_service.dart';
-import '../utils/color_utils.dart';
-import '../utils/parse_utils.dart';
-import '../zujian/dropdown.dart';
-import '../zujian/components.dart';
-import '../zujian/cards.dart';
-import '../zujian/dialogs.dart';
-import '../zujian/notifications.dart';
-import '../zujian/appbar.dart';
+import '../../data/course.dart';
+import '../../data/course_schedule.dart';
+import '../../states/timetable_state.dart';
+import '../../services/course_service.dart';
+import '../../services/factory_service.dart';
+import '../../utils/color_utils.dart';
+import '../../utils/parse_utils.dart';
+import '../../components/inputs/dropdown.dart';
+import '../../components/inputs/components.dart';
+import '../../components/layout/cards.dart';
+import '../../components/feedback/dialogs.dart';
+import '../../components/feedback/notifications.dart';
+import '../../components/layout/appbar.dart';
 
 /// 课程编辑页面
 class CourseEditPage extends StatefulWidget {

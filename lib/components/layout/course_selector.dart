@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'components.dart';
+import '../inputs/components.dart';
 
 // ================== 课程项数据模型 ==================
 class CourseItem {

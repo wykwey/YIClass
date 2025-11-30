@@ -21,6 +21,7 @@ class AppSettings {
   late bool aiImageImport; // 是否启用AI图片导入
   late bool aiTableImport; // 是否启用AI表格导入
   late bool aiTextImport; // 是否启用AI文本导入
+  late bool aiWebImport; // 是否启用AI网页分析导入
   
   // AI配置
   late String aiApiKey; // AI API密钥
@@ -50,6 +51,7 @@ class AppSettings {
     this.aiImageImport = false,
     this.aiTableImport = false,
     this.aiTextImport = false,
+    this.aiWebImport = false,
     this.aiApiKey = '',
     this.aiEndpoint = '',
     this.aiVisionModel = 'gpt-4-vision-preview',
@@ -75,6 +77,7 @@ class AppSettings {
       aiImageImport: json['aiImageImport'] ?? false,
       aiTableImport: json['aiTableImport'] ?? false,
       aiTextImport: json['aiTextImport'] ?? false,
+      aiWebImport: json['aiWebImport'] ?? false,
       aiApiKey: json['aiApiKey']?.toString() ?? '',
       aiEndpoint: json['aiEndpoint']?.toString() ?? '',
       aiVisionModel: json['aiVisionModel']?.toString() ?? 'gpt-4-vision-preview',
@@ -99,6 +102,7 @@ class AppSettings {
         'aiImageImport': aiImageImport,
         'aiTableImport': aiTableImport,
         'aiTextImport': aiTextImport,
+        'aiWebImport': aiWebImport,
         'aiApiKey': aiApiKey,
         'aiEndpoint': aiEndpoint,
         'aiVisionModel': aiVisionModel,
@@ -123,6 +127,7 @@ class AppSettings {
     bool? aiImageImport,
     bool? aiTableImport,
     bool? aiTextImport,
+    bool? aiWebImport,
     String? aiApiKey,
     String? aiEndpoint,
     String? aiVisionModel,
@@ -145,6 +150,7 @@ class AppSettings {
       aiImageImport: aiImageImport ?? this.aiImageImport,
       aiTableImport: aiTableImport ?? this.aiTableImport,
       aiTextImport: aiTextImport ?? this.aiTextImport,
+      aiWebImport: aiWebImport ?? this.aiWebImport,
       aiApiKey: aiApiKey ?? this.aiApiKey,
       aiEndpoint: aiEndpoint ?? this.aiEndpoint,
       aiVisionModel: aiVisionModel ?? this.aiVisionModel,
@@ -171,6 +177,7 @@ class AppSettings {
       aiImageImport: false,
       aiTableImport: false,
       aiTextImport: false,
+      aiWebImport: false,
       aiApiKey: '',
       aiEndpoint: '',
       aiVisionModel: 'gpt-4-vision-preview',

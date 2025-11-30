@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../data/course.dart';
-import '../services/query_service.dart';
-import '../states/timetable_state.dart';
-import '../states/week_state.dart';
-import '../states/view_state.dart';
-import '../components/add_course_fab.dart';
-import '../components/course_card.dart';
-import '../routes/route_utils.dart';
-import '../data/timetable.dart';
-import '../zujian/appbar.dart';
+import '../../data/course.dart';
+import '../../services/query_service.dart';
+import '../../states/timetable_state.dart';
+import '../../states/view_state.dart';
+import '../../utils/get_weekday.dart';
+import '../../components/inputs/fab.dart';
+import '../../components/layout/course_card.dart';
+import '../../routes/route_utils.dart';
+import '../../data/timetable.dart';
+import '../../components/layout/appbar.dart';
 
 /// 日视图组件
 ///
@@ -25,6 +25,16 @@ class DayView extends StatefulWidget {
 class _DayViewState extends State<DayView> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
+
+  /// 计算今天所在的周（使用 getWeekInfo 进行越界检查）
+  int? _getTodayWeek(Timetable timetable) {
+    final info = getWeekInfo(
+      DateTime.now(),
+      timetable.settings.startDate,
+      timetable.settings.totalWeeks,
+    );
+    return info?['weekIndex'];
+  }
 
   // ================= 业务逻辑 =================
   Future<void> _handleEditCourse(Course course) async {
@@ -51,15 +61,41 @@ class _DayViewState extends State<DayView> with AutomaticKeepAliveClientMixin {
     super.build(context); // 必须调用以支持 AutomaticKeepAliveClientMixin
 
     final timetableState = context.watch<TimetableState>();
-    final weekState = context.watch<WeekState>();
     final viewState = context.watch<ViewState>();
     final timetable = timetableState.current;
 
     if (timetable == null) return const SizedBox();
 
+    // 日视图始终使用今天所在的周，不受周选择器影响
+    final todayWeek = _getTodayWeek(timetable);
+
+    // 学期未开始或已结束，显示空白页
+    if (todayWeek == null) {
+      final now = DateTime.now();
+      final startDate = timetable.settings.startDate;
+      final isNotStarted = now.isBefore(startDate);
+      
+      return Scaffold(
+        backgroundColor: const Color(0xFFF7F7F7),
+        appBar: YicoreAppBar(
+          title: '日视图',
+          centerTitle: true,
+          onBackPressed: () {
+            context.read<ViewState>().changeView('周视图');
+          },
+        ),
+        body: Center(
+          child: Text(
+            isNotStarted ? '学期尚未开始' : '学期已结束',
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
     return DayViewUI(
       timetable: timetable,
-      currentWeek: weekState.week,
+      currentWeek: todayWeek,
       showWeekend: timetable.settings.showWeekend,
       selectedDay: viewState.selectedDay,
       onDaySelected: (weekday) => viewState.selectDay(weekday),
@@ -73,7 +109,7 @@ class DayViewUI extends StatelessWidget {
   final Timetable timetable;
   final int currentWeek;
   final bool showWeekend;
-  final int? selectedDay;
+  final int selectedDay;
   final ValueChanged<int> onDaySelected;
   final Future<void> Function(Course) onEditCourse;
 
@@ -130,7 +166,7 @@ class DayViewUI extends StatelessWidget {
 class DaySelector extends StatelessWidget {
   final int currentWeek;
   final bool showWeekend;
-  final int? selectedDay;
+  final int selectedDay;
   final ValueChanged<int> onDaySelected;
 
   const DaySelector({
@@ -202,7 +238,7 @@ class DaySelector extends StatelessWidget {
 class CourseList extends StatelessWidget {
   final Timetable timetable;
   final int currentWeek;
-  final int? selectedDay;
+  final int selectedDay;
   final Future<void> Function(Course) onEditCourse;
 
   const CourseList({
@@ -215,10 +251,6 @@ class CourseList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (selectedDay == null) {
-      return _buildEmptyState("请选择日期");
-    }
-
     final dayCourses = _getDayCourses();
 
     if (dayCourses.isEmpty) {
@@ -229,7 +261,7 @@ class CourseList extends StatelessWidget {
   }
 
   List<Course> _getDayCourses() {
-    return QueryService.dayCourses(timetable, currentWeek, selectedDay!);
+    return QueryService.dayCourses(timetable, currentWeek, selectedDay);
   }
 
   Widget _buildEmptyState(String message) {
@@ -248,7 +280,7 @@ class CourseList extends StatelessWidget {
       itemBuilder: (context, index) => CourseCard(
         course: courses[index],
         mode: CourseCardMode.dayView,
-        selectedDay: selectedDay!,
+        selectedDay: selectedDay,
         onEdit: () => onEditCourse(courses[index]),
       ),
     );
