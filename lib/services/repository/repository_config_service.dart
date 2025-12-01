@@ -104,7 +104,6 @@ class RepositoryConfigService {
 
   /// 清除配置
   static Future<void> clearConfig() async {
-    // TODO: 清除配置
     await saveConfig(const RepositoryConfig());
   }
 
@@ -114,7 +113,7 @@ class RepositoryConfigService {
       return false;
     }
     try {
-      // TODO: 可以添加更多验证逻辑，如验证仓库URL格式、测试连接等
+      // 可扩展：验证仓库URL格式、测试连接等
       return true;
     } catch (e) {
       return false;

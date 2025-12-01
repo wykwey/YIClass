@@ -43,6 +43,7 @@ class _CourseReminderPageState extends State<CourseReminderPage> {
       // 加载全局课程提醒开关
       final appSettings = await SettingsService.instance.loadSettings();
       
+      if (!mounted) return;
       // 加载当前课表的提前提醒时间
       final timetableState = context.read<TimetableState>();
       final currentTimetable = timetableState.current;
@@ -152,7 +153,7 @@ class _CourseReminderPageState extends State<CourseReminderPage> {
           Notifications.sonner(
             context,
             title: '设置已更新',
-            message: '已更新提醒时间为提前${minutes}分钟',
+            message: '已更新提醒时间为提前$minutes分钟',
           );
         }
       } else {

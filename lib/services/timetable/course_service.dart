@@ -1,6 +1,6 @@
 import 'package:isar_plus/isar_plus.dart';
-import '../data/timetable.dart';
-import '../data/course.dart';
+import '../../data/timetable.dart';
+import '../../data/course.dart';
 
 /// 课程服务：对指定课表下的课程进行增删改查
 /// 所有操作均以课表 ID 为作用域，修改后会回写 Timetable
@@ -30,7 +30,7 @@ class CourseService {
   /// 获取课表下所有课程
   /// - timetableId: 课表 ID
   Future<List<Course>> getCourses(int timetableId) async {
-    final t = await isar.timetables.get(timetableId);
+    final t = isar.timetables.get(timetableId);
     return t?.courses ?? <Course>[];
     
   }
@@ -41,7 +41,7 @@ class CourseService {
   /// 成功返回 true
   Future<bool> addCourse(int timetableId, Course course) async {
     try {
-      final t = await isar.timetables.get(timetableId);
+      final t = isar.timetables.get(timetableId);
       if (t == null) throw Exception('课表不存在');
       final list = List<Course>.from(t.courses)..add(course);
       t.courses = list;
@@ -59,7 +59,7 @@ class CourseService {
   /// - courses: 课程列表
   Future<bool> addCourses(int timetableId, List<Course> courses) async {
     try {
-      final t = await isar.timetables.get(timetableId);
+      final t = isar.timetables.get(timetableId);
       if (t == null) throw Exception('课表不存在');
       final list = List<Course>.from(t.courses)..addAll(courses);
       t.courses = list;
@@ -78,7 +78,7 @@ class CourseService {
   /// - course: 新的课程数据
   Future<bool> updateCourseAt(int timetableId, int index, Course course) async {
     try {
-      final t = await isar.timetables.get(timetableId);
+      final t = isar.timetables.get(timetableId);
       if (t == null) throw Exception('课表不存在');
       if (index < 0 || index >= t.courses.length) throw Exception('索引越界');
       final list = List<Course>.from(t.courses);
@@ -98,7 +98,7 @@ class CourseService {
   /// - index: 课程索引
   Future<bool> deleteCourseAt(int timetableId, int index) async {
     try {
-      final t = await isar.timetables.get(timetableId);
+      final t = isar.timetables.get(timetableId);
       if (t == null) throw Exception('课表不存在');
       if (index < 0 || index >= t.courses.length) throw Exception('索引越界');
       final list = List<Course>.from(t.courses)..removeAt(index);
@@ -117,7 +117,7 @@ class CourseService {
   Future<bool> clearCourses(int timetableId) async {
     try {
       await isar.write((isar) async {
-        final t = await isar.timetables.get(timetableId);
+        final t = isar.timetables.get(timetableId);
         if (t == null) throw Exception('课表不存在');
         t.courses = <Course>[];
         isar.timetables.put(t);

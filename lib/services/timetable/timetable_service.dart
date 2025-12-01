@@ -1,5 +1,5 @@
 import 'package:isar_plus/isar_plus.dart';
-import '../data/timetable.dart';
+import '../../data/timetable.dart';
 
 /// Timetable 服务（CRUD）
 /// 提供对 `Timetable` 集合的增删改查与常用操作封装。

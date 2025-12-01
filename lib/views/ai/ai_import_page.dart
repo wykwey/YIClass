@@ -223,6 +223,7 @@ class _AIImportPageState extends State<AIImportPage> {
 
   Future<void> _handleImageImport() async {
     final config = await AIConfigService.getConfig();
+    if (!mounted) return;
     if (!_checkConfig(context, config.enabled && config.enableImageImport, '图片导入')) return;
 
     final XFile? image = await _picker.pickImage(
@@ -236,6 +237,7 @@ class _AIImportPageState extends State<AIImportPage> {
     final bytes = await image.readAsBytes();
     final base64Image = base64Encode(bytes);
 
+    if (!mounted) return;
     await _handleAIImport(
       context: context,
       importType: '图片',
@@ -245,11 +247,13 @@ class _AIImportPageState extends State<AIImportPage> {
 
   Future<void> _handleTableImport() async {
     final config = await AIConfigService.getConfig();
+    if (!mounted) return;
     if (!_checkConfig(context, config.enabled && config.enableTableImport, '表格导入')) return;
 
     final tableText = await _showTableInputDialog(context);
     if (tableText == null || tableText.isEmpty) return;
 
+    if (!mounted) return;
     await _handleAIImport(
       context: context,
       importType: '表格',
@@ -259,11 +263,13 @@ class _AIImportPageState extends State<AIImportPage> {
 
   Future<void> _handleTextImport() async {
     final config = await AIConfigService.getConfig();
+    if (!mounted) return;
     if (!_checkConfig(context, config.enabled && config.enableTextImport, '文字导入')) return;
 
     final text = await _showTextInputDialog(context);
     if (text == null || text.isEmpty) return;
 
+    if (!mounted) return;
     await _handleAIImport(
       context: context,
       importType: '文字',
@@ -273,6 +279,7 @@ class _AIImportPageState extends State<AIImportPage> {
 
   Future<void> _handleWebImport() async {
     final config = await AIConfigService.getConfig();
+    if (!mounted) return;
     if (!_checkConfig(context, config.enabled && config.enableWebImport, 'AI 教务导入')) return;
 
     // 跳转到 AI 教务导入页面
@@ -311,11 +318,13 @@ class _AIImportPageState extends State<AIImportPage> {
       // 保存到数据库
       final result = await FileService.save(timetable);
       
-      if (result && context.mounted) {
+      if (!context.mounted) return;
+      if (result) {
         // 刷新课表状态
         final timetableState = context.read<TimetableState>();
         await timetableState.reload();
         
+        if (!context.mounted) return;
         Notifications.sonner(context, message: '导入成功');
         
         // 导入成功后返回上一页

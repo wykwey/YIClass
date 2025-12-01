@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../data/course.dart';
-import '../../services/query_service.dart';
+import '../../services/timetable/query_service.dart';
 import '../../states/timetable_state.dart';
 import '../../states/view_state.dart';
 import '../../utils/get_weekday.dart';

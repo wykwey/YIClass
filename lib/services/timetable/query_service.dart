@@ -1,5 +1,5 @@
-import '../data/timetable.dart';
-import '../data/course.dart';
+import '../../data/timetable.dart';
+import '../../data/course.dart';
 
 /// 查询工具：针对嵌套课程进行筛选
 /// 提供按周/日/节次的检索、连续节次数量计算、冲突判断

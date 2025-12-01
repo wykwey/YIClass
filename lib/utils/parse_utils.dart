@@ -1,70 +1,62 @@
-/// 解析工具类
-/// 
-/// 提供统一的数字解析功能，支持节次和周次的解析
+/// 解析工具类 - 提供节次/周次的解析与格式化功能
 class ParseUtils {
-  
-  /// 核心解析方法：解析节次/周次字符串为整数列表
+  ParseUtils._();
+
+  // ==================== 字符映射表 ====================
+
+  static const _fullWidthDigits = {
+    '０': '0', '１': '1', '２': '2', '３': '3', '４': '4',
+    '５': '5', '６': '6', '７': '7', '８': '8', '９': '9',
+  };
+
+  static const _dashVariants = ['－', '—', '–', '―'];
+
+  // ==================== 核心解析 ====================
+
+  /// 解析节次/周次字符串为整数列表
+  ///
+  /// 支持格式：`1` | `2-4` | `6-8[单]` | `1,3-5` | `all`
   /// 
-  /// 支持格式：
-  /// - 单个数字：1
-  /// - 范围：2-4
-  /// - 单/双标记：6-8[单], 6-8[双]
-  /// - 多区间逗号或空格分隔：1,3-5 6-8[双]
-  /// - 特殊值：all (返回所有数字)
-  /// 
-  /// 参数：
-  /// - [input]: 输入字符串
-  /// - [defaultMax]: 默认最大值，用于'all'和范围检查
-  /// 
-  /// 返回：解析后的整数列表
+  /// 解析失败时抛出 [FormatException]
   static List<int> parseNumbers(String input, {int defaultMax = 30}) {
-    if (input.isEmpty) return [];
+    if (input.isEmpty) {
+      throw const FormatException('输入不能为空');
+    }
     if (input == 'all') return List.generate(defaultMax, (i) => i + 1);
 
+    final normalized = _normalize(input);
     final numbers = <int>{};
-    final parts = input.replaceAll(' ', ',').split(',');
 
-    for (final part in parts) {
+    for (final part in normalized.replaceAll(' ', ',').split(',')) {
       final trimmed = part.trim();
       if (trimmed.isEmpty) continue;
 
-      // 处理范围格式：2-4, 6-8[单], 6-8[双]
       if (trimmed.contains('-')) {
-        final rangeParts = trimmed.split('-');
-        if (rangeParts.length == 2) {
-          int start = int.parse(rangeParts[0]);
-          int end = int.parse(rangeParts[1].replaceAll(RegExp(r'\[.*\]'), ''));
-          String? oddEven = trimmed.contains('[单]') ? '单' : 
-                            trimmed.contains('[双]') ? '双' : null;
-          
-          for (int i = start; i <= end; i++) {
-            if (oddEven == '单' && i % 2 == 0) continue;
-            if (oddEven == '双' && i % 2 != 0) continue;
-            numbers.add(i);
-          }
-        }
+        _parseRange(trimmed, numbers);
       } else {
-        // 处理单个数字
-        final num = int.tryParse(trimmed);
-        if (num != null) numbers.add(num);
+        final n = int.tryParse(trimmed);
+        if (n == null) {
+          throw FormatException('无法解析: "$trimmed"');
+        }
+        numbers.add(n);
       }
     }
 
-    final result = numbers.toList()..sort();
-    return result;
+    if (numbers.isEmpty) {
+      throw FormatException('无法从 "$input" 解析出有效数字');
+    }
+
+    return numbers.toList()..sort();
   }
 
-  /// 格式化数字列表为字符串
-  /// 
-  /// 参数：
-  /// - [numbers]: 数字列表
+  /// 格式化数字列表为紧凑字符串（如 `[1,2,3,5]` → `"1-3, 5"`）
   static String formatNumbers(List<int> numbers) {
     if (numbers.isEmpty) return '';
-    
+
     final sorted = numbers.toSet().toList()..sort();
     final result = <String>[];
     int start = sorted[0], end = sorted[0];
-    
+
     for (int i = 1; i <= sorted.length; i++) {
       if (i < sorted.length && sorted[i] == end + 1) {
         end = sorted[i];
@@ -73,52 +65,76 @@ class ParseUtils {
         if (i < sorted.length) start = end = sorted[i];
       }
     }
-    
+
     return result.join(', ');
   }
 
-  /// 判断两个数字模式是否有重叠
-  /// 
-  /// 参数：
-  /// - [a]: 第一个模式字符串
-  /// - [b]: 第二个模式字符串
-  /// 
-  /// 返回：是否有重叠
-  static bool hasOverlappingNumbers(String a, String b) {
-    final numbersA = parseNumbers(a);
-    final numbersB = parseNumbers(b);
-    return numbersA.any((n) => numbersB.contains(n));
-  }
+  // ==================== 匹配与验证 ====================
 
-  /// 判断指定数字是否匹配模式
-  /// 
-  /// 参数：
-  /// - [number]: 要检查的数字
-  /// - [pattern]: 模式字符串
-  /// 
-  /// 返回：是否匹配
+  /// 判断 [number] 是否在 [pattern] 范围内
   static bool matchesPattern(int number, String pattern) {
     if (pattern.isEmpty) return false;
     if (pattern == 'all') return true;
-    
-    final numbers = parseNumbers(pattern, defaultMax: 30);
-    return numbers.contains(number);
+    return parseNumbers(pattern).contains(number);
   }
 
-  /// 验证数字模式格式是否正确
-  /// 
-  /// 参数：
-  /// - [pattern]: 要验证的模式字符串
-  /// 
-  /// 返回：验证结果，null表示正确，字符串表示错误信息
-  static String? validatePattern(String pattern) {
+  /// 判断两个模式是否有重叠
+  static bool hasOverlap(String a, String b) {
+    final setA = parseNumbers(a).toSet();
+    return parseNumbers(b).any(setA.contains);
+  }
+
+  /// 验证模式格式，返回错误信息或 null
+  static String? validate(String pattern) {
     if (pattern.isEmpty) return '模式不能为空';
-    
-    // 检查基本格式
-    if (!RegExp(r'^(\d+(-\d+)?(\[单\]|\[双\])?)(,\s*\d+(-\d+)?(\[单\]|\[双\])?)*$').hasMatch(pattern)) {
-      return '格式错误，请使用如"1-16"、"1,3,5"或"1-3,5,7-9"的格式';
+    final normalized = _normalize(pattern);
+    final regex = RegExp(r'^(\d+(-\d+)?(\[单]|\[双])?)(,\s*\d+(-\d+)?(\[单]|\[双])?)*$');
+    if (!regex.hasMatch(normalized)) {
+      return '格式错误，示例：1-16、1,3,5、1-3,5,7-9';
     }
-    
     return null;
+  }
+
+  // ==================== 私有方法 ====================
+
+  /// 预处理：全角→半角，统一分隔符
+  static String _normalize(String input) {
+    var result = input;
+    _fullWidthDigits.forEach((k, v) => result = result.replaceAll(k, v));
+    for (final dash in _dashVariants) {
+      result = result.replaceAll(dash, '-');
+    }
+    return result
+        .replaceAll('，', ',')
+        .replaceAll('【', '[')
+        .replaceAll('】', ']');
+  }
+
+  /// 解析范围格式（如 `2-4`、`6-8[单]`），失败时抛出 [FormatException]
+  static void _parseRange(String trimmed, Set<int> numbers) {
+    final parts = trimmed.split('-');
+    if (parts.length != 2) {
+      throw FormatException('范围格式错误: "$trimmed"');
+    }
+
+    final start = int.tryParse(parts[0].trim());
+    final endStr = parts[1].replaceAll(RegExp(r'\[.*]'), '').trim();
+    final end = int.tryParse(endStr);
+    
+    if (start == null || end == null) {
+      throw FormatException('范围格式错误: "$trimmed"');
+    }
+    if (start > end) {
+      throw FormatException('范围起始值不能大于结束值: "$trimmed"');
+    }
+
+    final isOdd = trimmed.contains('[单]');
+    final isEven = trimmed.contains('[双]');
+
+    for (int i = start; i <= end; i++) {
+      if (isOdd && i.isEven) continue;
+      if (isEven && i.isOdd) continue;
+      numbers.add(i);
+    }
   }
 }

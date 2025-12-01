@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../data/timetable.dart';
 import '../data/course.dart';
-import '../services/query_service.dart';
+import '../services/timetable/query_service.dart';
 
 /// WeekState
 /// 

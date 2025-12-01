@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/course.dart';
-import '../../services/query_service.dart';
+import '../../services/timetable/query_service.dart';
 import '../../components/layout/course_card.dart';
 import '../../components/inputs/fab.dart';
 import '../../states/timetable_state.dart';

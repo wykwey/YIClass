@@ -10,8 +10,8 @@ class YicoreCard extends StatelessWidget {
     required this.child,
     this.padding,
     this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

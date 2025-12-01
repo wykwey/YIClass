@@ -8,7 +8,7 @@ import '../data/timetable_settings.dart';
 import '../data/class_time.dart';
 import '../data/course.dart';
 import '../data/course_schedule.dart';
-import 'timetable_service.dart';
+import 'timetable/timetable_service.dart';
 import '../data/data_constants.dart';
 import '../utils/color_utils.dart';
 
@@ -150,7 +150,7 @@ class FileService {
         final dynamic colorAny = m['color'];
         if (colorAny is int && colorAny > 0) return colorAny;
         // 无颜色字段或非法值：从预设颜色中随机选择
-        return ColorUtils.getRandomColor().value;
+        return ColorUtils.getRandomColor().toARGB32();
       })()
       ..schedules = (m['schedules'] as List)
           .map((e) => _scheduleFromMap(Map<String, dynamic>.from(e)))
@@ -190,7 +190,7 @@ class FileService {
   static Future<String?> exportTimetable(Timetable t, {String? suggestedName}) async {
     final String fileName = (suggestedName == null || suggestedName.trim().isEmpty)
         ? 'YIClass_${t.name.isNotEmpty ? t.name : 'Timetable'}.json'
-        : (suggestedName.endsWith('.json') ? suggestedName : '${suggestedName}.json');
+        : (suggestedName.endsWith('.json') ? suggestedName : '$suggestedName.json');
 
     final String jsonText = toJson(t);
 

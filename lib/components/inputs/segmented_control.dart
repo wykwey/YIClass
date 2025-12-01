@@ -32,8 +32,8 @@ class YicoreSegmentedControl extends StatelessWidget {
     required this.onChanged,
     this.size = SegmentedControlSize.medium,
     this.showBorder = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   Map<String, double> _getSizeConfig() {
     switch (size) {

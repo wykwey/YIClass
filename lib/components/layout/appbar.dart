@@ -26,8 +26,8 @@ class YicoreAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.titleColor,
     this.centerTitle = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   static const double _defaultHeight = 44;
 
@@ -91,8 +91,8 @@ class YicoreAppBarAction extends StatelessWidget {
     required this.icon,
     this.onPressed,
     this.iconColor,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

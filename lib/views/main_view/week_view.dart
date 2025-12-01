@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/course.dart';
-import '../../services/query_service.dart';
-import '../../services/factory_service.dart';
+import '../../services/timetable/query_service.dart';
+import '../../services/timetable/factory_service.dart';
 import '../../data/data_constants.dart';
 import '../../components/layout/week_header.dart';
 import '../../components/layout/period_label.dart';

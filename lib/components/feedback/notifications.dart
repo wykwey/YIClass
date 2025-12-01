@@ -142,8 +142,8 @@ class _NotificationCard extends StatefulWidget {
     required this.onClose,
     this.actionText,
     this.onAction,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<_NotificationCard> createState() => _NotificationCardState();

@@ -4,7 +4,7 @@ import '../data/course_schedule.dart';
 import '../data/class_time.dart';
 import '../components/feedback/system_notifications.dart';
 import '../utils/get_weekday.dart';
-import 'query_service.dart';
+import 'timetable/query_service.dart';
 
 /// 课程提醒服务
 ///

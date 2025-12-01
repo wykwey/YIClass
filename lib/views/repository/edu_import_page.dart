@@ -108,6 +108,7 @@ class _EduImportPageState extends State<EduImportPage> {
           final timetableState = context.read<TimetableState>();
           await timetableState.reload();
 
+          if (!mounted) return;
           Notifications.sonner(context, message: '导入成功');
 
           // 导入成功后返回上一页
@@ -139,7 +140,8 @@ class _EduImportPageState extends State<EduImportPage> {
       );
 
       if (!scriptExists) {
-        Notifications.sonner(context, message: '脚本文件不存在，请先下载脚本');
+        if (!mounted) return;
+      Notifications.sonner(context, message: '脚本文件不存在，请先下载脚本');
         setState(() => _isImporting = false);
         return;
       }
@@ -150,6 +152,7 @@ class _EduImportPageState extends State<EduImportPage> {
       );
 
       if (scriptContent == null || scriptContent.isEmpty) {
+        if (!mounted) return;
         Notifications.sonner(context, message: '脚本文件读取失败');
         setState(() => _isImporting = false);
         return;

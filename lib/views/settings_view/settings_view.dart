@@ -320,7 +320,9 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
         final ok = await FileService.importAndSave();
         if (!mounted) return;
         if (ok) {
-          await Provider.of<TimetableState>(context, listen: false).reload();
+          final timetableState = Provider.of<TimetableState>(context, listen: false);
+          await timetableState.reload();
+          if (!mounted) return;
           Notifications.sonner(context, message: '导入成功');
         } else {
           Notifications.sonner(context, message: '已取消或导入失败');

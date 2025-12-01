@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../data/course.dart';
 import '../../data/course_schedule.dart';
 import '../../states/timetable_state.dart';
-import '../../services/course_service.dart';
-import '../../services/factory_service.dart';
+import '../../services/timetable/course_service.dart';
+import '../../services/timetable/factory_service.dart';
 import '../../utils/color_utils.dart';
 import '../../utils/parse_utils.dart';
 import '../../components/inputs/dropdown.dart';
@@ -57,8 +57,12 @@ class _CourseEditPageState extends State<CourseEditPage> {
     _nameController.dispose();
     _locationController.dispose();
     _teacherController.dispose();
-    for (final c in _weekPatternControllers) c.dispose();
-    for (final c in _periodsControllers) c.dispose();
+    for (final c in _weekPatternControllers) {
+      c.dispose();
+    }
+    for (final c in _periodsControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -105,12 +109,17 @@ class _CourseEditPageState extends State<CourseEditPage> {
   }
 
   // ================= 数据转换 =================
-  List<CourseSchedule> _buildSchedulesFromInputs() {
+  List<CourseSchedule>? _buildSchedulesFromInputs() {
     final List<CourseSchedule> list = [];
     for (int i = 0; i < _days.length; i++) {
-      final weeks = ParseUtils.parseNumbers(_weekPatternControllers[i].text.trim(), defaultMax: 30);
-      final periods = ParseUtils.parseNumbers(_periodsControllers[i].text.trim(), defaultMax: 20);
-      list.add(FactoryService.createSchedule(weekday: _days[i], periods: periods, weekPattern: weeks));
+      try {
+        final weeks = ParseUtils.parseNumbers(_weekPatternControllers[i].text.trim(), defaultMax: 30);
+        final periods = ParseUtils.parseNumbers(_periodsControllers[i].text.trim(), defaultMax: 20);
+        list.add(FactoryService.createSchedule(weekday: _days[i], periods: periods, weekPattern: weeks));
+      } on FormatException {
+        Notifications.sonner(context, message: '解析错误，保存失败');
+        return null;
+      }
     }
     return list;
   }
@@ -118,13 +127,17 @@ class _CourseEditPageState extends State<CourseEditPage> {
   // ================= 业务操作 =================
   Future<void> _saveCourse() async {
     if (!_formKey.currentState!.validate()) return;
+    
+    final schedules = _buildSchedulesFromInputs();
+    if (schedules == null) return;
+    
     try {
       final newCourse = FactoryService.createCourse(
         name: _nameController.text.trim(),
         location: _locationController.text.trim(),
         teacher: _teacherController.text.trim(),
-        color: _selectedColor.value,
-        schedules: _buildSchedulesFromInputs(),
+        color: _selectedColor.toARGB32(),
+        schedules: schedules,
       );
       
       final timetableId = widget.timetableId;
@@ -184,9 +197,11 @@ class _CourseEditPageState extends State<CourseEditPage> {
         
         await CourseService.instance.deleteCourseAt(timetableId, deleteIndex);
         
+        if (!mounted) return;
         Notifications.sonner(context, message: '课程已删除');
         Navigator.pop(context, 'deleted');
       } catch (e) {
+        if (!mounted) return;
         Notifications.sonner(context, title: '删除失败', message: e.toString());
       }
     }
@@ -273,13 +288,13 @@ class _CourseEditPageState extends State<CourseEditPage> {
   }
 
   Widget _buildBasicInfoCard() => _buildSectionCard('基本信息', [
-        _buildTextField('课程名称', _nameController, validator: (v) => v!.isEmpty ? '请输入课程名称' : null),
+        _buildTextField('课程名称', _nameController, hint: '如: 高等数学', validator: (v) => v!.isEmpty ? '请输入课程名称' : null),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildTextField('上课地点', _locationController)),
+            Expanded(child: _buildTextField('上课地点', _locationController, hint: '如: 教学楼A101')),
             const SizedBox(width: 16),
-            Expanded(child: _buildTextField('授课教师', _teacherController)),
+            Expanded(child: _buildTextField('授课教师', _teacherController, hint: '如: 张老师')),
           ],
         ),
       ]);
@@ -302,7 +317,7 @@ class _CourseEditPageState extends State<CourseEditPage> {
                   shape: BoxShape.circle,
                   border: selected ? Border.all(color: Colors.white, width: 3) : null,
                   boxShadow: selected
-                      ? [BoxShadow(color: color.withOpacity(0.3), blurRadius: 8, spreadRadius: 2)]
+                      ? [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 8, spreadRadius: 2)]
                       : null,
                 ),
                 child: selected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,

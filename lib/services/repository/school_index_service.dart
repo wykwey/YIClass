@@ -113,7 +113,7 @@ class SchoolIndexService {
 
   /// 按字母索引分组学校
   /// 
-  /// 返回：Map<String, List<SchoolEntry>>，key为字母索引（如'A', 'B'）
+  /// 返回：`Map<String, List<SchoolEntry>>`，key为字母索引（如'A', 'B'）
   Future<Map<String, List<SchoolEntry>>> getSchoolsGroupedByLetter() async {
     final schools = await getAllSchools();
     final Map<String, List<SchoolEntry>> grouped = {};

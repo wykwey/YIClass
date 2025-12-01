@@ -86,11 +86,13 @@ class _AIConfigPageState extends State<AIConfigPage> {
 
     try {
       await AIConfigService.saveConfig(config);
+      if (!mounted) return;
       Notifications.sonner(context, message: '配置保存成功');
     } catch (e) {
+      if (!mounted) return;
       Notifications.sonner(context, message: '保存配置失败: $e');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -126,15 +128,17 @@ class _AIConfigPageState extends State<AIConfigPage> {
       // 测试配置
       final success = await AIService.testConfig();
       
+      if (!mounted) return;
       if (success) {
         Notifications.sonner(context, message: '配置测试成功');
       } else {
         Notifications.sonner(context, message: '配置测试失败');
       }
     } catch (e) {
+      if (!mounted) return;
       Notifications.sonner(context, message: '配置测试失败: $e');
     } finally {
-      setState(() => _isTesting = false);
+      if (mounted) setState(() => _isTesting = false);
     }
   }
 

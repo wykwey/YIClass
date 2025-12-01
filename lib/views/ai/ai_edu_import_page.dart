@@ -141,6 +141,7 @@ class _AiEduImportPageState extends State<AiEduImportPage> {
     try {
       // 检查 AI 配置
       final config = await AIConfigService.getConfig();
+      if (!mounted) return;
       if (!config.enabled || !config.enableWebImport) {
         Notifications.sonner(context, message: '请先启用 AI 教务导入功能');
         setState(() => _isAnalyzing = false);
@@ -158,6 +159,7 @@ class _AiEduImportPageState extends State<AiEduImportPage> {
       // 获取页面内容
       final content = await _getPageContent();
       
+      if (!mounted) return;
       if (content.isEmpty) {
         Notifications.sonner(context, message: '页面内容为空');
         setState(() => _isAnalyzing = false);
@@ -177,6 +179,7 @@ class _AiEduImportPageState extends State<AiEduImportPage> {
         if (result) {
           final timetableState = context.read<TimetableState>();
           await timetableState.reload();
+          if (!mounted) return;
           Notifications.sonner(context, message: '导入成功');
           Navigator.pop(context);
         } else {

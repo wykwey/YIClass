@@ -98,11 +98,13 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
 
     try {
       await RepositoryConfigService.saveConfig(config);
+      if (!mounted) return;
       Notifications.sonner(context, message: '配置保存成功');
     } catch (e) {
+      if (!mounted) return;
       Notifications.sonner(context, message: '保存配置失败: $e');
     } finally {
-      setState(() => _isSaving = false);
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -139,15 +141,17 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
 
     try {
       final filePath = await RepositoryDownloadService.downloadIndex(config);
+      if (!mounted) return;
       if (filePath != null) {
         Notifications.sonner(context, message: '索引下载成功\n保存位置: $filePath');
       } else {
         Notifications.sonner(context, message: '下载失败: 未返回文件路径');
       }
     } catch (e) {
+      if (!mounted) return;
       Notifications.sonner(context, message: '下载失败: $e');
     } finally {
-      setState(() => _isDownloading = false);
+      if (mounted) setState(() => _isDownloading = false);
     }
   }
 
@@ -187,6 +191,7 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
       final indexPath = result['index'];
       final scriptsPath = result['scripts'];
       
+      if (!mounted) return;
       if (indexPath != null && scriptsPath != null) {
         Notifications.sonner(
           context,
@@ -196,9 +201,10 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
         Notifications.sonner(context, message: '下载完成，但部分文件可能未下载成功');
       }
     } catch (e) {
+      if (!mounted) return;
       Notifications.sonner(context, message: '下载失败: $e');
     } finally {
-      setState(() => _isDownloadingFull = false);
+      if (mounted) setState(() => _isDownloadingFull = false);
     }
   }
 

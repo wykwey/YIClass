@@ -42,7 +42,7 @@ class ScriptFileService {
   /// 批量检查多个脚本文件是否存在
   /// 
   /// [scriptNames] 脚本文件名列表
-  /// 返回：Map<scriptName, exists>
+  /// 返回：`Map<scriptName, exists>`
   static Future<Map<String, bool>> checkScriptsExist(List<String> scriptNames) async {
     final Map<String, bool> result = {};
     try {
