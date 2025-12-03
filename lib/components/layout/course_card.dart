@@ -157,7 +157,7 @@ class CourseCard extends StatelessWidget {
       case CourseCardMode.dayView:
         return BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(6),
           border: Border(
             left: BorderSide(
               color: color,
@@ -175,7 +175,7 @@ class CourseCard extends StatelessWidget {
       case CourseCardMode.listView:
         return BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(6),
           border: Border(
             top: BorderSide(
               color: color,

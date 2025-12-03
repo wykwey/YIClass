@@ -38,11 +38,11 @@ class CourseCard extends StatelessWidget {
           ),
         ),
         child: Container(
-                margin: const EdgeInsets.all(2),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                margin: const EdgeInsets.all(1),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
         color: baseColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(4),
         border: Border.all(
           color: Colors.grey[200]!,
           width: 1,
