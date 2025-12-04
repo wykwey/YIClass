@@ -8,9 +8,10 @@ import '../data/timetable_settings.dart';
 import '../data/class_time.dart';
 import '../data/course.dart';
 import '../data/course_schedule.dart';
-import 'timetable_service.dart';
+import 'timetable/timetable_service.dart';
 import '../data/data_constants.dart';
 import '../utils/color_utils.dart';
+import '../utils/safe_call.dart';
 
 /// 文件服务：导入/导出 Timetable
 /// 仅负责结构转换（Timetable <-> Map/JSON）与持久化入口封装
@@ -150,7 +151,7 @@ class FileService {
         final dynamic colorAny = m['color'];
         if (colorAny is int && colorAny > 0) return colorAny;
         // 无颜色字段或非法值：从预设颜色中随机选择
-        return ColorUtils.getRandomColor().value;
+        return ColorUtils.getRandomColor().toARGB32();
       })()
       ..schedules = (m['schedules'] as List)
           .map((e) => _scheduleFromMap(Map<String, dynamic>.from(e)))
@@ -190,7 +191,7 @@ class FileService {
   static Future<String?> exportTimetable(Timetable t, {String? suggestedName}) async {
     final String fileName = (suggestedName == null || suggestedName.trim().isEmpty)
         ? 'YIClass_${t.name.isNotEmpty ? t.name : 'Timetable'}.json'
-        : (suggestedName.endsWith('.json') ? suggestedName : '${suggestedName}.json');
+        : (suggestedName.endsWith('.json') ? suggestedName : '$suggestedName.json');
 
     final String jsonText = toJson(t);
 
@@ -253,13 +254,10 @@ class FileService {
     final XFile? picked = await openFile(acceptedTypeGroups: <XTypeGroup>[jsonGroup]);
     if (picked == null) return null; // 用户取消
 
-    try {
+    return await SafeCall.async(() async {
       final String content = await picked.readAsString();
-      final Timetable t = fromJson(content);
-      return t;
-    } catch (_) {
-      return null;
-    }
+      return fromJson(content);
+    });
   }
 
   /// 通过文件选择器导入并保存到本地数据库。

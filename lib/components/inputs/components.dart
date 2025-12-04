@@ -5,8 +5,7 @@ class YicoreSwitch extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  const YicoreSwitch({required this.value, required this.onChanged, Key? key})
-      : super(key: key);
+  const YicoreSwitch({required this.value, required this.onChanged, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +51,8 @@ class YicoreSlider extends StatelessWidget {
     required this.max,
     required this.onChanged,
     this.width,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -143,11 +142,11 @@ class YicoreButton extends StatefulWidget {
     this.textColor,
     this.padding,
     this.width,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
-  _YicoreButtonState createState() => _YicoreButtonState();
+  State<YicoreButton> createState() => _YicoreButtonState();
 }
 
 class _YicoreButtonState extends State<YicoreButton>
@@ -316,8 +315,8 @@ class YicoreTextField extends StatelessWidget {
     this.keyboardType,
     this.prefixIcon,
     this.suffixIcon,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -421,11 +420,11 @@ class YicoreIconButton extends StatefulWidget {
     this.size = 40,
     this.iconColor,
     this.showBorder = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
-  _YicoreIconButtonState createState() => _YicoreIconButtonState();
+  State<YicoreIconButton> createState() => _YicoreIconButtonState();
 }
 
 class _YicoreIconButtonState extends State<YicoreIconButton>

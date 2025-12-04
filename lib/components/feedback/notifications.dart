@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../inputs/components.dart';
+import '../../utils/safe_call.dart';
 
 // ================== 常量定义 ==================
 class _NotificationConstants {
@@ -72,7 +73,7 @@ class _NotificationsManager {
     
     if (_entries.isEmpty) {
       _visible = false;
-      try { _entry?.remove(); } catch (_) {}
+      SafeCall.ignore(() => _entry?.remove());
       _entry = null;
       _overlay = null;
     } else {
@@ -142,8 +143,8 @@ class _NotificationCard extends StatefulWidget {
     required this.onClose,
     this.actionText,
     this.onAction,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<_NotificationCard> createState() => _NotificationCardState();
@@ -179,7 +180,7 @@ class _NotificationCardState extends State<_NotificationCard>
 
   Future<void> _dismiss() async {
     if (!mounted) return;
-    try { await _controller.reverse(); } catch (_) {}
+    await SafeCall.ignoreAsync(() => _controller.reverse());
     if (mounted) widget.onClose();
   }
 

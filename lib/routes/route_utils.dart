@@ -57,6 +57,21 @@ class RouteUtils {
     return Navigator.pushNamed(context, RouteNames.aiImport);
   }
 
+  /// 导航到高级功能页面
+  static Future<dynamic> pushAdvancedFeatures(BuildContext context) {
+    return Navigator.pushNamed(context, RouteNames.advancedFeatures);
+  }
+
+  /// 导航到主题设置页面
+  static Future<dynamic> pushThemeSettings(BuildContext context) {
+    return Navigator.pushNamed(context, RouteNames.themeSettings);
+  }
+
+  /// 导航到关于应用页面
+  static Future<dynamic> pushAbout(BuildContext context) {
+    return Navigator.pushNamed(context, RouteNames.about);
+  }
+
   /// 导航到教务系统导入页面
   static Future<dynamic> pushEduImport(
     BuildContext context, {

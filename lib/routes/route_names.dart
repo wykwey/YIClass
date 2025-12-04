@@ -14,6 +14,9 @@ class RouteNames {
   static const String aiConfig = '/settings/ai';
   static const String license = '/settings/license';
   static const String courseReminder = '/settings/course-reminder';
+  static const String advancedFeatures = '/settings/advanced';
+  static const String themeSettings = '/settings/theme';
+  static const String about = '/settings/about';
   
   // 导入相关
   static const String aiImport = '/import/ai';

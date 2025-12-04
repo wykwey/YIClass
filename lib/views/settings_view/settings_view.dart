@@ -5,7 +5,6 @@ import '../../states/timetable_state.dart';
 import '../../states/view_state.dart';
 import '../../data/data_constants.dart';
 import '../../components/feedback/timetable_management_dialog.dart';
-import '../../components/feedback/advanced_features_dialog.dart';
 import '../../services/settings_service.dart';
 import '../../services/file_service.dart';
 import '../../data/timetable.dart';
@@ -110,27 +109,14 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
           
           const SizedBox(height: 16),
           
-          // 高级功能分区
-          SettingsBlock(
-            title: '高级功能',
-            children: [
-              _buildAdvancedFeaturesToggleTile(),
-              _buildScriptRepositoryTile(),
-              _buildAiSettingsTile(),
-              _buildDeveloperOptionsTile(),
-            ],
-          ),
-          
-          const SizedBox(height: 16),
-          
           // 扩展功能分区
           SettingsBlock(
             title: '扩展功能',
             children: [
+              _buildAdvancedFeaturesTile(),
               _buildThemeSettingsTile(),
               _buildNotificationSettingsTile(),
               _buildWidgetSettingsTile(),
-              _buildSyncSettingsTile(),
             ],
           ),
           
@@ -142,7 +128,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
             children: [
               _buildAboutTile(),
               _buildHelpTile(),
-              _buildFeedbackTile(),
               _buildPrivacyPolicyTile(),
             ],
           ),
@@ -320,7 +305,9 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
         final ok = await FileService.importAndSave();
         if (!mounted) return;
         if (ok) {
-          await Provider.of<TimetableState>(context, listen: false).reload();
+          final timetableState = Provider.of<TimetableState>(context, listen: false);
+          await timetableState.reload();
+          if (!mounted) return;
           Notifications.sonner(context, message: '导入成功');
         } else {
           Notifications.sonner(context, message: '已取消或导入失败');
@@ -331,16 +318,23 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
   /// 构建教务系统导入
   Widget _buildEduSystemImportTile() {
-    return FutureBuilder<bool>(
-      future: SettingsService.instance.isAdvancedFeaturesEnabled(),
+    return FutureBuilder<List<bool>>(
+      future: Future.wait([
+        SettingsService.instance.isAdvancedFeaturesEnabled(),
+        SettingsService.instance.isEduImportEnabled(),
+      ]),
       builder: (context, snapshot) {
-        final advancedEnabled = snapshot.data ?? false;
+        final results = snapshot.data ?? [false, false];
+        final advancedEnabled = results[0];
+        final eduEnabled = results[1];
+        final visible = advancedEnabled && eduEnabled;
+        
+        if (!visible) return const SizedBox.shrink();
         
         return SettingsItem.text(
           title: '教务系统导入',
-          description: advancedEnabled ? '从学校教务系统导入课表' : '需要启用高级功能',
+          description: '从学校教务系统导入课表',
           showArrow: true,
-          enabled: advancedEnabled,
           onTap: () {
             RouteUtils.pushSchoolSelect(context);
           },
@@ -351,16 +345,23 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
   /// 构建AI导入
   Widget _buildAiImportTile() {
-    return FutureBuilder<bool>(
-      future: SettingsService.instance.isAdvancedFeaturesEnabled(),
+    return FutureBuilder<List<bool>>(
+      future: Future.wait([
+        SettingsService.instance.isAdvancedFeaturesEnabled(),
+        SettingsService.instance.isAiImportEnabled(),
+      ]),
       builder: (context, snapshot) {
-        final advancedEnabled = snapshot.data ?? false;
+        final results = snapshot.data ?? [false, false];
+        final advancedEnabled = results[0];
+        final aiEnabled = results[1];
+        final visible = advancedEnabled && aiEnabled;
+        
+        if (!visible) return const SizedBox.shrink();
         
         return SettingsItem.text(
-          title: 'AI智能导入',
-          description: advancedEnabled ? '使用AI识别图片或文档中的课表' : '需要启用高级功能',
+          title: 'AI 智能导入',
+          description: '使用 AI 识别图片或文档中的课表',
           showArrow: true,
-          enabled: advancedEnabled,
           onTap: () {
             RouteUtils.pushAIImport(context);
           },
@@ -403,7 +404,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
       description: '自定义应用外观和颜色',
       showArrow: true,
       onTap: () {
-        _showComingSoonDialog('主题设置功能');
+        RouteUtils.pushThemeSettings(context);
       },
     );
   }
@@ -432,100 +433,26 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     );
   }
 
-  /// 构建同步设置
-  Widget _buildSyncSettingsTile() {
-    return SettingsItem.text(
-      title: '数据同步',
-      description: '多设备间同步课表数据',
-      showArrow: true,
-      onTap: () {
-        _showComingSoonDialog('数据同步功能');
-      },
-    );
-  }
-
   // ==================== 高级功能分区 ====================
 
-  /// 构建高级功能总开关
-  Widget _buildAdvancedFeaturesToggleTile() {
+  /// 构建高级功能入口
+  Widget _buildAdvancedFeaturesTile() {
     return FutureBuilder<bool>(
       future: SettingsService.instance.isAdvancedFeaturesEnabled(),
       builder: (context, snapshot) {
         final advancedEnabled = snapshot.data ?? false;
         
-        return SettingsItem.switch_(
+        return SettingsItem.text(
           title: '高级功能',
-          description: advancedEnabled ? '已启用高级功能' : '启用后可使用AI导入、脚本等功能',
-          value: advancedEnabled,
-          onChanged: (value) async {
-            if (value) {
-              // 打开开关前显示确认弹窗
-              final confirmed = await AdvancedFeaturesDialog.show(context);
-              if (!confirmed) {
-                return; // 用户取消，不执行开关操作
-              }
-            }
-            
-            // 使用SettingsService更新全局设置
-            await SettingsService.instance.updateAdvancedFeaturesEnabled(value);
-            if (!mounted) return;
-            setState(() {});
-            if (!mounted) return;
-            Notifications.sonner(context, message: value ? '高级功能已启用' : '高级功能已禁用');
-          },
-        );
-      },
-    );
-  }
-
-  /// 构建脚本仓库
-  Widget _buildScriptRepositoryTile() {
-    return FutureBuilder<bool>(
-      future: SettingsService.instance.isAdvancedFeaturesEnabled(),
-      builder: (context, snapshot) {
-        final advancedEnabled = snapshot.data ?? false;
-        
-        return SettingsItem.text(
-          title: '脚本仓库',
-          description: advancedEnabled ? '配置和管理脚本仓库' : '需要启用高级功能',
+          description: advancedEnabled ? '已启用 AI 导入、教务脚本等' : '启用后可使用 AI 导入、教务脚本等功能',
           showArrow: true,
-          enabled: advancedEnabled,
           onTap: () {
-            RouteUtils.pushRepositoryConfig(context);
+            RouteUtils.pushAdvancedFeatures(context).then((_) {
+              if (mounted) setState(() {});
+            });
           },
+          inBlock: true,
         );
-      },
-    );
-  }
-
-  /// 构建AI设置
-  Widget _buildAiSettingsTile() {
-    return FutureBuilder<bool>(
-      future: SettingsService.instance.isAdvancedFeaturesEnabled(),
-      builder: (context, snapshot) {
-        final advancedEnabled = snapshot.data ?? false;
-        
-        return SettingsItem.text(
-          title: 'AI导入配置',
-          description: advancedEnabled ? '配置AI服务用于课程表识别' : '需要启用高级功能',
-          showArrow: true,
-          enabled: advancedEnabled,
-          onTap: () {
-            RouteUtils.pushAIConfig(context);
-          },
-        );
-      },
-    );
-  }
-
-  /// 构建开发者选项
-  Widget _buildDeveloperOptionsTile() {
-    return SettingsItem.text(
-      title: '开发者选项',
-      description: '高级调试和开发工具',
-      showArrow: true,
-      onTap: () {
-        _showComingSoonDialog('开发者选项');
       },
     );
   }
@@ -539,7 +466,9 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
       description: '版本信息和应用详情',
       value: 'v2.0.1',
       showArrow: true,
-      onTap: _showAboutDialog,
+      onTap: () {
+        RouteUtils.pushAbout(context);
+      },
     );
   }
 
@@ -551,18 +480,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
       showArrow: true,
       onTap: () {
         _showComingSoonDialog('使用帮助功能');
-      },
-    );
-  }
-
-  /// 构建反馈页面
-  Widget _buildFeedbackTile() {
-    return SettingsItem.text(
-      title: '意见反馈',
-      description: '提交建议和问题报告',
-      showArrow: true,
-      onTap: () {
-        _showComingSoonDialog('意见反馈功能');
       },
     );
   }
@@ -585,42 +502,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
       context,
       title: '功能开发中',
       message: '$featureName 正在开发中，敬请期待！',
-    );
-  }
-
-  /// 显示关于对话框
-  void _showAboutDialog() {
-    if (!mounted) return;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text('关于'),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            elevation: 0,
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Icon(Icons.school, size: 48),
-                SizedBox(height: 8),
-                Text('课程表应用', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                Text('版本: v2.0.1'),
-                Text('© 2025 wykwe'),
-                SizedBox(height: 16),
-                Text('这是一个用于查看课程表的应用，支持每日、每周、列表等视图，并可设置课程周数、开课时间、是否显示周末等。'),
-                SizedBox(height: 8),
-                Text('开发者: wykwe'),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

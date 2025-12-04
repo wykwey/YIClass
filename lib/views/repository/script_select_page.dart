@@ -57,6 +57,7 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
 
     try {
       final config = await RepositoryConfigService.getConfig();
+      if (!mounted) return;
       if (!config.isValid) {
         Notifications.sonner(context, message: '请先配置仓库信息');
         return;

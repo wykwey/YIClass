@@ -78,7 +78,7 @@ class _AIConfigPageState extends State<AIConfigPage> {
     );
 
     if (!config.isValid) {
-      Notifications.sonner(context, message: '请填写API Key、Endpoint和文本模型');
+      Notifications.sonner(context, message: '请填写API Key、接口地址和文本模型');
       return;
     }
 
@@ -86,17 +86,19 @@ class _AIConfigPageState extends State<AIConfigPage> {
 
     try {
       await AIConfigService.saveConfig(config);
+      if (!mounted) return;
       Notifications.sonner(context, message: '配置保存成功');
     } catch (e) {
+      if (!mounted) return;
       Notifications.sonner(context, message: '保存配置失败: $e');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _testConfig() async {
     if (_apiKeyController.text.isEmpty || _endpointController.text.isEmpty) {
-      Notifications.sonner(context, message: '请先填写API Key和Endpoint');
+      Notifications.sonner(context, message: '请先填写API Key和接口地址');
       return;
     }
 
@@ -126,15 +128,17 @@ class _AIConfigPageState extends State<AIConfigPage> {
       // 测试配置
       final success = await AIService.testConfig();
       
+      if (!mounted) return;
       if (success) {
         Notifications.sonner(context, message: '配置测试成功');
       } else {
         Notifications.sonner(context, message: '配置测试失败');
       }
     } catch (e) {
+      if (!mounted) return;
       Notifications.sonner(context, message: '配置测试失败: $e');
     } finally {
-      setState(() => _isTesting = false);
+      if (mounted) setState(() => _isTesting = false);
     }
   }
 
@@ -221,9 +225,9 @@ class _AIConfigPageState extends State<AIConfigPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       child: YicoreTextField(
-                        labelText: 'API Endpoint',
+                        labelText: '接口地址',
                         controller: _endpointController,
-                        hintText: '输入API端点URL',
+                        hintText: '输入API接口地址',
                       ),
                     ),
                     Padding(

@@ -1,9 +1,9 @@
-import '../data/timetable.dart';
-import '../data/timetable_settings.dart';
-import '../data/class_time.dart';
-import '../data/course.dart';
-import '../data/course_schedule.dart';
-import '../data/data_constants.dart';
+import '../../data/timetable.dart';
+import '../../data/timetable_settings.dart';
+import '../../data/class_time.dart';
+import '../../data/course.dart';
+import '../../data/course_schedule.dart';
+import '../../data/data_constants.dart';
 
 /// 工厂：快速创建模型实例
 /// 提供 Timetable/Settings/ClassTime/Course/CourseSchedule 的便捷构建方法

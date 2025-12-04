@@ -23,8 +23,8 @@ class YicoreBottomNavigationBar extends StatelessWidget {
     required this.currentIndex,
     required this.onTap,
     required this.items,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

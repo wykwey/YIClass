@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import '../../utils/safe_call.dart';
 
 /// 脚本文件服务
 /// 负责检查和管理本地脚本文件
@@ -29,47 +30,41 @@ class ScriptFileService {
   /// [scriptName] 脚本文件名（如 example.js）
   /// 返回：文件存在返回 true，否则返回 false
   static Future<bool> checkScriptExists(String scriptName) async {
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       final scriptsDir = await _getScriptsDirectory();
       final filePath = path.join(scriptsDir, scriptName);
       final file = File(filePath);
       return await file.exists();
-    } catch (e) {
-      return false;
-    }
+    }, false);
   }
 
   /// 批量检查多个脚本文件是否存在
   /// 
   /// [scriptNames] 脚本文件名列表
-  /// 返回：Map<scriptName, exists>
+  /// 返回：`Map<scriptName, exists>`
   static Future<Map<String, bool>> checkScriptsExist(List<String> scriptNames) async {
-    final Map<String, bool> result = {};
-    try {
+    final Map<String, bool> defaultResult = {
+      for (final name in scriptNames) name: false
+    };
+    
+    return await SafeCall.orDefaultAsync(() async {
       final scriptsDir = await _getScriptsDirectory();
       final scriptsDirObj = Directory(scriptsDir);
       
       // 如果目录不存在，所有脚本都不存在
       if (!await scriptsDirObj.exists()) {
-        for (final scriptName in scriptNames) {
-          result[scriptName] = false;
-        }
-        return result;
+        return defaultResult;
       }
 
       // 批量检查文件
+      final Map<String, bool> result = {};
       for (final scriptName in scriptNames) {
         final filePath = path.join(scriptsDir, scriptName);
         final file = File(filePath);
         result[scriptName] = await file.exists();
       }
-    } catch (e) {
-      // 出错时默认所有文件都不存在
-      for (final scriptName in scriptNames) {
-        result[scriptName] = false;
-      }
-    }
-    return result;
+      return result;
+    }, defaultResult);
   }
 
   /// 获取脚本文件的完整路径
@@ -77,7 +72,7 @@ class ScriptFileService {
   /// [scriptName] 脚本文件名
   /// 返回：文件路径，如果文件不存在返回 null
   static Future<String?> getScriptPath(String scriptName) async {
-    try {
+    return await SafeCall.async<String?>(() async {
       final scriptsDir = await _getScriptsDirectory();
       final filePath = path.join(scriptsDir, scriptName);
       final file = File(filePath);
@@ -85,9 +80,7 @@ class ScriptFileService {
         return filePath;
       }
       return null;
-    } catch (e) {
-      return null;
-    }
+    });
   }
 
   /// 读取脚本文件内容
@@ -95,16 +88,14 @@ class ScriptFileService {
   /// [scriptName] 脚本文件名
   /// 返回：文件内容字符串，文件不存在或读取失败返回 null
   static Future<String?> readScriptContent(String scriptName) async {
-    try {
+    return await SafeCall.async<String?>(() async {
       final filePath = await getScriptPath(scriptName);
       if (filePath == null) {
         return null;
       }
       final file = File(filePath);
       return await file.readAsString();
-    } catch (e) {
-      return null;
-    }
+    });
   }
 }
 

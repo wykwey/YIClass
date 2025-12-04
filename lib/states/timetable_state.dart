@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar_plus/isar_plus.dart';
 import '../data/timetable.dart';
-import '../services/timetable_service.dart';
+import '../services/timetable/timetable_service.dart';
 import '../services/settings_service.dart';
-import '../services/factory_service.dart';
+import '../services/timetable/factory_service.dart';
 import '../data/data_constants.dart';
 
 /// TimetableState

@@ -24,8 +24,8 @@ class SettingsItem extends StatelessWidget {
     this.value,
     this.isLastInBlock = false,
     this.enabled = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   // 便捷构造：开关类型
   factory SettingsItem.switch_({
@@ -266,8 +266,8 @@ class SettingsBlock extends StatelessWidget {
   const SettingsBlock({
     this.title,
     required this.children,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -321,7 +321,7 @@ class SettingsBlock extends StatelessWidget {
               );
             }
             return child;
-          }).toList(),
+          }),
         ],
       ),
     );

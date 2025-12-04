@@ -85,10 +85,10 @@ packages:
     dependency: "direct dev"
     description:
       name: build_runner
-      sha256: a9461b8e586bf018dd4afd2e13b49b08c6a844a4b226c8d1d10f3a723cdd78c3
+      sha256: "110c56ef29b5eb367b4d17fc79375fa8c18a6cd7acd92c05bb3986c17a079057"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.10.1"
+    version: "2.10.4"
   built_collection:
     dependency: transitive
     description:
@@ -508,18 +508,18 @@ packages:
     dependency: "direct main"
     description:
       name: isar_plus
-      sha256: a19774142effa5904b6be3724888b7f27307f64bea298cedb4ef12216bedf04f
+      sha256: "16fdd10760f618e084ad6b49a953f8b90408830b2a61d5ea20f12e73c87b4391"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.5"
+    version: "1.1.8"
   isar_plus_flutter_libs:
     dependency: "direct main"
     description:
       name: isar_plus_flutter_libs
-      sha256: e3d30f57cab35470cf441e84d437e1227a63298f2df05a0ce791b1da5593fa6c
+      sha256: cb5c8bc31e2de25a168d16c3eeda53e6593cf8c7f004e8fbd3c6b2572fd919ed
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.5"
+    version: "1.1.8"
   json_annotation:
     dependency: transitive
     description:

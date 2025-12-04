@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../states/timetable_state.dart';
-import '../../services/factory_service.dart';
+import '../../services/timetable/factory_service.dart';
 import '../layout/schedule_manager.dart';
 // 注意：此文件被 layout/appbar.dart 引用
 

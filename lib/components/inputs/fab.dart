@@ -33,8 +33,8 @@ class YicoreFab extends StatefulWidget {
     this.tooltip,
     this.menuItems,
     this.size = 56.0,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<YicoreFab> createState() => _YicoreFabState();
@@ -349,10 +349,12 @@ class AddCourseFab extends StatelessWidget {
   const AddCourseFab({super.key, this.viewIdentifier});
 
   Future<void> _importFromFile(BuildContext context) async {
+    final timetableState = Provider.of<TimetableState>(context, listen: false);
     final ok = await FileService.importAndSave();
     if (!context.mounted) return;
     if (ok) {
-      await Provider.of<TimetableState>(context, listen: false).reload();
+      await timetableState.reload();
+      if (!context.mounted) return;
       Notifications.sonner(context, message: '导入成功');
     } else {
       Notifications.sonner(context, message: '已取消或导入失败');

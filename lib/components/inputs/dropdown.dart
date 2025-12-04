@@ -31,8 +31,8 @@ class YicoreDropdown<T> extends StatefulWidget {
     this.onChanged,
     this.enabled = true,
     this.errorText,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<YicoreDropdown<T>> createState() => _YicoreDropdownState<T>();

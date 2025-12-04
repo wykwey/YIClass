@@ -14,6 +14,9 @@ import '../views/repository/school_select_page.dart';
 import '../views/repository/script_select_page.dart';
 import '../views/settings_view/license_page.dart';
 import '../views/settings_view/course_reminder_page.dart';
+import '../views/settings_view/advanced_features_page.dart';
+import '../views/settings_view/theme_settings_page.dart';
+import '../views/settings_view/about_page.dart';
 import '../data/course.dart';
 import '../data/school_index.dart';
 import '../states/view_state.dart';
@@ -92,6 +95,27 @@ class AppRoutes {
       case RouteNames.courseReminder:
         return MaterialPageRoute(
           builder: (_) => const CourseReminderPage(),
+          settings: settings,
+        );
+
+      // 高级功能页面
+      case RouteNames.advancedFeatures:
+        return MaterialPageRoute(
+          builder: (_) => const AdvancedFeaturesPage(),
+          settings: settings,
+        );
+
+      // 主题设置页面
+      case RouteNames.themeSettings:
+        return MaterialPageRoute(
+          builder: (_) => const ThemeSettingsPage(),
+          settings: settings,
+        );
+
+      // 关于应用页面
+      case RouteNames.about:
+        return MaterialPageRoute(
+          builder: (_) => const AboutPage(),
           settings: settings,
         );
 

@@ -1,5 +1,6 @@
 import 'package:isar_plus/isar_plus.dart';
-import '../data/timetable.dart';
+import '../../data/timetable.dart';
+import '../../utils/safe_call.dart';
 
 /// Timetable 服务（CRUD）
 /// 提供对 `Timetable` 集合的增删改查与常用操作封装。
@@ -74,7 +75,7 @@ class TimetableService {
 
   /// 新增或更新单个课表（put）。成功返回 true
   Future<bool> put(Timetable t) async {
-    try {
+    return await SafeCall.runAsync(() async {
       // 若未分配 ID，生成唯一 ID，避免覆盖现有课表
       if (t.id <= 0) {
         t.id = await _generateNewId();
@@ -82,15 +83,12 @@ class TimetableService {
       await isar.write((isar) async {
         isar.timetables.put(t);
       });
-      return true;
-    } catch (_) {
-      return false;
-    }
+    });
   }
 
   /// 批量新增或更新课表。成功返回 true
   Future<bool> putAll(List<Timetable> list) async {
-    try {
+    return await SafeCall.runAsync(() async {
       // 为待插入的课表分配缺失的 ID，避免相互覆盖
       for (final t in list) {
         if (t.id <= 0) {
@@ -102,10 +100,7 @@ class TimetableService {
           isar.timetables.put(t);
         }
       });
-      return true;
-    } catch (_) {
-      return false;
-    }
+    });
   }
 
   /// 将指定 ID 的课表设为当前课表（通过 SettingsService 更新 AppSettings.currentTimetableId）
@@ -120,15 +115,13 @@ class TimetableService {
 
   /// 根据 ID 删除课表。返回是否成功
   Future<bool> delete(int id) async {
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       bool ok = false;
       await isar.write((isar) async {
         ok = await isar.timetables.delete(id);
       });
       return ok;
-    } catch (_) {
-      return false;
-    }
+    }, false);
   }
 
   /// 删除所有课表，返回删除数量
