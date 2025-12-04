@@ -78,7 +78,7 @@ class _AIConfigPageState extends State<AIConfigPage> {
     );
 
     if (!config.isValid) {
-      Notifications.sonner(context, message: '请填写API Key、Endpoint和文本模型');
+      Notifications.sonner(context, message: '请填写API Key、接口地址和文本模型');
       return;
     }
 
@@ -98,7 +98,7 @@ class _AIConfigPageState extends State<AIConfigPage> {
 
   Future<void> _testConfig() async {
     if (_apiKeyController.text.isEmpty || _endpointController.text.isEmpty) {
-      Notifications.sonner(context, message: '请先填写API Key和Endpoint');
+      Notifications.sonner(context, message: '请先填写API Key和接口地址');
       return;
     }
 
@@ -225,9 +225,9 @@ class _AIConfigPageState extends State<AIConfigPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       child: YicoreTextField(
-                        labelText: 'API Endpoint',
+                        labelText: '接口地址',
                         controller: _endpointController,
-                        hintText: '输入API端点URL',
+                        hintText: '输入API接口地址',
                       ),
                     ),
                     Padding(

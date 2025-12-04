@@ -1,5 +1,6 @@
 import 'package:isar_plus/isar_plus.dart';
 import '../data/settings.dart';
+import '../utils/safe_call.dart';
 
 /// 设置服务：管理全局 AppSettings
 /// 负责 AppSettings 的 CRUD 操作
@@ -44,14 +45,11 @@ class SettingsService {
 
   /// 保存设置
   Future<bool> saveSettings(AppSettings settings) async {
-    try {
+    return await SafeCall.runAsync(() async {
       await isar.write((isar) async {
         isar.appSettings.put(settings);
       });
-      return true;
-    } catch (_) {
-      return false;
-    }
+    });
   }
 
   /// 检查高级功能是否启用
@@ -62,24 +60,50 @@ class SettingsService {
 
   /// 更新高级功能开关
   Future<bool> updateAdvancedFeaturesEnabled(bool enabled) async {
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       final settings = await loadSettings();
       settings.advancedFeaturesEnabled = enabled;
       return await saveSettings(settings);
-    } catch (_) {
-      return false;
-    }
+    }, false);
+  }
+
+  /// 检查教务导入是否启用
+  Future<bool> isEduImportEnabled() async {
+    final settings = await loadSettings();
+    return settings.repositoryImportEnabled;
+  }
+
+  /// 更新教务导入开关
+  Future<bool> updateEduImportEnabled(bool enabled) async {
+    return await SafeCall.orDefaultAsync(() async {
+      final settings = await loadSettings();
+      settings.repositoryImportEnabled = enabled;
+      return await saveSettings(settings);
+    }, false);
+  }
+
+  /// 检查AI导入是否启用
+  Future<bool> isAiImportEnabled() async {
+    final settings = await loadSettings();
+    return settings.aiEnabled;
+  }
+
+  /// 更新AI导入开关
+  Future<bool> updateAiImportEnabled(bool enabled) async {
+    return await SafeCall.orDefaultAsync(() async {
+      final settings = await loadSettings();
+      settings.aiEnabled = enabled;
+      return await saveSettings(settings);
+    }, false);
   }
 
   /// 更新AI启用状态
   Future<bool> updateAiEnabled(bool enabled) async {
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       final settings = await loadSettings();
       settings.aiEnabled = enabled;
       return await saveSettings(settings);
-    } catch (_) {
-      return false;
-    }
+    }, false);
   }
 
   /// 更新AI设置
@@ -89,16 +113,14 @@ class SettingsService {
     bool? textImport,
     bool? webImport,
   }) async {
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       final settings = await loadSettings();
       if (imageImport != null) settings.aiImageImport = imageImport;
       if (tableImport != null) settings.aiTableImport = tableImport;
       if (textImport != null) settings.aiTextImport = textImport;
       if (webImport != null) settings.aiWebImport = webImport;
       return await saveSettings(settings);
-    } catch (_) {
-      return false;
-    }
+    }, false);
   }
 
   /// 更新AI配置
@@ -108,16 +130,14 @@ class SettingsService {
     String? visionModel,
     String? textModel,
   }) async {
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       final settings = await loadSettings();
       if (apiKey != null) settings.aiApiKey = apiKey;
       if (endpoint != null) settings.aiEndpoint = endpoint;
       if (visionModel != null) settings.aiVisionModel = visionModel;
       if (textModel != null) settings.aiTextModel = textModel;
       return await saveSettings(settings);
-    } catch (_) {
-      return false;
-    }
+    }, false);
   }
 
   /// 更新通知设置
@@ -125,14 +145,12 @@ class SettingsService {
     bool? enabled,
     bool? courseReminder,
   }) async {
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       final settings = await loadSettings();
       if (enabled != null) settings.notificationEnabled = enabled;
       if (courseReminder != null) settings.courseReminder = courseReminder;
       return await saveSettings(settings);
-    } catch (_) {
-      return false;
-    }
+    }, false);
   }
 
   /// 更新仓库配置
@@ -145,7 +163,7 @@ class SettingsService {
     String? tokenValue,
     bool? repositoryImportEnabled,
   }) async {
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       final settings = await loadSettings();
       if (repositoryUrl != null) settings.repositoryUrl = repositoryUrl;
       if (repositoryType != null) settings.repositoryType = repositoryType;
@@ -155,9 +173,7 @@ class SettingsService {
       if (tokenValue != null) settings.tokenValue = tokenValue;
       if (repositoryImportEnabled != null) settings.repositoryImportEnabled = repositoryImportEnabled;
       return await saveSettings(settings);
-    } catch (_) {
-      return false;
-    }
+    }, false);
   }
 
   /// 获取当前课表ID
@@ -168,13 +184,11 @@ class SettingsService {
 
   /// 设置当前课表ID
   Future<bool> setCurrentTimetableId(String id) async {
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       final settings = await loadSettings();
       settings.currentTimetableId = id;
       return await saveSettings(settings);
-    } catch (_) {
-      return false;
-    }
+    }, false);
   }
 }
 

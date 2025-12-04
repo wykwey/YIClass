@@ -2,7 +2,7 @@
 
 一个功能完善的跨平台课表应用，支持多种视图模式、AI智能导入、文件导入导出，界面美观，操作流畅。
 
-**当前版本**: v2.1
+**当前版本**: v2.3.5
 
 ##  核心功能
 
@@ -56,11 +56,11 @@ flutter run
 ### AI功能配置（可选）
 1. 打开应用设置 → 高级功能 → AI导入配置
 2. 选择或配置AI服务提供商（OpenAI/Claude/Gemini/DeepSeek）
-3. 输入API Key和Endpoint
+3. 输入API Key和接口地址
 4. 选择使用的模型（视觉模型/文本模型）
 5. 保存配置后即可使用AI导入功能
 
-## 📚 数据结构说明
+##  数据结构说明
 
 ### 课程模型
 ```dart
@@ -108,7 +108,6 @@ class TimetableSettings {
       "name": "课程名称",
       "location": "上课地点",
       "teacher": "教师姓名",
-      "color": 4280391411,
       "schedules": [
         {
           "weekday": 1,
@@ -126,7 +125,7 @@ class TimetableSettings {
 ### 核心组件
 - **状态管理**: Provider (ChangeNotifier)
 - **数据持久化**: Isar Plus (NoSQL数据库)
-- **UI框架**: Flutter Material Design 3
+- **UI框架**: yicore
 - **文件操作**: file_selector (跨平台文件选择)
 - **AI服务**: HTTP API (支持OpenAI/Claude/Gemini/DeepSeek等)
 
@@ -183,9 +182,6 @@ lib/
 
 ##  常见问题
 
-**Q: 如何添加新课表?**
-A: 进入设置页面 → 课表管理 → 点击"添加课表"按钮
-
 **Q: 如何导入课程表?**
 A: 支持三种导入方式：
 1. **AI图片识别**：在AI导入页面选择图片，AI会自动识别课程信息
@@ -204,8 +200,6 @@ A:
 4. 配置完成后在AI导入页面使用
 
 **Q: 课程时间冲突如何处理?**
-A: 当前版本中：
-- 系统提供了冲突检测方法（`QueryService.hasConflict()`），可以检测同一时段是否有多个课程
 - 保存课程时不会阻止冲突的创建，允许用户手动添加时间冲突的课程
 - 在周视图和日视图中，如果同一时段有多门课程，只会显示第一个匹配的课程
 - 用户可以通过编辑课程来调整时间安排，避免冲突

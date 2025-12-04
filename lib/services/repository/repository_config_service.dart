@@ -1,4 +1,5 @@
 import '../../services/settings_service.dart';
+import '../../utils/safe_call.dart';
 
 /// 仓库配置模型
 class RepositoryConfig {
@@ -52,7 +53,7 @@ class RepositoryConfigService {
 
   /// 获取配置
   static Future<RepositoryConfig> getConfig() async {
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       final settingsService = SettingsService.instance;
       final settings = await settingsService.loadSettings();
       
@@ -72,10 +73,7 @@ class RepositoryConfigService {
         tokenValue: settings.tokenValue,
         enabled: settings.repositoryImportEnabled,
       );
-    } catch (e) {
-      // 如果读取失败，返回默认配置
-      return const RepositoryConfig();
-    }
+    }, const RepositoryConfig());
   }
 
   /// 保存配置
@@ -112,12 +110,8 @@ class RepositoryConfigService {
     if (!config.isValid) {
       return false;
     }
-    try {
-      // 可扩展：验证仓库URL格式、测试连接等
-      return true;
-    } catch (e) {
-      return false;
-    }
+    // 可扩展：验证仓库URL格式、测试连接等
+    return true;
   }
 
   /// 获取配置状态

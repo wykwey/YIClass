@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'ai_config_service.dart';
+import '../../utils/safe_call.dart';
 
 class AIService {
   /// 分析图片 - 调用视觉大模型
@@ -48,19 +49,11 @@ class AIService {
       return false;
     }
 
-    try {
+    return await SafeCall.orDefaultAsync(() async {
       final testPrompt = '请回复"测试成功"';
       final response = await _callTextAPIForTest(config, testPrompt);
-      
-      // 检查响应是否包含"测试成功"
-      if (response.contains('测试成功')) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      return false;
-    }
+      return response.contains('测试成功');
+    }, false);
   }
 
   // ================= 私有方法 =================
@@ -134,22 +127,18 @@ class AIService {
       'Authorization': 'Bearer ${config.apiKey}',
     };
 
-    try {
-      final response = await http.post(
-        Uri.parse(config.endpoint),
-        headers: headers,
-        body: jsonEncode(requestBody),
-      );
+    final response = await http.post(
+      Uri.parse(config.endpoint),
+      headers: headers,
+      body: jsonEncode(requestBody),
+    );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final content = data['choices'][0]['message']['content'];
-        return content;
-      } else {
-        throw Exception('API调用失败: ${response.statusCode} - ${response.body}');
-      }
-    } catch (e) {
-      rethrow;
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final content = data['choices'][0]['message']['content'];
+      return content;
+    } else {
+      throw Exception('API调用失败: ${response.statusCode} - ${response.body}');
     }
   }
 

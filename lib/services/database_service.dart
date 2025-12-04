@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import '../data/timetable.dart';
 import '../data/settings.dart';
+import '../utils/safe_call.dart';
 
 /// 统一数据库服务
 /// 
@@ -24,7 +25,7 @@ class DatabaseService {
   /// - TimetableSchema（及其所有嵌入式 Schemas：TimetableSettingsSchema、ClassTimeSchema、CourseSchema、CourseScheduleSchema）
   /// - AppSettingsSchema
   Future<bool> initialize() async {
-    try {
+    return await SafeCall.runAsync(() async {
       // 根据平台选择数据库目录
       String directory;
       if (kIsWeb) {
@@ -45,11 +46,7 @@ class DatabaseService {
         engine: IsarEngine.sqlite,
         directory: directory,
       );
-
-      return true;
-    } catch (e) {
-      return false;
-    }
+    });
   }
 
   /// 获取 Isar 实例

@@ -4,6 +4,7 @@ import 'package:isar_plus/isar_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import '../../data/school_index.dart';
+import '../../utils/safe_call.dart';
 
 /// 学校索引服务
 /// 负责读取和管理下载的索引数据库
@@ -24,10 +25,10 @@ class SchoolIndexService {
   /// [indexFilePath] 索引文件路径，如果为null则尝试从默认位置加载
   /// 返回：成功返回true，失败返回false
   Future<bool> openIndex(String? indexFilePath) async {
-    try {
+    return await SafeCall.runAsync(() async {
       // 如果已打开且是同一个文件，直接返回
       if (_indexIsar != null && _indexFilePath == indexFilePath) {
-        return true;
+        return;
       }
 
       // 关闭之前的数据库
@@ -57,10 +58,7 @@ class SchoolIndexService {
       );
 
       _indexFilePath = filePath;
-      return true;
-    } catch (e) {
-      return false;
-    }
+    });
   }
 
   /// 关闭索引数据库
@@ -90,14 +88,12 @@ class SchoolIndexService {
       }
     }
 
-    try {
+    return await SafeCall.async<SchoolIndex?>(() async {
       // 使用 Isar 的集合访问（从生成的 school_index.g.dart 中可以看到集合名称是 schoolIndexs）
       final collection = _indexIsar!.schoolIndexs;
       final index = await collection.get(1);
       return index;
-    } catch (e) {
-      return null;
-    }
+    });
   }
 
   /// 获取所有学校列表

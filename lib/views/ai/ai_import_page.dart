@@ -9,6 +9,7 @@ import '../../states/timetable_state.dart';
 import '../../components/feedback/notifications.dart';
 import '../../components/layout/appbar.dart';
 import '../../components/inputs/components.dart';
+import '../../utils/safe_call.dart';
 import 'ai_edu_import_page.dart';
 
 class AIImportPage extends StatefulWidget {
@@ -30,17 +31,13 @@ class _AIImportPageState extends State<AIImportPage> {
   }
 
   Future<void> _loadConfig() async {
-    try {
-      final config = await AIConfigService.getConfig();
-      setState(() {
-        _config = config;
-        _isLoading = false;
-      });
-    } catch (_) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    final config = await SafeCall.async<AIConfig?>(() async {
+      return await AIConfigService.getConfig();
+    });
+    setState(() {
+      _config = config;
+      _isLoading = false;
+    });
   }
 
   @override

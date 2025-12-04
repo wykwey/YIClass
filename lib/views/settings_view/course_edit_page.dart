@@ -315,10 +315,7 @@ class _CourseEditPageState extends State<CourseEditPage> {
                 decoration: BoxDecoration(
                   color: color,
                   shape: BoxShape.circle,
-                  border: selected ? Border.all(color: Colors.white, width: 3) : null,
-                  boxShadow: selected
-                      ? [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 8, spreadRadius: 2)]
-                      : null,
+                  border: selected ? Border.all(color: Colors.black, width: 3) : null,
                 ),
                 child: selected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
               ),

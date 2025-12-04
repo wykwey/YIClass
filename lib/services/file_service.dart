@@ -11,6 +11,7 @@ import '../data/course_schedule.dart';
 import 'timetable/timetable_service.dart';
 import '../data/data_constants.dart';
 import '../utils/color_utils.dart';
+import '../utils/safe_call.dart';
 
 /// 文件服务：导入/导出 Timetable
 /// 仅负责结构转换（Timetable <-> Map/JSON）与持久化入口封装
@@ -253,13 +254,10 @@ class FileService {
     final XFile? picked = await openFile(acceptedTypeGroups: <XTypeGroup>[jsonGroup]);
     if (picked == null) return null; // 用户取消
 
-    try {
+    return await SafeCall.async(() async {
       final String content = await picked.readAsString();
-      final Timetable t = fromJson(content);
-      return t;
-    } catch (_) {
-      return null;
-    }
+      return fromJson(content);
+    });
   }
 
   /// 通过文件选择器导入并保存到本地数据库。

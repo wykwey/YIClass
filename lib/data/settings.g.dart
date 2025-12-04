@@ -73,6 +73,10 @@ final AppSettingsSchema = IsarGeneratedSchema(
         type: IsarType.bool,
       ),
       IsarPropertySchema(
+        name: 'disableAdaptiveFontColor',
+        type: IsarType.bool,
+      ),
+      IsarPropertySchema(
         name: 'repositoryUrl',
         type: IsarType.string,
       ),
@@ -130,14 +134,15 @@ int serializeAppSettings(IsarWriter writer, AppSettings object) {
   IsarCore.writeString(writer, 11, object.aiVisionModel);
   IsarCore.writeString(writer, 12, object.aiTextModel);
   IsarCore.writeBool(writer, 13, value: object.advancedFeaturesEnabled);
-  IsarCore.writeString(writer, 14, object.repositoryUrl);
-  IsarCore.writeString(writer, 15, object.repositoryType);
-  IsarCore.writeString(writer, 16, object.indexBranch);
-  IsarCore.writeString(writer, 17, object.scriptsBranch);
-  IsarCore.writeString(writer, 18, object.tokenKey);
-  IsarCore.writeString(writer, 19, object.tokenValue);
-  IsarCore.writeBool(writer, 20, value: object.repositoryImportEnabled);
-  IsarCore.writeBool(writer, 21, value: object.isValid);
+  IsarCore.writeBool(writer, 14, value: object.disableAdaptiveFontColor);
+  IsarCore.writeString(writer, 15, object.repositoryUrl);
+  IsarCore.writeString(writer, 16, object.repositoryType);
+  IsarCore.writeString(writer, 17, object.indexBranch);
+  IsarCore.writeString(writer, 18, object.scriptsBranch);
+  IsarCore.writeString(writer, 19, object.tokenKey);
+  IsarCore.writeString(writer, 20, object.tokenValue);
+  IsarCore.writeBool(writer, 21, value: object.repositoryImportEnabled);
+  IsarCore.writeBool(writer, 22, value: object.isValid);
   return object.id;
 }
 
@@ -171,20 +176,22 @@ AppSettings deserializeAppSettings(IsarReader reader) {
   _aiTextModel = IsarCore.readString(reader, 12) ?? 'gpt-4';
   final bool _advancedFeaturesEnabled;
   _advancedFeaturesEnabled = IsarCore.readBool(reader, 13);
+  final bool _disableAdaptiveFontColor;
+  _disableAdaptiveFontColor = IsarCore.readBool(reader, 14);
   final String _repositoryUrl;
-  _repositoryUrl = IsarCore.readString(reader, 14) ?? '';
+  _repositoryUrl = IsarCore.readString(reader, 15) ?? '';
   final String _repositoryType;
-  _repositoryType = IsarCore.readString(reader, 15) ?? 'official';
+  _repositoryType = IsarCore.readString(reader, 16) ?? 'official';
   final String _indexBranch;
-  _indexBranch = IsarCore.readString(reader, 16) ?? 'index-data';
+  _indexBranch = IsarCore.readString(reader, 17) ?? 'index-data';
   final String _scriptsBranch;
-  _scriptsBranch = IsarCore.readString(reader, 17) ?? 'main';
+  _scriptsBranch = IsarCore.readString(reader, 18) ?? 'main';
   final String _tokenKey;
-  _tokenKey = IsarCore.readString(reader, 18) ?? '';
+  _tokenKey = IsarCore.readString(reader, 19) ?? '';
   final String _tokenValue;
-  _tokenValue = IsarCore.readString(reader, 19) ?? '';
+  _tokenValue = IsarCore.readString(reader, 20) ?? '';
   final bool _repositoryImportEnabled;
-  _repositoryImportEnabled = IsarCore.readBool(reader, 20);
+  _repositoryImportEnabled = IsarCore.readBool(reader, 21);
   final object = AppSettings(
     id: _id,
     currentTimetableId: _currentTimetableId,
@@ -200,6 +207,7 @@ AppSettings deserializeAppSettings(IsarReader reader) {
     aiVisionModel: _aiVisionModel,
     aiTextModel: _aiTextModel,
     advancedFeaturesEnabled: _advancedFeaturesEnabled,
+    disableAdaptiveFontColor: _disableAdaptiveFontColor,
     repositoryUrl: _repositoryUrl,
     repositoryType: _repositoryType,
     indexBranch: _indexBranch,
@@ -243,21 +251,23 @@ dynamic deserializeAppSettingsProp(IsarReader reader, int property) {
     case 13:
       return IsarCore.readBool(reader, 13);
     case 14:
-      return IsarCore.readString(reader, 14) ?? '';
+      return IsarCore.readBool(reader, 14);
     case 15:
-      return IsarCore.readString(reader, 15) ?? 'official';
+      return IsarCore.readString(reader, 15) ?? '';
     case 16:
-      return IsarCore.readString(reader, 16) ?? 'index-data';
+      return IsarCore.readString(reader, 16) ?? 'official';
     case 17:
-      return IsarCore.readString(reader, 17) ?? 'main';
+      return IsarCore.readString(reader, 17) ?? 'index-data';
     case 18:
-      return IsarCore.readString(reader, 18) ?? '';
+      return IsarCore.readString(reader, 18) ?? 'main';
     case 19:
       return IsarCore.readString(reader, 19) ?? '';
     case 20:
-      return IsarCore.readBool(reader, 20);
+      return IsarCore.readString(reader, 20) ?? '';
     case 21:
       return IsarCore.readBool(reader, 21);
+    case 22:
+      return IsarCore.readBool(reader, 22);
     default:
       throw ArgumentError('Unknown property: $property');
   }
@@ -279,6 +289,7 @@ sealed class _AppSettingsUpdate {
     String? aiVisionModel,
     String? aiTextModel,
     bool? advancedFeaturesEnabled,
+    bool? disableAdaptiveFontColor,
     String? repositoryUrl,
     String? repositoryType,
     String? indexBranch,
@@ -311,6 +322,7 @@ class _AppSettingsUpdateImpl implements _AppSettingsUpdate {
     Object? aiVisionModel = ignore,
     Object? aiTextModel = ignore,
     Object? advancedFeaturesEnabled = ignore,
+    Object? disableAdaptiveFontColor = ignore,
     Object? repositoryUrl = ignore,
     Object? repositoryType = ignore,
     Object? indexBranch = ignore,
@@ -337,15 +349,17 @@ class _AppSettingsUpdateImpl implements _AppSettingsUpdate {
           if (aiTextModel != ignore) 12: aiTextModel as String?,
           if (advancedFeaturesEnabled != ignore)
             13: advancedFeaturesEnabled as bool?,
-          if (repositoryUrl != ignore) 14: repositoryUrl as String?,
-          if (repositoryType != ignore) 15: repositoryType as String?,
-          if (indexBranch != ignore) 16: indexBranch as String?,
-          if (scriptsBranch != ignore) 17: scriptsBranch as String?,
-          if (tokenKey != ignore) 18: tokenKey as String?,
-          if (tokenValue != ignore) 19: tokenValue as String?,
+          if (disableAdaptiveFontColor != ignore)
+            14: disableAdaptiveFontColor as bool?,
+          if (repositoryUrl != ignore) 15: repositoryUrl as String?,
+          if (repositoryType != ignore) 16: repositoryType as String?,
+          if (indexBranch != ignore) 17: indexBranch as String?,
+          if (scriptsBranch != ignore) 18: scriptsBranch as String?,
+          if (tokenKey != ignore) 19: tokenKey as String?,
+          if (tokenValue != ignore) 20: tokenValue as String?,
           if (repositoryImportEnabled != ignore)
-            20: repositoryImportEnabled as bool?,
-          if (isValid != ignore) 21: isValid as bool?,
+            21: repositoryImportEnabled as bool?,
+          if (isValid != ignore) 22: isValid as bool?,
         }) >
         0;
   }
@@ -367,6 +381,7 @@ sealed class _AppSettingsUpdateAll {
     String? aiVisionModel,
     String? aiTextModel,
     bool? advancedFeaturesEnabled,
+    bool? disableAdaptiveFontColor,
     String? repositoryUrl,
     String? repositoryType,
     String? indexBranch,
@@ -399,6 +414,7 @@ class _AppSettingsUpdateAllImpl implements _AppSettingsUpdateAll {
     Object? aiVisionModel = ignore,
     Object? aiTextModel = ignore,
     Object? advancedFeaturesEnabled = ignore,
+    Object? disableAdaptiveFontColor = ignore,
     Object? repositoryUrl = ignore,
     Object? repositoryType = ignore,
     Object? indexBranch = ignore,
@@ -423,15 +439,17 @@ class _AppSettingsUpdateAllImpl implements _AppSettingsUpdateAll {
       if (aiTextModel != ignore) 12: aiTextModel as String?,
       if (advancedFeaturesEnabled != ignore)
         13: advancedFeaturesEnabled as bool?,
-      if (repositoryUrl != ignore) 14: repositoryUrl as String?,
-      if (repositoryType != ignore) 15: repositoryType as String?,
-      if (indexBranch != ignore) 16: indexBranch as String?,
-      if (scriptsBranch != ignore) 17: scriptsBranch as String?,
-      if (tokenKey != ignore) 18: tokenKey as String?,
-      if (tokenValue != ignore) 19: tokenValue as String?,
+      if (disableAdaptiveFontColor != ignore)
+        14: disableAdaptiveFontColor as bool?,
+      if (repositoryUrl != ignore) 15: repositoryUrl as String?,
+      if (repositoryType != ignore) 16: repositoryType as String?,
+      if (indexBranch != ignore) 17: indexBranch as String?,
+      if (scriptsBranch != ignore) 18: scriptsBranch as String?,
+      if (tokenKey != ignore) 19: tokenKey as String?,
+      if (tokenValue != ignore) 20: tokenValue as String?,
       if (repositoryImportEnabled != ignore)
-        20: repositoryImportEnabled as bool?,
-      if (isValid != ignore) 21: isValid as bool?,
+        21: repositoryImportEnabled as bool?,
+      if (isValid != ignore) 22: isValid as bool?,
     });
   }
 }
@@ -457,6 +475,7 @@ sealed class _AppSettingsQueryUpdate {
     String? aiVisionModel,
     String? aiTextModel,
     bool? advancedFeaturesEnabled,
+    bool? disableAdaptiveFontColor,
     String? repositoryUrl,
     String? repositoryType,
     String? indexBranch,
@@ -489,6 +508,7 @@ class _AppSettingsQueryUpdateImpl implements _AppSettingsQueryUpdate {
     Object? aiVisionModel = ignore,
     Object? aiTextModel = ignore,
     Object? advancedFeaturesEnabled = ignore,
+    Object? disableAdaptiveFontColor = ignore,
     Object? repositoryUrl = ignore,
     Object? repositoryType = ignore,
     Object? indexBranch = ignore,
@@ -513,15 +533,17 @@ class _AppSettingsQueryUpdateImpl implements _AppSettingsQueryUpdate {
       if (aiTextModel != ignore) 12: aiTextModel as String?,
       if (advancedFeaturesEnabled != ignore)
         13: advancedFeaturesEnabled as bool?,
-      if (repositoryUrl != ignore) 14: repositoryUrl as String?,
-      if (repositoryType != ignore) 15: repositoryType as String?,
-      if (indexBranch != ignore) 16: indexBranch as String?,
-      if (scriptsBranch != ignore) 17: scriptsBranch as String?,
-      if (tokenKey != ignore) 18: tokenKey as String?,
-      if (tokenValue != ignore) 19: tokenValue as String?,
+      if (disableAdaptiveFontColor != ignore)
+        14: disableAdaptiveFontColor as bool?,
+      if (repositoryUrl != ignore) 15: repositoryUrl as String?,
+      if (repositoryType != ignore) 16: repositoryType as String?,
+      if (indexBranch != ignore) 17: indexBranch as String?,
+      if (scriptsBranch != ignore) 18: scriptsBranch as String?,
+      if (tokenKey != ignore) 19: tokenKey as String?,
+      if (tokenValue != ignore) 20: tokenValue as String?,
       if (repositoryImportEnabled != ignore)
-        20: repositoryImportEnabled as bool?,
-      if (isValid != ignore) 21: isValid as bool?,
+        21: repositoryImportEnabled as bool?,
+      if (isValid != ignore) 22: isValid as bool?,
     });
   }
 }
@@ -554,6 +576,7 @@ class _AppSettingsQueryBuilderUpdateImpl implements _AppSettingsQueryUpdate {
     Object? aiVisionModel = ignore,
     Object? aiTextModel = ignore,
     Object? advancedFeaturesEnabled = ignore,
+    Object? disableAdaptiveFontColor = ignore,
     Object? repositoryUrl = ignore,
     Object? repositoryType = ignore,
     Object? indexBranch = ignore,
@@ -580,15 +603,17 @@ class _AppSettingsQueryBuilderUpdateImpl implements _AppSettingsQueryUpdate {
         if (aiTextModel != ignore) 12: aiTextModel as String?,
         if (advancedFeaturesEnabled != ignore)
           13: advancedFeaturesEnabled as bool?,
-        if (repositoryUrl != ignore) 14: repositoryUrl as String?,
-        if (repositoryType != ignore) 15: repositoryType as String?,
-        if (indexBranch != ignore) 16: indexBranch as String?,
-        if (scriptsBranch != ignore) 17: scriptsBranch as String?,
-        if (tokenKey != ignore) 18: tokenKey as String?,
-        if (tokenValue != ignore) 19: tokenValue as String?,
+        if (disableAdaptiveFontColor != ignore)
+          14: disableAdaptiveFontColor as bool?,
+        if (repositoryUrl != ignore) 15: repositoryUrl as String?,
+        if (repositoryType != ignore) 16: repositoryType as String?,
+        if (indexBranch != ignore) 17: indexBranch as String?,
+        if (scriptsBranch != ignore) 18: scriptsBranch as String?,
+        if (tokenKey != ignore) 19: tokenKey as String?,
+        if (tokenValue != ignore) 20: tokenValue as String?,
         if (repositoryImportEnabled != ignore)
-          20: repositoryImportEnabled as bool?,
-        if (isValid != ignore) 21: isValid as bool?,
+          21: repositoryImportEnabled as bool?,
+        if (isValid != ignore) 22: isValid as bool?,
       });
     } finally {
       q.close();
@@ -1701,6 +1726,20 @@ extension AppSettingsQueryFilter
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
+      disableAdaptiveFontColorEqualTo(
+    bool value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        EqualCondition(
+          property: 14,
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
       repositoryUrlEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1708,7 +1747,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 14,
+          property: 15,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1724,7 +1763,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 14,
+          property: 15,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1740,7 +1779,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 14,
+          property: 15,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1756,7 +1795,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 14,
+          property: 15,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1772,7 +1811,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 14,
+          property: 15,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1789,7 +1828,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 14,
+          property: 15,
           lower: lower,
           upper: upper,
           caseSensitive: caseSensitive,
@@ -1806,7 +1845,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         StartsWithCondition(
-          property: 14,
+          property: 15,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1822,7 +1861,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EndsWithCondition(
-          property: 14,
+          property: 15,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1835,7 +1874,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         ContainsCondition(
-          property: 14,
+          property: 15,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1848,7 +1887,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         MatchesCondition(
-          property: 14,
+          property: 15,
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -1861,7 +1900,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const EqualCondition(
-          property: 14,
+          property: 15,
           value: '',
         ),
       );
@@ -1873,7 +1912,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterCondition(
-          property: 14,
+          property: 15,
           value: '',
         ),
       );
@@ -1888,7 +1927,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 15,
+          property: 16,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1904,7 +1943,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 15,
+          property: 16,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1920,7 +1959,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 15,
+          property: 16,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1936,7 +1975,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 15,
+          property: 16,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1952,7 +1991,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 15,
+          property: 16,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1969,7 +2008,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 15,
+          property: 16,
           lower: lower,
           upper: upper,
           caseSensitive: caseSensitive,
@@ -1986,7 +2025,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         StartsWithCondition(
-          property: 15,
+          property: 16,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2002,7 +2041,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EndsWithCondition(
-          property: 15,
+          property: 16,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2015,7 +2054,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         ContainsCondition(
-          property: 15,
+          property: 16,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2028,7 +2067,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         MatchesCondition(
-          property: 15,
+          property: 16,
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -2041,7 +2080,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const EqualCondition(
-          property: 15,
+          property: 16,
           value: '',
         ),
       );
@@ -2053,7 +2092,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterCondition(
-          property: 15,
+          property: 16,
           value: '',
         ),
       );
@@ -2068,7 +2107,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 16,
+          property: 17,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2084,7 +2123,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 16,
+          property: 17,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2100,7 +2139,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 16,
+          property: 17,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2116,7 +2155,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 16,
+          property: 17,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2132,7 +2171,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 16,
+          property: 17,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2149,7 +2188,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 16,
+          property: 17,
           lower: lower,
           upper: upper,
           caseSensitive: caseSensitive,
@@ -2166,7 +2205,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         StartsWithCondition(
-          property: 16,
+          property: 17,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2182,7 +2221,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EndsWithCondition(
-          property: 16,
+          property: 17,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2195,7 +2234,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         ContainsCondition(
-          property: 16,
+          property: 17,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2208,7 +2247,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         MatchesCondition(
-          property: 16,
+          property: 17,
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -2221,7 +2260,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const EqualCondition(
-          property: 16,
+          property: 17,
           value: '',
         ),
       );
@@ -2233,7 +2272,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterCondition(
-          property: 16,
+          property: 17,
           value: '',
         ),
       );
@@ -2248,7 +2287,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 17,
+          property: 18,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2264,7 +2303,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 17,
+          property: 18,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2280,7 +2319,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 17,
+          property: 18,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2296,7 +2335,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 17,
+          property: 18,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2312,7 +2351,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 17,
+          property: 18,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2329,7 +2368,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 17,
+          property: 18,
           lower: lower,
           upper: upper,
           caseSensitive: caseSensitive,
@@ -2346,7 +2385,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         StartsWithCondition(
-          property: 17,
+          property: 18,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2362,7 +2401,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EndsWithCondition(
-          property: 17,
+          property: 18,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2375,7 +2414,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         ContainsCondition(
-          property: 17,
+          property: 18,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2388,7 +2427,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         MatchesCondition(
-          property: 17,
+          property: 18,
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -2401,7 +2440,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const EqualCondition(
-          property: 17,
+          property: 18,
           value: '',
         ),
       );
@@ -2413,7 +2452,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterCondition(
-          property: 17,
+          property: 18,
           value: '',
         ),
       );
@@ -2427,7 +2466,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 18,
+          property: 19,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2443,7 +2482,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 18,
+          property: 19,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2459,7 +2498,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 18,
+          property: 19,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2475,7 +2514,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 18,
+          property: 19,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2491,7 +2530,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 18,
+          property: 19,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2507,7 +2546,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 18,
+          property: 19,
           lower: lower,
           upper: upper,
           caseSensitive: caseSensitive,
@@ -2524,7 +2563,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         StartsWithCondition(
-          property: 18,
+          property: 19,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2540,7 +2579,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EndsWithCondition(
-          property: 18,
+          property: 19,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2553,7 +2592,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         ContainsCondition(
-          property: 18,
+          property: 19,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2567,7 +2606,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         MatchesCondition(
-          property: 18,
+          property: 19,
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -2580,7 +2619,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const EqualCondition(
-          property: 18,
+          property: 19,
           value: '',
         ),
       );
@@ -2592,7 +2631,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterCondition(
-          property: 18,
+          property: 19,
           value: '',
         ),
       );
@@ -2607,7 +2646,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 19,
+          property: 20,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2623,7 +2662,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
-          property: 19,
+          property: 20,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2639,7 +2678,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
-          property: 19,
+          property: 20,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2655,7 +2694,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
-          property: 19,
+          property: 20,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2671,7 +2710,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
-          property: 19,
+          property: 20,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2688,7 +2727,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
-          property: 19,
+          property: 20,
           lower: lower,
           upper: upper,
           caseSensitive: caseSensitive,
@@ -2705,7 +2744,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         StartsWithCondition(
-          property: 19,
+          property: 20,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2721,7 +2760,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EndsWithCondition(
-          property: 19,
+          property: 20,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2734,7 +2773,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         ContainsCondition(
-          property: 19,
+          property: 20,
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -2747,7 +2786,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         MatchesCondition(
-          property: 19,
+          property: 20,
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -2760,7 +2799,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const EqualCondition(
-          property: 19,
+          property: 20,
           value: '',
         ),
       );
@@ -2772,7 +2811,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         const GreaterCondition(
-          property: 19,
+          property: 20,
           value: '',
         ),
       );
@@ -2786,7 +2825,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 20,
+          property: 21,
           value: value,
         ),
       );
@@ -2799,7 +2838,7 @@ extension AppSettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
-          property: 21,
+          property: 22,
           value: value,
         ),
       );
@@ -3033,11 +3072,25 @@ extension AppSettingsQuerySortBy
     });
   }
 
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
+      sortByDisableAdaptiveFontColor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(14);
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
+      sortByDisableAdaptiveFontColorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(14, sort: Sort.desc);
+    });
+  }
+
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByRepositoryUrl(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        14,
+        15,
         caseSensitive: caseSensitive,
       );
     });
@@ -3047,7 +3100,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        14,
+        15,
         sort: Sort.desc,
         caseSensitive: caseSensitive,
       );
@@ -3058,7 +3111,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        15,
+        16,
         caseSensitive: caseSensitive,
       );
     });
@@ -3068,7 +3121,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        15,
+        16,
         sort: Sort.desc,
         caseSensitive: caseSensitive,
       );
@@ -3079,7 +3132,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        16,
+        17,
         caseSensitive: caseSensitive,
       );
     });
@@ -3089,7 +3142,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        16,
+        17,
         sort: Sort.desc,
         caseSensitive: caseSensitive,
       );
@@ -3100,7 +3153,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        17,
+        18,
         caseSensitive: caseSensitive,
       );
     });
@@ -3110,7 +3163,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        17,
+        18,
         sort: Sort.desc,
         caseSensitive: caseSensitive,
       );
@@ -3121,7 +3174,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        18,
+        19,
         caseSensitive: caseSensitive,
       );
     });
@@ -3131,7 +3184,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        18,
+        19,
         sort: Sort.desc,
         caseSensitive: caseSensitive,
       );
@@ -3142,7 +3195,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        19,
+        20,
         caseSensitive: caseSensitive,
       );
     });
@@ -3152,7 +3205,7 @@ extension AppSettingsQuerySortBy
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(
-        19,
+        20,
         sort: Sort.desc,
         caseSensitive: caseSensitive,
       );
@@ -3162,26 +3215,26 @@ extension AppSettingsQuerySortBy
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       sortByRepositoryImportEnabled() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(20);
+      return query.addSortBy(21);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       sortByRepositoryImportEnabledDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(20, sort: Sort.desc);
+      return query.addSortBy(21, sort: Sort.desc);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByIsValid() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(21);
+      return query.addSortBy(22);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByIsValidDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(21, sort: Sort.desc);
+      return query.addSortBy(22, sort: Sort.desc);
     });
   }
 }
@@ -3374,113 +3427,127 @@ extension AppSettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
+      thenByDisableAdaptiveFontColor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(14);
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
+      thenByDisableAdaptiveFontColorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(14, sort: Sort.desc);
+    });
+  }
+
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByRepositoryUrl(
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(14, caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByRepositoryUrlDesc(
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(14, sort: Sort.desc, caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByRepositoryType(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(15, caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByRepositoryTypeDesc(
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByRepositoryUrlDesc(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(15, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByIndexBranch(
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByRepositoryType(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(16, caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByIndexBranchDesc(
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByRepositoryTypeDesc(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(16, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByScriptsBranch(
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByIndexBranch(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(17, caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByScriptsBranchDesc(
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByIndexBranchDesc(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(17, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByTokenKey(
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByScriptsBranch(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(18, caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByTokenKeyDesc(
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByScriptsBranchDesc(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(18, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByTokenValue(
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByTokenKey(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(19, caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByTokenValueDesc(
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByTokenKeyDesc(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(19, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
 
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByTokenValue(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(20, caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByTokenValueDesc(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(20, sort: Sort.desc, caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       thenByRepositoryImportEnabled() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(20);
+      return query.addSortBy(21);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
       thenByRepositoryImportEnabledDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(20, sort: Sort.desc);
+      return query.addSortBy(21, sort: Sort.desc);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByIsValid() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(21);
+      return query.addSortBy(22);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByIsValidDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(21, sort: Sort.desc);
+      return query.addSortBy(22, sort: Sort.desc);
     });
   }
 }
@@ -3578,57 +3645,64 @@ extension AppSettingsQueryWhereDistinct
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
+      distinctByDisableAdaptiveFontColor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(14);
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
       distinctByRepositoryUrl({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(14, caseSensitive: caseSensitive);
+      return query.addDistinctBy(15, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
       distinctByRepositoryType({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(15, caseSensitive: caseSensitive);
+      return query.addDistinctBy(16, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct> distinctByIndexBranch(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(16, caseSensitive: caseSensitive);
+      return query.addDistinctBy(17, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
       distinctByScriptsBranch({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(17, caseSensitive: caseSensitive);
+      return query.addDistinctBy(18, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct> distinctByTokenKey(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(18, caseSensitive: caseSensitive);
+      return query.addDistinctBy(19, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct> distinctByTokenValue(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(19, caseSensitive: caseSensitive);
+      return query.addDistinctBy(20, caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct>
       distinctByRepositoryImportEnabled() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(20);
+      return query.addDistinctBy(21);
     });
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterDistinct> distinctByIsValid() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(21);
+      return query.addDistinctBy(22);
     });
   }
 }
@@ -3722,52 +3796,59 @@ extension AppSettingsQueryProperty1
     });
   }
 
-  QueryBuilder<AppSettings, String, QAfterProperty> repositoryUrlProperty() {
+  QueryBuilder<AppSettings, bool, QAfterProperty>
+      disableAdaptiveFontColorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(14);
     });
   }
 
-  QueryBuilder<AppSettings, String, QAfterProperty> repositoryTypeProperty() {
+  QueryBuilder<AppSettings, String, QAfterProperty> repositoryUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(15);
     });
   }
 
-  QueryBuilder<AppSettings, String, QAfterProperty> indexBranchProperty() {
+  QueryBuilder<AppSettings, String, QAfterProperty> repositoryTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(16);
     });
   }
 
-  QueryBuilder<AppSettings, String, QAfterProperty> scriptsBranchProperty() {
+  QueryBuilder<AppSettings, String, QAfterProperty> indexBranchProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(17);
     });
   }
 
-  QueryBuilder<AppSettings, String, QAfterProperty> tokenKeyProperty() {
+  QueryBuilder<AppSettings, String, QAfterProperty> scriptsBranchProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(18);
     });
   }
 
-  QueryBuilder<AppSettings, String, QAfterProperty> tokenValueProperty() {
+  QueryBuilder<AppSettings, String, QAfterProperty> tokenKeyProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(19);
+    });
+  }
+
+  QueryBuilder<AppSettings, String, QAfterProperty> tokenValueProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addProperty(20);
     });
   }
 
   QueryBuilder<AppSettings, bool, QAfterProperty>
       repositoryImportEnabledProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(20);
+      return query.addProperty(21);
     });
   }
 
   QueryBuilder<AppSettings, bool, QAfterProperty> isValidProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(21);
+      return query.addProperty(22);
     });
   }
 }
@@ -3863,55 +3944,62 @@ extension AppSettingsQueryProperty2<R>
     });
   }
 
-  QueryBuilder<AppSettings, (R, String), QAfterProperty>
-      repositoryUrlProperty() {
+  QueryBuilder<AppSettings, (R, bool), QAfterProperty>
+      disableAdaptiveFontColorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(14);
     });
   }
 
   QueryBuilder<AppSettings, (R, String), QAfterProperty>
-      repositoryTypeProperty() {
+      repositoryUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(15);
     });
   }
 
-  QueryBuilder<AppSettings, (R, String), QAfterProperty> indexBranchProperty() {
+  QueryBuilder<AppSettings, (R, String), QAfterProperty>
+      repositoryTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(16);
+    });
+  }
+
+  QueryBuilder<AppSettings, (R, String), QAfterProperty> indexBranchProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addProperty(17);
     });
   }
 
   QueryBuilder<AppSettings, (R, String), QAfterProperty>
       scriptsBranchProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(17);
+      return query.addProperty(18);
     });
   }
 
   QueryBuilder<AppSettings, (R, String), QAfterProperty> tokenKeyProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(18);
+      return query.addProperty(19);
     });
   }
 
   QueryBuilder<AppSettings, (R, String), QAfterProperty> tokenValueProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(19);
+      return query.addProperty(20);
     });
   }
 
   QueryBuilder<AppSettings, (R, bool), QAfterProperty>
       repositoryImportEnabledProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(20);
+      return query.addProperty(21);
     });
   }
 
   QueryBuilder<AppSettings, (R, bool), QAfterProperty> isValidProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(21);
+      return query.addProperty(22);
     });
   }
 }
@@ -4012,57 +4100,64 @@ extension AppSettingsQueryProperty3<R1, R2>
     });
   }
 
-  QueryBuilder<AppSettings, (R1, R2, String), QOperations>
-      repositoryUrlProperty() {
+  QueryBuilder<AppSettings, (R1, R2, bool), QOperations>
+      disableAdaptiveFontColorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(14);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, String), QOperations>
-      repositoryTypeProperty() {
+      repositoryUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(15);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, String), QOperations>
-      indexBranchProperty() {
+      repositoryTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(16);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, String), QOperations>
-      scriptsBranchProperty() {
+      indexBranchProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(17);
     });
   }
 
-  QueryBuilder<AppSettings, (R1, R2, String), QOperations> tokenKeyProperty() {
+  QueryBuilder<AppSettings, (R1, R2, String), QOperations>
+      scriptsBranchProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(18);
+    });
+  }
+
+  QueryBuilder<AppSettings, (R1, R2, String), QOperations> tokenKeyProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addProperty(19);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, String), QOperations>
       tokenValueProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(19);
+      return query.addProperty(20);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, bool), QOperations>
       repositoryImportEnabledProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(20);
+      return query.addProperty(21);
     });
   }
 
   QueryBuilder<AppSettings, (R1, R2, bool), QOperations> isValidProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addProperty(21);
+      return query.addProperty(22);
     });
   }
 }

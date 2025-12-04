@@ -163,11 +163,7 @@ class AIConfigService {
     if (!config.isValid) {
       return false;
     }
-    try {
-      return true;
-    } catch (e) {
-      return false;
-    }
+    return true;
   }
 
   /// 获取配置状态

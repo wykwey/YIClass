@@ -49,6 +49,9 @@ class ColorUtils {
     return courseColors[index];
   }
 
+  /// 默认固定字体颜色（关闭自适应时使用）
+  static const Color defaultTextColor = Color(0xFF333333);
+
   static Color getContrastColor(Color bgColor) {
     // 先尝试从预设颜色中匹配
     final colorName = courseColorMap.keys.firstWhere(
@@ -61,5 +64,15 @@ class ColorUtils {
 
     // 不是预设颜色则使用默认文本颜色（深色，确保在浅色背景上可读）
     return textColors.first;
+  }
+
+  /// 获取课程卡片字体颜色
+  /// - [bgColor]: 背景色
+  /// - [disableAdaptive]: 是否关闭自适应颜色
+  static Color getCourseTextColor(Color bgColor, {bool disableAdaptive = false}) {
+    if (disableAdaptive) {
+      return defaultTextColor;
+    }
+    return getContrastColor(bgColor);
   }
 }

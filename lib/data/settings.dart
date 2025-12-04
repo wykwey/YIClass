@@ -32,6 +32,9 @@ class AppSettings {
   // 高级功能开关
   late bool advancedFeaturesEnabled; // 是否启用高级功能
 
+  // 主题设置
+  late bool disableAdaptiveFontColor; // 关闭课程字体自适应颜色
+
   // 仓库配置（教务导入）
   late String repositoryUrl; // 仓库URL
   late String repositoryType; // 仓库类型：'official', 'custom', 'private'
@@ -57,6 +60,7 @@ class AppSettings {
     this.aiVisionModel = 'gpt-4-vision-preview',
     this.aiTextModel = 'gpt-4',
     this.advancedFeaturesEnabled = false,
+    this.disableAdaptiveFontColor = false,
     this.repositoryUrl = '',
     this.repositoryType = 'official',
     this.indexBranch = 'index-data',
@@ -83,6 +87,7 @@ class AppSettings {
       aiVisionModel: json['aiVisionModel']?.toString() ?? 'gpt-4-vision-preview',
       aiTextModel: json['aiTextModel']?.toString() ?? 'gpt-4',
       advancedFeaturesEnabled: json['advancedFeaturesEnabled'] ?? false,
+      disableAdaptiveFontColor: json['disableAdaptiveFontColor'] ?? false,
       repositoryUrl: json['repositoryUrl']?.toString() ?? '',
       repositoryType: json['repositoryType']?.toString() ?? 'official',
       indexBranch: json['indexBranch']?.toString() ?? 'index-data',
@@ -108,6 +113,7 @@ class AppSettings {
         'aiVisionModel': aiVisionModel,
         'aiTextModel': aiTextModel,
         'advancedFeaturesEnabled': advancedFeaturesEnabled,
+        'disableAdaptiveFontColor': disableAdaptiveFontColor,
         'repositoryUrl': repositoryUrl,
         'repositoryType': repositoryType,
         'indexBranch': indexBranch,
@@ -133,6 +139,7 @@ class AppSettings {
     String? aiVisionModel,
     String? aiTextModel,
     bool? advancedFeaturesEnabled,
+    bool? disableAdaptiveFontColor,
     String? repositoryUrl,
     String? repositoryType,
     String? indexBranch,
@@ -156,6 +163,7 @@ class AppSettings {
       aiVisionModel: aiVisionModel ?? this.aiVisionModel,
       aiTextModel: aiTextModel ?? this.aiTextModel,
       advancedFeaturesEnabled: advancedFeaturesEnabled ?? this.advancedFeaturesEnabled,
+      disableAdaptiveFontColor: disableAdaptiveFontColor ?? this.disableAdaptiveFontColor,
       repositoryUrl: repositoryUrl ?? this.repositoryUrl,
       repositoryType: repositoryType ?? this.repositoryType,
       indexBranch: indexBranch ?? this.indexBranch,
@@ -183,6 +191,7 @@ class AppSettings {
       aiVisionModel: 'gpt-4-vision-preview',
       aiTextModel: 'gpt-4',
       advancedFeaturesEnabled: false,
+      disableAdaptiveFontColor: false,
       repositoryUrl: '',
       repositoryType: 'official',
       indexBranch: 'index-data',

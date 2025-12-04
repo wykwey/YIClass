@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../data/course.dart';
 import '../../utils/color_utils.dart';
+import '../../services/settings_service.dart';
 
-class CourseCard extends StatelessWidget {
+class CourseCard extends StatefulWidget {
   final Course course;
   final bool showWeekend;
   final VoidCallback onTap;
@@ -17,16 +18,39 @@ class CourseCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    // 课程总是有内容，不再需要isEmpty检查
+  State<CourseCard> createState() => _CourseCardState();
+}
 
-    final baseColor = course.color != 0
-        ? Color(course.color)
-        : ColorUtils.getCourseColor(course.name);
-    final textColor = ColorUtils.getContrastColor(baseColor);
+class _CourseCardState extends State<CourseCard> {
+  bool _disableAdaptiveFontColor = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final settings = await SettingsService.instance.loadSettings();
+    if (mounted) {
+      setState(() {
+        _disableAdaptiveFontColor = settings.disableAdaptiveFontColor;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor = widget.course.color != 0
+        ? Color(widget.course.color)
+        : ColorUtils.getCourseColor(widget.course.name);
+    final textColor = ColorUtils.getCourseTextColor(
+      baseColor,
+      disableAdaptive: _disableAdaptiveFontColor,
+    );
 
     return InkWell(
-      onTap: onTap,
+      onTap: widget.onTap,
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       hoverColor: Colors.transparent,
@@ -50,7 +74,7 @@ class CourseCard extends StatelessWidget {
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    final small = constraints.maxWidth < (showWeekend ? 80 : 100);
+                    final small = constraints.maxWidth < (widget.showWeekend ? 80 : 100);
 
                     final nameStyle = TextStyle(
                       fontSize: small ? 12 : 14,
@@ -71,21 +95,21 @@ class CourseCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  course.name,
+                                  widget.course.name,
                                   style: nameStyle,
                                   textAlign: TextAlign.left,
                                   softWrap: true,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  course.teacher,
+                                  widget.course.teacher,
                                   style: subStyle,
                                   textAlign: TextAlign.left,
                                   softWrap: true,
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  course.location.isNotEmpty ? '@${course.location}' : '',
+                                  widget.course.location.isNotEmpty ? '@${widget.course.location}' : '',
                                   style: subStyle,
                                   textAlign: TextAlign.left,
                                   softWrap: true,
@@ -94,7 +118,7 @@ class CourseCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (hasConflict) ...[
+                        if (widget.hasConflict) ...[
                           const SizedBox(height: 4),
                           Text(
                             '冲突',

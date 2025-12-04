@@ -4,6 +4,7 @@ import '../data/course_schedule.dart';
 import '../data/class_time.dart';
 import '../components/feedback/system_notifications.dart';
 import '../utils/get_weekday.dart';
+import '../utils/safe_call.dart';
 import 'timetable/query_service.dart';
 
 /// 课程提醒服务
@@ -124,12 +125,10 @@ class CourseReminderService {
     final firstPeriod = schedule.periods.first;
 
     // 查找对应的上课时间配置
-    ClassTime? classTime;
-    try {
-      classTime = classTimes.firstWhere((ct) => ct.period == firstPeriod);
-    } catch (_) {
-      return null; // 未找到对应节次
-    }
+    final classTime = SafeCall.sync<ClassTime?>(
+      () => classTimes.firstWhere((ct) => ct.period == firstPeriod),
+    );
+    if (classTime == null) return null; // 未找到对应节次
 
     // 解析时间字符串 "HH:mm"
     final timeParts = classTime.startTime.split(':');

@@ -21,7 +21,6 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
   final _tokenValueController = TextEditingController();
   
   String _repositoryType = 'official'; // 'official', 'mirror', 'custom', 'private'
-  bool _enableImport = false;
   bool _isLoading = false;
   bool _isSaving = false;
   bool _isDownloading = false;
@@ -55,7 +54,6 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
       _tokenKeyController.text = config.tokenKey;
       _tokenValueController.text = config.tokenValue;
       _repositoryType = config.repositoryType;
-      _enableImport = config.enabled;
     } catch (e) {
       if (mounted) {
         Notifications.sonner(context, message: '加载配置失败: $e');
@@ -81,7 +79,7 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
               : _scriptsBranchController.text.trim()),
       tokenKey: _tokenKeyController.text.trim(),
       tokenValue: _tokenValueController.text.trim(),
-      enabled: _enableImport,
+      enabled: true,
     );
 
     if (!config.isValid) {
@@ -124,7 +122,7 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
               : _scriptsBranchController.text.trim()),
       tokenKey: _tokenKeyController.text.trim(),
       tokenValue: _tokenValueController.text.trim(),
-      enabled: _enableImport,
+      enabled: true,
     );
 
     if (!config.isValid) {
@@ -171,7 +169,7 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
               : _scriptsBranchController.text.trim()),
       tokenKey: _tokenKeyController.text.trim(),
       tokenValue: _tokenValueController.text.trim(),
-      enabled: _enableImport,
+      enabled: true,
     );
 
     if (!config.isValid) {
@@ -263,22 +261,6 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
                         hintText: '输入Token Value',
                       ),
                     ],
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-
-                // 功能开关
-                SettingsBlock(
-                  title: '功能开关',
-                  children: [
-                    SettingsItem.switch_(
-                      title: '启用教务导入',
-                      description: '启用教务系统数据导入功能',
-                      value: _enableImport,
-                      onChanged: (value) => setState(() => _enableImport = value),
-                      inBlock: true,
-                    ),
                   ],
                 ),
 
