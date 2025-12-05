@@ -8,6 +8,7 @@ import '../../services/file_service.dart';
 import '../../states/timetable_state.dart';
 import '../../components/feedback/notifications.dart';
 import '../../components/layout/appbar.dart';
+import '../../components/inputs/components.dart';
 
 /// 教务系统脚本导入页
 class EduImportPage extends StatefulWidget {
@@ -129,12 +130,13 @@ class _EduImportPageState extends State<EduImportPage> {
                     ),
                   ),
                 )
-              : YicoreAppBarAction(icon: Icons.download, onPressed: _runScript),
-          YicoreAppBarAction(
+              : YicoreIconButton(icon: Icons.download, onPressed: _runScript, showBorder: false),
+          YicoreIconButton(
             icon: _isDesktopMode ? Icons.phone_android : Icons.computer,
             onPressed: _toggleUA,
+            showBorder: false,
           ),
-          YicoreAppBarAction(icon: Icons.refresh, onPressed: () => _controller.reload()),
+          YicoreIconButton(icon: Icons.refresh, onPressed: () => _controller.reload(), showBorder: false),
         ],
       ),
       body: WebViewWidget(controller: _controller),

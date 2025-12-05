@@ -1,7 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
+import 'package:isar_plus/isar_plus.dart';
 import 'states/timetable_state.dart';
 import 'states/view_state.dart';
 import 'states/week_state.dart';
@@ -10,97 +10,58 @@ import 'services/timetable/timetable_service.dart';
 import 'services/timetable/course_service.dart';
 import 'services/settings_service.dart';
 import 'services/course_reminder_service.dart';
-import 'package:isar_plus/isar_plus.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_names.dart';
 
-/// 自定义 ScrollBehavior 完全禁用滚动条
-class NoScrollbarBehavior extends MaterialScrollBehavior {
-  const NoScrollbarBehavior();
-
-  @override
-  Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
-    // 返回原始的 child，不包装 Scrollbar
-    return child;
-  }
-}
-
 /// 应用入口函数
-/// 初始化应用
-/// 初始化Isar数据库
-/// 使用MultiProvider注册多个状态管理类
-/// 启动应用
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) await Isar.initialize();
 
-  // Web平台特殊初始化
-  if (kIsWeb) {
-    await Isar.initialize();
-  }
-
-  // 创建状态实例
   final timetableState = TimetableState();
-  final weekState = WeekState();
-  final viewState = ViewState();
 
-  // 使用MultiProvider注册多个状态管理类
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: timetableState),
-        ChangeNotifierProvider.value(value: weekState),
-        ChangeNotifierProvider.value(value: viewState),
+        ChangeNotifierProvider(create: (_) => WeekState()),
+        ChangeNotifierProvider(create: (_) => ViewState()),
       ],
       child: const MyApp(),
     ),
   );
 
-  // 延迟初始化数据库和服务，避免阻塞首屏渲染
-  Future.microtask(() async {
-    // 初始化数据库
-    final dbService = DatabaseService.instance;
-    await dbService.initialize();
-    final isar = dbService.isar;
+  Future.microtask(() => _initializeServices(timetableState));
+}
 
-    // 初始化服务
-    await TimetableService.instance.init(isar);
-    await CourseService.instance.init(isar);
-    await SettingsService.instance.init(isar);
+/// 初始化服务
+Future<void> _initializeServices(TimetableState timetableState) async {
+  final dbService = DatabaseService.instance;
+  await dbService.initialize();
+  final isar = dbService.isar;
 
-    // 加载课表数据
-    await timetableState.init(isar);
+  await Future.wait([
+    TimetableService.instance.init(isar),
+    CourseService.instance.init(isar),
+    SettingsService.instance.init(isar),
+  ]);
 
-    // 初始化课程提醒（如果提醒已启用）
-    _initializeCourseReminders(timetableState);
-  });
+  await timetableState.init(isar);
+  _initializeCourseReminders(timetableState);
 }
 
 /// 初始化课程提醒
-/// 
-/// 检查提醒设置，如果需要则设置今日的提醒
 Future<void> _initializeCourseReminders(TimetableState timetableState) async {
-  try {
-    // 检查提醒是否启用
-    final settings = await SettingsService.instance.loadSettings();
-    if (!settings.courseReminder) return;
+  final settings = await SettingsService.instance.loadSettings();
+  if (!settings.courseReminder) return;
 
-    // 获取当前课表
-    final currentTimetable = timetableState.current;
-    if (currentTimetable == null) return;
+  final currentTimetable = timetableState.current;
+  if (currentTimetable == null) return;
 
-    // 设置今日的课程提醒
-    await CourseReminderService.instance.scheduleTodayReminders(currentTimetable);
-  } catch (e) {
-    if (kDebugMode) {
-      print('初始化课程提醒失败: $e');
-    }
-  }
+  await CourseReminderService.instance.scheduleTodayReminders(currentTimetable);
 }
 
 /// 应用根组件
-/// - 本地化支持(中文)
-/// - 路由导航设置
-/// 使用MaterialApp作为基础框架，集成所有子组件
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -108,19 +69,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // 配置路由生成器
       onGenerateRoute: AppRoutes.generateRoute,
       initialRoute: RouteNames.home,
-      theme: ThemeData(
-        fontFamily: 'PingFang',
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
-        useMaterial3: true,
-        // 全局禁用波纹效果
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-      ),
-      // 完全禁用滚动条
-      scrollBehavior: const NoScrollbarBehavior(),
+      theme: ThemeData(useMaterial3: true),
     );
   }
 }

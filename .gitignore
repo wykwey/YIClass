@@ -32,6 +32,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+**/build/
 
 # Symbolication related
 app.*.symbols
@@ -67,7 +68,7 @@ coverage/
 # Gradle
 .gradle/
 gradle-wrapper.jar
-gradle.properties
+
 local.properties
 
 # Android

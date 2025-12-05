@@ -1,7 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 网络权限 -->
     <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- 存储权限 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
+    <!-- 通知权限 (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <!-- 允许设置闹钟和提醒 (Android 12+) -->
+    <uses-permission android:name="android.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    
+    <!-- 振动权限 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    
     <application
         android:label="YiClass"
         android:name="${applicationName}"

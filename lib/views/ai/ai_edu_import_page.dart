@@ -6,7 +6,7 @@ import '../../services/ai/ai_service.dart';
 import '../../services/file_service.dart';
 import '../../states/timetable_state.dart';
 import '../../components/feedback/notifications.dart';
-import '../../components/layout/appbar.dart';
+import '../../components/inputs/components.dart';
 
 /// AI 教务导入页
 class AiEduImportPage extends StatefulWidget {
@@ -180,12 +180,13 @@ class _AiEduImportPageState extends State<AiEduImportPage> {
                   padding: EdgeInsets.all(16),
                   child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
                 )
-              : YicoreAppBarAction(icon: Icons.download, onPressed: _analyze),
-          YicoreAppBarAction(
+              : YicoreIconButton(icon: Icons.download, onPressed: _analyze, showBorder: false),
+          YicoreIconButton(
             icon: _isDesktopMode ? Icons.phone_android : Icons.computer,
             onPressed: _toggleUA,
+            showBorder: false,
           ),
-          YicoreAppBarAction(icon: Icons.refresh, onPressed: () => _controller.reload()),
+          YicoreIconButton(icon: Icons.refresh, onPressed: () => _controller.reload(), showBorder: false),
         ],
       ),
       body: _currentUrl == 'about:blank' || _currentUrl.isEmpty

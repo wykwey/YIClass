@@ -35,6 +35,11 @@ android {
         jvmTarget = "21"
     }
 
+    lintOptions {
+        disable 'InvalidPackage'
+        checkReleaseBuilds false
+    }
+
     signingConfigs {
         release {
             if (keystorePropertiesFile.exists()) {

@@ -142,13 +142,15 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
               ),
             )
           else ...[
-            YicoreAppBarAction(
+            YicoreIconButton(
               icon: Icons.download,
               onPressed: _downloadAllScripts,
+              showBorder: false,
             ),
-            YicoreAppBarAction(
+            YicoreIconButton(
               icon: Icons.refresh,
               onPressed: _checkScriptsExist,
+              showBorder: false,
             ),
           ],
         ],

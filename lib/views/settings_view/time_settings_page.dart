@@ -246,9 +246,10 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
         centerTitle: true,
         onBackPressed: () => Navigator.pop(context),
         actions: [
-          YicoreAppBarAction(
-            icon: Icons.check,
+          YicoreIconButton(
+            icon: Icons.save,
             onPressed: _saveSettings,
+            showBorder: false,
           ),
         ],
       ),

@@ -217,14 +217,16 @@ class _CourseEditPageState extends State<CourseEditPage> {
         centerTitle: true,
         actions: [
           if (widget.course.name.isNotEmpty && _nameController.text.trim().isNotEmpty)
-            YicoreAppBarAction(
+            YicoreIconButton(
               icon: Icons.delete_outline,
               iconColor: Colors.red,
               onPressed: _confirmDeleteCourse,
+              showBorder: false,
             ),
-          YicoreAppBarAction(
+          YicoreIconButton(
             icon: Icons.save,
             onPressed: _saveCourse,
+            showBorder: false,
           ),
         ],
       ),
