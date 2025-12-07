@@ -17,6 +17,7 @@ import '../views/settings_view/course_reminder_page.dart';
 import '../views/settings_view/advanced_features_page.dart';
 import '../views/settings_view/theme_settings_page.dart';
 import '../views/settings_view/about_page.dart';
+import '../views/settings_view/help_page.dart';
 import '../data/course.dart';
 import '../data/school_index.dart';
 import '../states/view_state.dart';
@@ -116,6 +117,13 @@ class AppRoutes {
       case RouteNames.about:
         return MaterialPageRoute(
           builder: (_) => const AboutPage(),
+          settings: settings,
+        );
+
+      // 使用帮助页面
+      case RouteNames.help:
+        return MaterialPageRoute(
+          builder: (_) => const HelpPage(),
           settings: settings,
         );
 

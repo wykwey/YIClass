@@ -464,7 +464,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     return SettingsItem.value(
       title: '关于应用',
       description: '版本信息和应用详情',
-      value: 'v2.0.1',
+      value: 'v2.3.5',
       showArrow: true,
       onTap: () {
         RouteUtils.pushAbout(context);
@@ -479,7 +479,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
       description: '常见问题和使用指南',
       showArrow: true,
       onTap: () {
-        _showComingSoonDialog('使用帮助功能');
+        RouteUtils.pushHelp(context);
       },
     );
   }

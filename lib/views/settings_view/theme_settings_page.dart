@@ -120,7 +120,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check, size: 20, color: Colors.blue),
+              const Icon(Icons.check, size: 20, color: Colors.black26),
           ],
         ),
       ),
