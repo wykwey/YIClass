@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../states/timetable_state.dart';
 import '../../states/view_state.dart';
@@ -89,6 +90,11 @@ class YicoreAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
     final bgColor = backgroundColor ?? Colors.white;
+    
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ));
 
     return Container(
       height: statusBarHeight + preferredSize.height,
@@ -162,9 +168,9 @@ class WeekSelector extends StatelessWidget {
         Text(
           '第${weekState.week}周',
           style: const TextStyle(
-            fontSize: 16,
-            color: Colors.black87,
-            fontWeight: FontWeight.w500,
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
           ),
         ),
         YicoreIconButton(
