@@ -4,6 +4,7 @@ import '../../services/repository/script_file_service.dart';
 import '../../services/repository/repository_config_service.dart';
 import '../../services/repository/repository_download_service.dart';
 import '../../components/feedback/notifications.dart';
+import '../../components/feedback/dialogs.dart';
 import '../../components/layout/appbar.dart';
 import '../../components/layout/cards.dart';
 import '../../components/inputs/components.dart';
@@ -24,7 +25,7 @@ class ScriptSelectPage extends StatefulWidget {
 
 class _ScriptSelectPageState extends State<ScriptSelectPage> {
   Map<String, bool> _scriptExistsMap = {};
-  bool _isChecking = true;
+  bool _isChecking = false;
   bool _isDownloading = false;
 
   @override
@@ -35,6 +36,7 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
 
   /// 批量检查脚本文件是否存在
   Future<void> _checkScriptsExist() async {
+    if (_isChecking) return;
     setState(() => _isChecking = true);
     
     final scriptNames = widget.school.scripts
@@ -53,6 +55,15 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
 
   /// 下载当前学校的所有脚本
   Future<void> _downloadAllScripts() async {
+    if (_isDownloading) return;
+    
+    YicoreAlert.show(
+      context,
+      title: '下载脚本',
+      message: '正在下载脚本文件...',
+      barrierDismissible: false,
+    );
+    
     setState(() => _isDownloading = true);
 
     try {
@@ -73,9 +84,9 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
       );
 
       if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
         if (successCount > 0) {
           Notifications.sonner(context, message: '成功下载 $successCount/${scriptNames.length} 个脚本');
-          // 重新检查脚本文件状态
           await _checkScriptsExist();
         } else {
           Notifications.sonner(context, message: '下载失败，请检查网络连接或仓库配置');
@@ -83,6 +94,7 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
       }
     } catch (e) {
       if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
         Notifications.sonner(context, message: '下载失败: $e');
       }
     } finally {
@@ -132,27 +144,16 @@ class _ScriptSelectPageState extends State<ScriptSelectPage> {
         title: widget.school.school,
         centerTitle: true,
         actions: [
-          if (_isChecking || _isDownloading)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            )
-          else ...[
-            YicoreIconButton(
-              icon: Icons.download,
-              onPressed: _downloadAllScripts,
-              showBorder: false,
-            ),
-            YicoreIconButton(
-              icon: Icons.refresh,
-              onPressed: _checkScriptsExist,
-              showBorder: false,
-            ),
-          ],
+          YicoreIconButton(
+            icon: Icons.download,
+            onPressed: _isDownloading ? null : _downloadAllScripts,
+            showBorder: false,
+          ),
+          YicoreIconButton(
+            icon: Icons.refresh,
+            onPressed: _isChecking ? null : _checkScriptsExist,
+            showBorder: false,
+          ),
         ],
       ),
       body: widget.school.scripts.isEmpty

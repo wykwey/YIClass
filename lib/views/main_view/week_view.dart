@@ -15,6 +15,7 @@ import '../../services/timetable/factory_service.dart';
 import '../../services/timetable/query_service.dart';
 import '../../states/timetable_state.dart';
 import '../../states/week_state.dart';
+import '../../utils/get_weekday.dart';
 
 /// 显示当前周的课程表，支持左右滑动切换周次。
 class WeekView extends StatefulWidget {
@@ -30,11 +31,26 @@ class _WeekViewState extends State<WeekView> with AutomaticKeepAliveClientMixin 
 
   PageController? _pageController;  // 周次滑动翻页控制器
   bool _isPageAnimating = false;    // 防止动画重复触发
+  bool _initialWeekSynced = false;  // 仅首次进入时同步当前周
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _pageController ??= PageController(initialPage: context.read<WeekState>().week - 1);
+    final timetable = context.read<TimetableState>().current;
+    final weekState = context.read<WeekState>();
+    int targetWeek = weekState.week;
+
+    // 首次进入，根据学期开始日计算当前周，避免默认回到第1周
+    if (!_initialWeekSynced && timetable != null) {
+      final info = getWeekInfo(DateTime.now(), timetable.settings.startDate, timetable.settings.totalWeeks);
+      targetWeek = (info?['weekIndex'] ?? targetWeek).clamp(1, timetable.settings.totalWeeks);
+      if (targetWeek != weekState.week) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => weekState.setWeek(targetWeek));
+      }
+      _initialWeekSynced = true;
+    }
+
+    _pageController ??= PageController(initialPage: targetWeek - 1);
   }
 
   @override
