@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../data/course.dart';
-import '../../services/timetable/query_service.dart';
-import '../../services/timetable/factory_service.dart';
-import '../../data/data_constants.dart';
-import '../../components/layout/week_header.dart';
+
+import '../../components/inputs/fab.dart';
+import '../../components/layout/course_selector.dart';
 import '../../components/layout/period_label.dart';
 import '../../components/layout/week_course_card.dart';
+import '../../components/layout/week_header.dart';
+import '../../data/class_time.dart';
+import '../../data/course.dart';
+import '../../data/data_constants.dart';
+import '../../data/timetable.dart';
+import '../../routes/route_utils.dart';
+import '../../services/timetable/factory_service.dart';
+import '../../services/timetable/query_service.dart';
 import '../../states/timetable_state.dart';
 import '../../states/week_state.dart';
-import '../../components/inputs/fab.dart';
-import '../../routes/route_utils.dart';
-import '../../data/timetable.dart';
-import '../../data/class_time.dart';
-import '../../components/layout/course_selector.dart';
 
+/// 显示当前周的课程表，支持左右滑动切换周次。
 class WeekView extends StatefulWidget {
   const WeekView({super.key});
 
@@ -26,7 +28,22 @@ class _WeekViewState extends State<WeekView> with AutomaticKeepAliveClientMixin 
   @override
   bool get wantKeepAlive => true;
 
-  // ================= 业务逻辑 =================
+  PageController? _pageController;  // 周次滑动翻页控制器
+  bool _isPageAnimating = false;    // 防止动画重复触发
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _pageController ??= PageController(initialPage: context.read<WeekState>().week - 1);
+  }
+
+  @override
+  void dispose() {
+    _pageController?.dispose();
+    super.dispose();
+  }
+
+  /// 显示课程编辑对话框
   Future<void> _showCourseEditDialog(Course? course, int weekday, int period, int week) async {
     final timetable = context.read<TimetableState>().current;
     if (timetable == null) return;
@@ -34,100 +51,99 @@ class _WeekViewState extends State<WeekView> with AutomaticKeepAliveClientMixin 
     Course? courseToEdit;
 
     if (course == null) {
-      // 空课程，直接创建新课程
-      final schedule = FactoryService.createSchedule(
-        weekday: weekday,
-        periods: [period],
-        weekPattern: [week],
-      );
+      // 空课程：创建新课程
       courseToEdit = FactoryService.createCourse(
-        name: '', // 新建课程名称为空
-        schedules: [schedule], // 颜色使用工厂默认色
+        name: '',
+        schedules: [FactoryService.createSchedule(weekday: weekday, periods: [period], weekPattern: [week])],
       );
     } else {
-      // 非空课程，检查是否有冲突
+      // 非空课程：检查冲突
       final coursesAtTime = QueryService.periodCourses(timetable, week, weekday, period);
-      
       if (coursesAtTime.length > 1) {
-        // 有冲突，显示课程选择器
-        final selectedCourseIndex = await YicoreCourseSelector.show(
+        final selectedIndex = await YicoreCourseSelector.show(
           context,
-          courses: coursesAtTime.asMap().entries.map((entry) => CourseItem(
-            id: entry.key.toString(),
-            name: entry.value.name,
-          )).toList(),
+          courses: coursesAtTime.asMap().entries.map((e) => CourseItem(id: e.key.toString(), name: e.value.name)).toList(),
           currentCourseId: coursesAtTime.indexOf(course).toString(),
           title: '选择要编辑的课程',
         );
-
-        if (selectedCourseIndex == null || !mounted) return;
-
-        // 找到选中的课程
-        final index = int.tryParse(selectedCourseIndex) ?? 0;
-        courseToEdit = coursesAtTime[index];
+        if (selectedIndex == null || !mounted) return;
+        courseToEdit = coursesAtTime[int.tryParse(selectedIndex) ?? 0];
       } else {
-        // 无冲突，直接编辑
         courseToEdit = course;
       }
     }
-    
-    final timetableId = context.read<TimetableState>().current?.id ?? 0;
+
     final result = await RouteUtils.pushCourseEdit(
       context,
       course: courseToEdit,
-      timetableId: timetableId,
+      timetableId: context.read<TimetableState>().current?.id ?? 0,
     );
 
     if (result != null && mounted) {
-      if (result == 'deleted') {
-        // 课程被删除，刷新页面
-        final timetableState = context.read<TimetableState>();
-        await timetableState.reload();
-        setState(() {});
-      } else if (result is Course) {
-        // 课程被编辑，刷新页面
-        final timetableState = context.read<TimetableState>();
-        await timetableState.reload();
-        setState(() {});
-      }
+      await context.read<TimetableState>().reload();
+      setState(() {});
     }
   }
 
+  /// 跳转时间设置页
   Future<void> _handleTimeSettingsTap() async {
     await RouteUtils.pushTimeSettings(context);
     if (mounted) setState(() {});
   }
 
-  // ================= UI构建 =================
+  /// 同步 WeekState 到 PageController
+  void _syncPageController(WeekState weekState) {
+    if (_pageController == null || !_pageController!.hasClients || _isPageAnimating) return;
+    if (_pageController!.page?.round() != weekState.week - 1) {
+      _pageController!.animateToPage(
+        weekState.week - 1,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    super.build(context); // 必须调用以支持 AutomaticKeepAliveClientMixin
-    
+    super.build(context);
+
     final timetableState = context.watch<TimetableState>();
     final weekState = context.watch<WeekState>();
     final timetable = timetableState.current;
     if (timetable == null) return const SizedBox();
 
-    final currentWeek = weekState.week;
+    final totalWeeks = timetable.settings.totalWeeks;
     final showWeekend = timetable.settings.showWeekend;
     final classTimes = timetable.settings.classTimes;
-    final maxPeriods = (timetable.settings.maxPeriods) > 0
-        ? timetable.settings.maxPeriods
-        : DataConstants.defaultMaxPeriods;
-    
-    return WeekViewUI(
-      timetable: timetable,
-      currentWeek: currentWeek,
-      showWeekend: showWeekend,
-      maxPeriods: maxPeriods,
-      classTimes: classTimes,
-      onCourseEdit: (course, weekday, period) => _showCourseEditDialog(course, weekday, period, currentWeek),
-      onTimeSettingsTap: _handleTimeSettingsTap,
+    final maxPeriods = timetable.settings.maxPeriods > 0 ? timetable.settings.maxPeriods : DataConstants.defaultMaxPeriods;
+
+    // AppBar 箭头点击时同步 PageController
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncPageController(weekState));
+
+    return PageView.builder(
+      controller: _pageController,
+      itemCount: totalWeeks,
+      onPageChanged: (index) {
+        _isPageAnimating = false;
+        if (weekState.week != index + 1) weekState.setWeek(index + 1);
+      },
+      itemBuilder: (_, index) {
+        final week = index + 1;
+        return WeekViewUI(
+          timetable: timetable,
+          currentWeek: week,
+          showWeekend: showWeekend,
+          maxPeriods: maxPeriods,
+          classTimes: classTimes,
+          onCourseEdit: (course, weekday, period) => _showCourseEditDialog(course, weekday, period, week),
+          onTimeSettingsTap: _handleTimeSettingsTap,
+        );
+      },
     );
   }
 }
 
-/// 周视图UI组件（V2）
+/// 周视图 UI 组件
 class WeekViewUI extends StatelessWidget {
   final Timetable timetable;
   final int currentWeek;
@@ -136,6 +152,8 @@ class WeekViewUI extends StatelessWidget {
   final List<ClassTime> classTimes;
   final Future<void> Function(Course?, int, int) onCourseEdit;
   final Future<void> Function() onTimeSettingsTap;
+
+  static const double _periodLabelWidth = 40.0;
 
   const WeekViewUI({
     super.key,
@@ -148,19 +166,16 @@ class WeekViewUI extends StatelessWidget {
     required this.onTimeSettingsTap,
   });
 
+  int get _columns => showWeekend ? 7 : 5;
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Column(
           children: [
-            _buildHeaderRow(),
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(color: Colors.white),
-                child: _buildCourseGrid(),
-              ),
-            ),
+            WeekHeader(showWeekend: showWeekend, currentWeek: currentWeek, startDate: timetable.settings.startDate),
+            Expanded(child: Container(color: Colors.white, child: _buildCourseGrid())),
           ],
         ),
         const AddCourseFab(viewIdentifier: 'week'),
@@ -168,137 +183,21 @@ class WeekViewUI extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderRow() {
-    return WeekHeader(
-      showWeekend: showWeekend,
-      currentWeek: currentWeek,
-      startDate: timetable.settings.startDate,
-    );
-  }
-
   Widget _buildCourseGrid() {
     return LayoutBuilder(builder: (context, constraints) {
       final preferredCellHeight = (constraints.maxWidth / 8).clamp(80.0, 120.0);
       final totalHeight = preferredCellHeight * maxPeriods;
-      final cellHeight = totalHeight < constraints.maxHeight
-          ? constraints.maxHeight / maxPeriods
-          : preferredCellHeight;
+      final cellHeight = totalHeight < constraints.maxHeight ? constraints.maxHeight / maxPeriods : preferredCellHeight;
+      final cellWidth = (constraints.maxWidth - _periodLabelWidth) / _columns;
 
       return SingleChildScrollView(
         child: SizedBox(
-          height: cellHeight * maxPeriods,  // 设置总高度
-          child: Stack(  // 使用Stack作为主容器
+          height: cellHeight * maxPeriods,
+          child: Stack(
             children: [
-              // 绘制网格背景
-              Column(
-                children: List.generate(maxPeriods, (periodIndex) {
-                  return Container(
-                    height: cellHeight,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: periodIndex < maxPeriods - 1 ? BorderSide(color: Colors.grey[200]!, width: 1.0) : BorderSide.none,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        _buildPeriodLabel(periodIndex + 1, cellHeight),
-                        Expanded(child: Container()),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-              // 纵向分割线（列）
-              Positioned(
-                left: 40,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                child: LayoutBuilder(
-                  builder: (context, c) {
-                    final columns = (showWeekend ? 7 : 5);
-                    return CustomPaint(
-                      painter: _VerticalGridPainter(
-                        columns: columns,
-                        color: Colors.grey[200]!,
-                        strokeWidth: 1.0,
-                      ),
-                      size: Size(c.maxWidth, c.maxHeight),
-                    );
-                  },
-                ),
-              ),
-
-              // 绘制课程卡片
-              Positioned(
-                left: 40,  // 匹配调整后的PeriodLabel宽度
-                right: 0,
-                top: 0,
-                bottom: 0,
-                child: Stack(
-                  children: [
-                    for (int periodIndex = 0; periodIndex < maxPeriods; periodIndex++)
-                      for (int dayIndex = 0; dayIndex < (showWeekend ? 7 : 5); dayIndex++)
-                        Builder(builder: (context) {
-                          final weekday = dayIndex + 1;
-                          final period = periodIndex + 1;
-
-                          final cellWidth = (constraints.maxWidth - 40) / (showWeekend ? 7 : 5);
-
-                          // 判断当前节次是否有课程
-                          final course = QueryService.periodCourse(timetable, currentWeek, weekday, period);
-                          
-                          if (course == null) {
-                            // 空白格：不渲染空课程卡片，保留可点击添加
-                            return Positioned(
-                              left: dayIndex * cellWidth,
-                              top: periodIndex * cellHeight,
-                              width: cellWidth,
-                              height: cellHeight,
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () => onCourseEdit(null, weekday, period),
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                ),
-                              ),
-                            );
-                          }
-
-                          // 判断是否是连续区块的第一节：如果前一个节次没有课程或不在同一课程中，则是第一节
-                          final isFirstOfBlock = period == 1 || 
-                              QueryService.periodCourse(timetable, currentWeek, weekday, period - 1) != course;
-
-                          if (!isFirstOfBlock) {
-                            // 不是第一节，不渲染（由第一节的卡片覆盖）
-                            return const SizedBox.shrink();
-                          }
-
-                          final consecutiveCount = QueryService.consecutivePeriods(
-                            timetable,
-                            currentWeek,
-                            weekday,
-                            period,
-                          );
-
-                          return Positioned(
-                            left: dayIndex * cellWidth,
-                            top: periodIndex * cellHeight,
-                            width: cellWidth,
-                            height: cellHeight * (consecutiveCount > 0 ? consecutiveCount : 1),
-                            child: _buildCourseCell(
-                              course,
-                              weekday,
-                              period,
-                              course,
-                            ),
-                          );
-                        }),
-                  ],
-                ),
-              ),
+              _buildGridBackground(cellHeight),
+              _buildVerticalLines(),
+              _buildCourseCards(cellWidth, cellHeight),
             ],
           ),
         ),
@@ -306,66 +205,117 @@ class WeekViewUI extends StatelessWidget {
     });
   }
 
-  // 已移除空课程占位渲染
+  /// 网格背景（横线 + 节次标签）
+  Widget _buildGridBackground(double cellHeight) {
+    return Column(
+      children: List.generate(maxPeriods, (i) {
+        return Container(
+          height: cellHeight,
+          decoration: BoxDecoration(
+            border: Border(bottom: i < maxPeriods - 1 ? BorderSide(color: Colors.grey[200]!) : BorderSide.none),
+          ),
+          child: Row(children: [_buildPeriodLabel(i + 1, cellHeight), const Expanded(child: SizedBox())]),
+        );
+      }),
+    );
+  }
+
+  /// 纵向分割线
+  Widget _buildVerticalLines() {
+    return Positioned(
+      left: _periodLabelWidth,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      child: CustomPaint(painter: _VerticalGridPainter(columns: _columns, color: Colors.grey[200]!)),
+    );
+  }
+
+  /// 课程卡片层
+  Widget _buildCourseCards(double cellWidth, double cellHeight) {
+    return Positioned(
+      left: _periodLabelWidth,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      child: Stack(
+        children: [
+          for (int p = 0; p < maxPeriods; p++)
+            for (int d = 0; d < _columns; d++) _buildCell(d, p, cellWidth, cellHeight),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCell(int dayIndex, int periodIndex, double cellWidth, double cellHeight) {
+    final weekday = dayIndex + 1;
+    final period = periodIndex + 1;
+    final course = QueryService.periodCourse(timetable, currentWeek, weekday, period);
+
+    // 空白格
+    if (course == null) {
+      return Positioned(
+        left: dayIndex * cellWidth,
+        top: periodIndex * cellHeight,
+        width: cellWidth,
+        height: cellHeight,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(onTap: () => onCourseEdit(null, weekday, period), splashColor: Colors.transparent),
+        ),
+      );
+    }
+
+    // 连续课程只渲染第一节
+    final isFirst = period == 1 || QueryService.periodCourse(timetable, currentWeek, weekday, period - 1) != course;
+    if (!isFirst) return const SizedBox.shrink();
+
+    final span = QueryService.consecutivePeriods(timetable, currentWeek, weekday, period);
+    final hasConflict = QueryService.periodCourses(timetable, currentWeek, weekday, period).length > 1;
+
+    return Positioned(
+      left: dayIndex * cellWidth,
+      top: periodIndex * cellHeight,
+      width: cellWidth,
+      height: cellHeight * (span > 0 ? span : 1),
+      child: CourseCard(
+        course: course,
+        showWeekend: showWeekend,
+        onTap: () => onCourseEdit(course, weekday, period),
+        hasConflict: hasConflict,
+      ),
+    );
+  }
 
   Widget _buildPeriodLabel(int period, double cellHeight) {
-    final classTime = classTimes.firstWhere(
-      (ct) => ct.period == period,
+    final ct = classTimes.firstWhere(
+      (c) => c.period == period,
       orElse: () => ClassTime()
         ..period = period
         ..startTime = DataConstants.defaultPeriodTimes[period.toString()]?.split('-').first ?? '00:00'
         ..endTime = DataConstants.defaultPeriodTimes[period.toString()]?.split('-').last ?? '00:00',
     );
-    final timeText = '${classTime.startTime}-${classTime.endTime}';
-    
-    return PeriodLabel(
-      period: period,
-      timeText: timeText,
-      onTap: onTimeSettingsTap,
-      height: cellHeight,
-    );
-  }
-
-  Widget _buildCourseCell(Course course, int weekday, int period, Course? originalCourse) {
-    final isEmpty = course.name.isEmpty;
-    final hasConflict = QueryService.periodCourses(timetable, currentWeek, weekday, period).length > 1;
-    return CourseCard(
-      course: course,
-      showWeekend: showWeekend,
-      onTap: () => onCourseEdit(isEmpty ? null : (originalCourse ?? course), weekday, period),
-      hasConflict: hasConflict,
-    );
+    return PeriodLabel(period: period, timeText: '${ct.startTime}-${ct.endTime}', onTap: onTimeSettingsTap, height: cellHeight);
   }
 }
 
+/// 纵向网格线绘制器
 class _VerticalGridPainter extends CustomPainter {
   final int columns;
   final Color color;
-  final double strokeWidth;
 
-  _VerticalGridPainter({
-    required this.columns,
-    required this.color,
-    this.strokeWidth = 1.0,
-  });
+  _VerticalGridPainter({required this.columns, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
     if (columns <= 0) return;
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth;
-    final colWidth = size.width / columns;
+    final paint = Paint()..color = color;
+    final w = size.width / columns;
     for (int i = 1; i < columns; i++) {
-      final x = i * colWidth;
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+      canvas.drawLine(Offset(i * w, 0), Offset(i * w, size.height), paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _VerticalGridPainter oldDelegate) {
-    return oldDelegate.columns != columns ||
-        oldDelegate.color != color ||
-        oldDelegate.strokeWidth != strokeWidth;
-  }
+  bool shouldRepaint(covariant _VerticalGridPainter old) => old.columns != columns || old.color != color;
 }

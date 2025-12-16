@@ -139,7 +139,6 @@ class FileService {
     return t;
   }
 
-  // 不再从 JSON 解析单个 ClassTime
 
   /// 从 Map 构建 Course
   static Course _courseFromMap(Map<String, dynamic> m) {
@@ -150,8 +149,9 @@ class FileService {
       ..color = (() {
         final dynamic colorAny = m['color'];
         if (colorAny is int && colorAny > 0) return colorAny;
-        // 无颜色字段或非法值：从预设颜色中随机选择
-        return ColorUtils.getRandomColor().toARGB32();
+        // 无颜色字段或非法值：从预设颜色中选择（使用课程信息做种子，避免批量导入时同毫秒导致颜色相同）
+        final seed = '${m['name'] ?? ''}|${m['location'] ?? ''}|${m['teacher'] ?? ''}|${m['schedules']?.hashCode ?? ''}|${m.hashCode}';
+        return ColorUtils.getRandomColor(seed).toARGB32();
       })()
       ..schedules = (m['schedules'] as List)
           .map((e) => _scheduleFromMap(Map<String, dynamic>.from(e)))

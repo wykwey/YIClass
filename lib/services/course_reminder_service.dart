@@ -31,7 +31,10 @@ class CourseReminderService {
   /// 4. 为每个课程时间段设置新提醒
   Future<void> scheduleTodayReminders(Timetable timetable) async {
     final now = DateTime.now();
-    
+
+    // 先清理旧提醒：避免今天无课/学期越界时残留上一轮的提醒
+    await SystemNotifications.instance.cancelAll();
+
     // 计算当前周次和星期几
     final weekInfo = getWeekInfo(
       now,
@@ -48,9 +51,6 @@ class CourseReminderService {
     // 获取今日课程
     final todayCourses = QueryService.dayCourses(timetable, weekNumber, weekday);
     if (todayCourses.isEmpty) return;
-
-    // 取消所有旧提醒
-    await SystemNotifications.instance.cancelAll();
 
     // 为每个课程设置提醒
     for (final course in todayCourses) {
@@ -164,8 +164,9 @@ class CourseReminderService {
   ///
   /// 使用时间戳和课程名称哈希组合生成
   int _generateNotificationId(Course course, DateTime courseTime) {
-    final timePart = courseTime.millisecondsSinceEpoch % 1000000;
-    final courseHash = course.name.hashCode.abs() % 1000;
-    return (timePart + courseHash).abs();
+    // 使用课程关键信息 + 开始时间生成 hash，减少同一时刻多门课导致的 ID 冲突
+    final key = '${course.name}|${course.location}|${course.teacher}|${courseTime.millisecondsSinceEpoch}';
+    final h = key.hashCode & 0x7fffffff;
+    return h;
   }
 }

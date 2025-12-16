@@ -21,7 +21,6 @@ class EduImportPage extends StatefulWidget {
 
 class _EduImportPageState extends State<EduImportPage> {
   late final WebViewController _controller;
-  String _pageTitle = '';
   bool _isDesktopMode = false;
   bool _isImporting = false;
 
@@ -43,15 +42,7 @@ class _EduImportPageState extends State<EduImportPage> {
   void _initWebView() {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(NavigationDelegate(
-        onPageStarted: (_) => setState(() => _pageTitle = '加载中...'),
-        onPageFinished: (_) async {
-          final title = await _controller.getTitle();
-          if (title != null && title.isNotEmpty && mounted) {
-            setState(() => _pageTitle = title);
-          }
-        },
-      ))
+      ..setNavigationDelegate(NavigationDelegate())
       ..addJavaScriptChannel('YiClassChannel', onMessageReceived: (msg) => _handleData(msg.message))
       ..loadRequest(Uri.parse(_normalizeUrl(widget.script.url)));
   }
@@ -115,7 +106,7 @@ class _EduImportPageState extends State<EduImportPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       appBar: YicoreAppBar(
-        title: _pageTitle.isEmpty ? widget.script.name : _pageTitle,
+        title: '教务导入',
         centerTitle: true,
         actions: [
           _isImporting

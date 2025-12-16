@@ -23,8 +23,8 @@ class RepositoryConfig {
 
   /// 验证配置是否完整
   bool get isValid {
-    // 官方仓库和镜像仓库始终有效（使用固定URL）
-    if (repositoryType == 'official' || repositoryType == 'mirror') return true;
+    // 官方仓库始终有效（使用固定URL）
+    if (repositoryType == 'official') return true;
     if (repositoryUrl.isEmpty) return false;
     if (repositoryType == 'private') {
       return tokenKey.isNotEmpty && tokenValue.isNotEmpty;
@@ -42,11 +42,8 @@ class RepositoryConfig {
 
 /// 仓库配置服务
 class RepositoryConfigService {
-  /// 官方仓库URL
-  static const String officialRepositoryUrl = 'https://github.com/wykwey/YIScripts';
-
-  /// 官方镜像仓库URL (Gitee)
-  static const String mirrorRepositoryUrl = 'https://gitee.com/ykkzs/YIScripts';
+  /// 官方仓库URL (Gitee)
+  static const String officialRepositoryUrl = 'https://gitee.com/ykkzs/YIScripts';
 
   /// 官方索引分支名称
   static const String officialIndexBranch = 'index-data';
@@ -57,12 +54,10 @@ class RepositoryConfigService {
       final settingsService = SettingsService.instance;
       final settings = await settingsService.loadSettings();
       
-      // 如果是官方仓库或镜像仓库，使用固定的URL
+      // 如果是官方仓库，使用固定的URL
       final repositoryUrl = settings.repositoryType == 'official'
           ? officialRepositoryUrl
-          : settings.repositoryType == 'mirror'
-              ? mirrorRepositoryUrl
-              : settings.repositoryUrl;
+          : settings.repositoryUrl;
       
       return RepositoryConfig(
         repositoryUrl: repositoryUrl,
@@ -81,9 +76,9 @@ class RepositoryConfigService {
     try {
       final settingsService = SettingsService.instance;
       
-      // 对于官方仓库和镜像仓库，不保存URL（使用固定值）
-      final repositoryUrl = (config.repositoryType == 'official' || config.repositoryType == 'mirror')
-          ? '' // 官方仓库和镜像仓库不保存URL
+      // 对于官方仓库，不保存URL（使用固定值）
+      final repositoryUrl = config.repositoryType == 'official'
+          ? '' // 官方仓库不保存URL
           : config.repositoryUrl;
       
       await settingsService.updateRepositoryConfig(
