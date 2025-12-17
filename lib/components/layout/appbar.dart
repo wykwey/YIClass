@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../states/timetable_state.dart';
 import '../../states/view_state.dart';
@@ -7,6 +8,10 @@ import '../feedback/timetable_management_dialog.dart';
 import '../inputs/components.dart';
 
 // ================== 通用 AppBar ==================
+
+/// 通用应用栏组件
+/// 
+/// 使用 Stack 布局实现标题真正居中，支持返回按钮和操作按钮。
 class YicoreAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final Widget? titleWidget;
@@ -29,12 +34,23 @@ class YicoreAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
   });
 
-  static const double _defaultHeight = 44;
+  /// AppBar 高度
+  static const double _height = 44;
+  
+  /// 水平内边距
+  static const double _horizontalPadding = 16;
+  
+  /// 返回按钮宽度
+  static const double _backButtonWidth = 36;
+  
+  /// 操作按钮间距
+  static const double _actionSpacing = 8;
 
   @override
-  Size get preferredSize => Size.fromHeight(_defaultHeight);
+  Size get preferredSize => const Size.fromHeight(_height);
 
-  Widget _buildTitle() {
+  /// 构建标题组件
+  Widget _buildTitleWidget() {
     if (titleWidget != null) return titleWidget!;
     if (title != null) {
       return Text(
@@ -46,113 +62,104 @@ class YicoreAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       );
     }
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
+  }
+
+  /// 构建返回按钮
+  Widget _buildBackButton(BuildContext context) {
+    return YicoreIconButton(
+      icon: Icons.arrow_back_ios_new,
+      onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
+      showBorder: false,
+    );
+  }
+
+  /// 构建操作按钮组
+  Widget _buildActions() {
+    if (actions == null || actions!.isEmpty) return const SizedBox.shrink();
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: actions!.map((action) => Padding(
+        padding: const EdgeInsets.only(left: _actionSpacing),
+        child: action,
+      )).toList(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
     final bgColor = backgroundColor ?? Colors.white;
+    
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ));
 
     return Container(
       height: statusBarHeight + preferredSize.height,
-      padding: EdgeInsets.fromLTRB(16, statusBarHeight, 16, 0),
+      padding: EdgeInsets.only(top: statusBarHeight),
       color: bgColor,
-      child: Row(
-        children: [
-          if (showBackButton) ...[
-            GestureDetector(
-              onTap: onBackPressed ?? () => Navigator.of(context).pop(),
-              child: const Icon(Icons.arrow_back_ios_new, size: 18, color: Colors.black),
-            ),
-            const SizedBox(width: 12),
+      child: SizedBox(
+        height: _height,
+        child: Stack(
+          children: [
+            // 标题：centerTitle=true 时使用 Center，否则使用 Positioned
+            if (centerTitle)
+              Center(child: _buildTitleWidget())
+            else
+              Positioned(
+                left: showBackButton 
+                    ? _horizontalPadding + _backButtonWidth + _actionSpacing 
+                    : _horizontalPadding,
+                top: 0,
+                bottom: 0,
+                child: Center(child: _buildTitleWidget()),
+              ),
+            
+            // 返回按钮：固定在左侧
+            if (showBackButton)
+              Positioned(
+                left: _horizontalPadding,
+                top: 0,
+                bottom: 0,
+                child: Center(child: _buildBackButton(context)),
+              ),
+            
+            // 操作按钮：固定在右侧
+            if (actions != null && actions!.isNotEmpty)
+              Positioned(
+                right: _horizontalPadding,
+                top: 0,
+                bottom: 0,
+                child: Center(child: _buildActions()),
+              ),
           ],
-          Expanded(
-            child: centerTitle ? Center(child: _buildTitle()) : _buildTitle(),
-          ),
-          if (actions != null && actions!.isNotEmpty)
-            ...actions!.map((action) => Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: action,
-            )),
-        ],
+        ),
       ),
     );
   }
 }
 
-// ================== AppBar 操作按钮 ==================
-class YicoreAppBarAction extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onPressed;
-  final Color? iconColor;
+// ================== 周次选择器 ==================
 
-  const YicoreAppBarAction({
-    required this.icon,
-    this.onPressed,
-    this.iconColor,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return YicoreIconButton(
-      icon: icon,
-      onPressed: onPressed,
-      iconColor: iconColor,
-      size: 36,
-      showBorder: false,
-    );
-  }
-}
-
-// ================== 课表专用 AppBar (带周次导航) ==================
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CustomAppBar({super.key});
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+/// 周次选择器组件
+/// 
+/// 显示当前周次，支持左右切换周次。
+class WeekSelector extends StatelessWidget {
+  const WeekSelector({super.key});
 
   @override
   Widget build(BuildContext context) {
     final timetableState = context.watch<TimetableState>();
     final weekState = context.watch<WeekState>();
-
-    return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      leading: _buildBackButton(context),
-      centerTitle: true,
-      title: _buildWeekNavigation(context, timetableState, weekState),
-      actions: [_buildTimetableManagementButton(context)],
-    );
-  }
-
-  Widget _buildBackButton(BuildContext context) {
-    return YicoreIconButton(
-      icon: Icons.arrow_back,
-      showBorder: false,
-      onPressed: () {
-        final viewState = Provider.of<ViewState>(context, listen: false);
-        viewState.changeView('周视图');
-      },
-    );
-  }
-
-  Widget _buildWeekNavigation(
-    BuildContext context,
-    TimetableState timetableState,
-    WeekState weekState,
-  ) {
     final totalWeeks = timetableState.current?.settings.totalWeeks ?? 20;
-    
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         YicoreIconButton(
-          icon: Icons.chevron_left,
+          icon: Icons.arrow_back_ios_new,
           showBorder: false,
           onPressed: weekState.week > 1
               ? () => weekState.setWeek(weekState.week - 1)
@@ -161,13 +168,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         Text(
           '第${weekState.week}周',
           style: const TextStyle(
-            fontSize: 16,
-            color: Colors.black87,
-            fontWeight: FontWeight.w500,
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
           ),
         ),
         YicoreIconButton(
-          icon: Icons.chevron_right,
+          icon: Icons.arrow_forward_ios,
           showBorder: false,
           onPressed: weekState.week < totalWeeks
               ? () => weekState.setWeek(weekState.week + 1)
@@ -176,18 +183,35 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ],
     );
   }
+}
 
-  Widget _buildTimetableManagementButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: YicoreIconButton(
+// ================== 课表专用 AppBar (带周次导航) ==================
+
+/// 课表专用应用栏
+/// 
+/// 基于 YicoreAppBar，集成周次选择器和课表管理按钮。
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const CustomAppBar({super.key});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(YicoreAppBar._height);
+
+  @override
+  Widget build(BuildContext context) {
+    return YicoreAppBar(
+      centerTitle: true,
+      onBackPressed: () {
+        final viewState = Provider.of<ViewState>(context, listen: false);
+        viewState.changeView('周视图');
+      },
+      titleWidget: const WeekSelector(),
+      actions: [
+        YicoreIconButton(
           icon: Icons.swap_horiz,
           showBorder: false,
           onPressed: () => TimetableManagementDialog.show(context),
         ),
-      ),
+      ],
     );
   }
 }

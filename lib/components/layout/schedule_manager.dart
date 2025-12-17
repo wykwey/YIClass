@@ -331,13 +331,6 @@ class _ScheduleManagerDialogState extends State<_ScheduleManagerDialog> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
           children: [
-            // 图标
-            Icon(
-              isCurrent ? Icons.check_circle : Icons.calendar_today_outlined,
-              color: isCurrent ? Colors.black : Colors.grey[400],
-              size: 20,
-            ),
-            const SizedBox(width: 12),
             // 名称或输入框
             Expanded(
               child: isEditing

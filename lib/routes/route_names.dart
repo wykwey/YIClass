@@ -17,6 +17,7 @@ class RouteNames {
   static const String advancedFeatures = '/settings/advanced';
   static const String themeSettings = '/settings/theme';
   static const String about = '/settings/about';
+  static const String help = '/settings/help';
   
   // 导入相关
   static const String aiImport = '/import/ai';

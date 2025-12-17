@@ -186,6 +186,8 @@ class SystemNotifications {
       channelDescription: 'YiClass 课表管理应用通知频道',
       importance: Importance.high,
       priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
     );
   }
 

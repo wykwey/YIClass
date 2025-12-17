@@ -7,7 +7,9 @@ import '../../services/repository/script_file_service.dart';
 import '../../services/file_service.dart';
 import '../../states/timetable_state.dart';
 import '../../components/feedback/notifications.dart';
+import '../../components/feedback/dialogs.dart';
 import '../../components/layout/appbar.dart';
+import '../../components/inputs/components.dart';
 
 /// 教务系统脚本导入页
 class EduImportPage extends StatefulWidget {
@@ -20,7 +22,6 @@ class EduImportPage extends StatefulWidget {
 
 class _EduImportPageState extends State<EduImportPage> {
   late final WebViewController _controller;
-  String _pageTitle = '';
   bool _isDesktopMode = false;
   bool _isImporting = false;
 
@@ -42,15 +43,7 @@ class _EduImportPageState extends State<EduImportPage> {
   void _initWebView() {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(NavigationDelegate(
-        onPageStarted: (_) => setState(() => _pageTitle = '加载中...'),
-        onPageFinished: (_) async {
-          final title = await _controller.getTitle();
-          if (title != null && title.isNotEmpty && mounted) {
-            setState(() => _pageTitle = title);
-          }
-        },
-      ))
+      ..setNavigationDelegate(NavigationDelegate())
       ..addJavaScriptChannel('YiClassChannel', onMessageReceived: (msg) => _handleData(msg.message))
       ..loadRequest(Uri.parse(_normalizeUrl(widget.script.url)));
   }
@@ -72,6 +65,7 @@ class _EduImportPageState extends State<EduImportPage> {
       final timetable = FileService.fromMap(data);
       await FileService.save(timetable);
       if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
       await context.read<TimetableState>().reload();
       if (!mounted) return;
       Notifications.sonner(context, message: '导入成功');
@@ -85,10 +79,18 @@ class _EduImportPageState extends State<EduImportPage> {
     if (_isImporting) return;
     setState(() => _isImporting = true);
 
+    YicoreAlert.show(
+      context,
+      title: '教务导入',
+      message: '正在导入课表...',
+      barrierDismissible: false,
+    );
+
     try {
       final content = await ScriptFileService.readScriptContent(widget.script.scriptName);
       if (content == null || content.isEmpty) {
         if (!mounted) return;
+        Navigator.of(context, rootNavigator: true).pop();
         Notifications.sonner(context, message: '脚本不存在');
         setState(() => _isImporting = false);
         return;
@@ -97,6 +99,7 @@ class _EduImportPageState extends State<EduImportPage> {
       await _controller.runJavaScript(content);
     } catch (e) {
       if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
         Notifications.sonner(context, message: '执行失败: $e');
         setState(() => _isImporting = false);
       }
@@ -114,27 +117,16 @@ class _EduImportPageState extends State<EduImportPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       appBar: YicoreAppBar(
-        title: _pageTitle.isEmpty ? widget.script.name : _pageTitle,
+        title: '教务导入',
         centerTitle: true,
         actions: [
-          _isImporting
-              ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: 20, 
-                    height: 20, 
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                    ),
-                  ),
-                )
-              : YicoreAppBarAction(icon: Icons.download, onPressed: _runScript),
-          YicoreAppBarAction(
+          YicoreIconButton(icon: Icons.download, onPressed: _isImporting ? null : _runScript, showBorder: false),
+          YicoreIconButton(
             icon: _isDesktopMode ? Icons.phone_android : Icons.computer,
             onPressed: _toggleUA,
+            showBorder: false,
           ),
-          YicoreAppBarAction(icon: Icons.refresh, onPressed: () => _controller.reload()),
+          YicoreIconButton(icon: Icons.refresh, onPressed: () => _controller.reload(), showBorder: false),
         ],
       ),
       body: WebViewWidget(controller: _controller),

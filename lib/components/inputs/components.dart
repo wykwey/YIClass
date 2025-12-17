@@ -417,7 +417,7 @@ class YicoreIconButton extends StatefulWidget {
   const YicoreIconButton({
     required this.icon,
     this.onPressed,
-    this.size = 40,
+    this.size = 36,
     this.iconColor,
     this.showBorder = true,
     super.key,

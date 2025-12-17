@@ -150,9 +150,10 @@ class _AIConfigPageState extends State<AIConfigPage> {
         title: 'AI导入配置',
         centerTitle: true,
         actions: [
-          YicoreAppBarAction(
+          YicoreIconButton(
             icon: Icons.save,
             onPressed: _isLoading ? null : _saveConfig,
+            showBorder: false,
           ),
         ],
       ),

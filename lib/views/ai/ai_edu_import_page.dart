@@ -6,7 +6,8 @@ import '../../services/ai/ai_service.dart';
 import '../../services/file_service.dart';
 import '../../states/timetable_state.dart';
 import '../../components/feedback/notifications.dart';
-import '../../components/layout/appbar.dart';
+import '../../components/feedback/dialogs.dart';
+import '../../components/inputs/components.dart';
 
 /// AI 教务导入页
 class AiEduImportPage extends StatefulWidget {
@@ -93,38 +94,46 @@ class _AiEduImportPageState extends State<AiEduImportPage> {
   Future<void> _analyze() async {
     if (_isAnalyzing) return;
     setState(() => _isAnalyzing = true);
+    
+    YicoreAlert.show(
+      context,
+      title: 'AI 分析',
+      message: '正在分析页面内容...',
+      barrierDismissible: false,
+    );
 
     try {
       final config = await AIConfigService.getConfig();
       if (!mounted) return;
 
       if (!config.enabled || !config.enableWebImport) {
+        Navigator.of(context, rootNavigator: true).pop();
         Notifications.sonner(context, message: '请先启用 AI 教务导入');
         setState(() => _isAnalyzing = false);
         return;
       }
       if (!config.isValid) {
+        Navigator.of(context, rootNavigator: true).pop();
         Notifications.sonner(context, message: '请先配置 AI 服务');
         setState(() => _isAnalyzing = false);
         return;
       }
 
-      Notifications.sonner(context, message: '正在获取页面...');
       final content = await _getPageContent();
 
       if (!mounted) return;
       if (content.isEmpty) {
+        Navigator.of(context, rootNavigator: true).pop();
         Notifications.sonner(context, message: '页面内容为空');
         setState(() => _isAnalyzing = false);
         return;
       }
-
-      Notifications.sonner(context, message: '正在 AI 分析...');
       final data = await AIService.analyzeTable(content);
       final timetable = FileService.fromMap(data);
       final ok = await FileService.save(timetable);
 
       if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
       if (ok) {
         await context.read<TimetableState>().reload();
         if (!mounted) return;
@@ -136,6 +145,7 @@ class _AiEduImportPageState extends State<AiEduImportPage> {
       }
     } catch (e) {
       if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
         Notifications.sonner(context, message: '分析失败: $e');
         setState(() => _isAnalyzing = false);
       }
@@ -175,17 +185,13 @@ class _AiEduImportPageState extends State<AiEduImportPage> {
           onSubmitted: _loadUrl,
         ),
         actions: [
-          _isAnalyzing
-              ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-                )
-              : YicoreAppBarAction(icon: Icons.download, onPressed: _analyze),
-          YicoreAppBarAction(
+          YicoreIconButton(icon: Icons.download, onPressed: _isAnalyzing ? null : _analyze, showBorder: false),
+          YicoreIconButton(
             icon: _isDesktopMode ? Icons.phone_android : Icons.computer,
             onPressed: _toggleUA,
+            showBorder: false,
           ),
-          YicoreAppBarAction(icon: Icons.refresh, onPressed: () => _controller.reload()),
+          YicoreIconButton(icon: Icons.refresh, onPressed: () => _controller.reload(), showBorder: false),
         ],
       ),
       body: _currentUrl == 'about:blank' || _currentUrl.isEmpty

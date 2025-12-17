@@ -119,9 +119,10 @@ class _SchoolSelectPageState extends State<SchoolSelectPage> {
         title: '选择学校',
         centerTitle: true,
         actions: [
-          YicoreAppBarAction(
+          YicoreIconButton(
             icon: Icons.refresh,
             onPressed: _loadSchools,
+            showBorder: false,
           ),
         ],
       ),

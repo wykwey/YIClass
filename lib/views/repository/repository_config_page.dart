@@ -20,7 +20,7 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
   final _tokenKeyController = TextEditingController();
   final _tokenValueController = TextEditingController();
   
-  String _repositoryType = 'official'; // 'official', 'mirror', 'custom', 'private'
+  String _repositoryType = 'official'; // 'official', 'custom', 'private'
   bool _isLoading = false;
   bool _isSaving = false;
   bool _isDownloading = false;
@@ -46,8 +46,8 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     
     try {
       final config = await RepositoryConfigService.getConfig();
-      // 官方仓库和镜像仓库不加载URL和分支（使用固定值）
-      if (config.repositoryType != 'official' && config.repositoryType != 'mirror') {
+      // 官方仓库不加载URL和分支（使用固定值）
+      if (config.repositoryType != 'official') {
         _repositoryUrlController.text = config.repositoryUrl;
         _scriptsBranchController.text = config.scriptsBranch;
       }
@@ -67,13 +67,11 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     final config = RepositoryConfig(
       repositoryUrl: _repositoryType == 'official'
           ? RepositoryConfigService.officialRepositoryUrl
-          : _repositoryType == 'mirror'
-              ? RepositoryConfigService.mirrorRepositoryUrl
-              : _repositoryUrlController.text.trim(),
+          : _repositoryUrlController.text.trim(),
       repositoryType: _repositoryType,
       indexBranch: RepositoryConfigService.officialIndexBranch, // 索引分支固定为 index-data
-      scriptsBranch: (_repositoryType == 'official' || _repositoryType == 'mirror')
-          ? 'main' // 官方仓库和镜像仓库使用默认分支
+      scriptsBranch: _repositoryType == 'official'
+          ? 'main' // 官方仓库使用默认分支
           : (_scriptsBranchController.text.trim().isEmpty 
               ? 'main' 
               : _scriptsBranchController.text.trim()),
@@ -110,13 +108,11 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     final config = RepositoryConfig(
       repositoryUrl: _repositoryType == 'official'
           ? RepositoryConfigService.officialRepositoryUrl
-          : _repositoryType == 'mirror'
-              ? RepositoryConfigService.mirrorRepositoryUrl
-              : _repositoryUrlController.text.trim(),
+          : _repositoryUrlController.text.trim(),
       repositoryType: _repositoryType,
       indexBranch: RepositoryConfigService.officialIndexBranch, // 索引分支固定为 index-data
-      scriptsBranch: (_repositoryType == 'official' || _repositoryType == 'mirror')
-          ? 'main' // 官方仓库和镜像仓库使用默认分支
+      scriptsBranch: _repositoryType == 'official'
+          ? 'main' // 官方仓库使用默认分支
           : (_scriptsBranchController.text.trim().isEmpty 
               ? 'main' 
               : _scriptsBranchController.text.trim()),
@@ -157,13 +153,11 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
     final config = RepositoryConfig(
       repositoryUrl: _repositoryType == 'official'
           ? RepositoryConfigService.officialRepositoryUrl
-          : _repositoryType == 'mirror'
-              ? RepositoryConfigService.mirrorRepositoryUrl
-              : _repositoryUrlController.text.trim(),
+          : _repositoryUrlController.text.trim(),
       repositoryType: _repositoryType,
       indexBranch: RepositoryConfigService.officialIndexBranch, // 索引分支固定为 index-data
-      scriptsBranch: (_repositoryType == 'official' || _repositoryType == 'mirror')
-          ? 'main' // 官方仓库和镜像仓库使用默认分支
+      scriptsBranch: _repositoryType == 'official'
+          ? 'main' // 官方仓库使用默认分支
           : (_scriptsBranchController.text.trim().isEmpty 
               ? 'main' 
               : _scriptsBranchController.text.trim()),
@@ -214,9 +208,10 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
         title: '教务导入配置',
         centerTitle: true,
         actions: [
-          YicoreAppBarAction(
+          YicoreIconButton(
             icon: Icons.save,
             onPressed: _isLoading || _isSaving ? null : _saveConfig,
+            showBorder: false,
           ),
         ],
       ),
@@ -231,8 +226,8 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
                   title: '基础配置',
                   children: [
                     _buildRepositoryTypeSelector(),
-                    // 官方仓库和镜像仓库不显示URL和分支输入框
-                    if (_repositoryType != 'official' && _repositoryType != 'mirror') ...[
+                    // 官方仓库不显示URL和分支输入框
+                    if (_repositoryType != 'official') ...[
                       const SizedBox(height: 16),
                       _buildTextField(
                         'GitHub仓库URL',
@@ -349,7 +344,6 @@ class _RepositoryConfigPageState extends State<RepositoryConfigPage> {
           YicoreSegmentedControl(
             items: const [
               SegmentedItem(label: '官方', value: 'official'),
-              SegmentedItem(label: '镜像', value: 'mirror'),
               SegmentedItem(label: '自定义', value: 'custom'),
               SegmentedItem(label: '私有', value: 'private'),
             ],

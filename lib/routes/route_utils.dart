@@ -72,6 +72,11 @@ class RouteUtils {
     return Navigator.pushNamed(context, RouteNames.about);
   }
 
+  /// 导航到使用帮助页面
+  static Future<dynamic> pushHelp(BuildContext context) {
+    return Navigator.pushNamed(context, RouteNames.help);
+  }
+
   /// 导航到教务系统导入页面
   static Future<dynamic> pushEduImport(
     BuildContext context, {

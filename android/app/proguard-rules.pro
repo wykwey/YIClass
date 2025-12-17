@@ -57,3 +57,7 @@
 # Preserve Kotlin metadata
 -keepattributes RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations
 
+# AndroidX Window Extensions - 忽略缺失的可选类
+-dontwarn androidx.window.extensions.**
+-dontwarn androidx.window.sidecar.**
+
