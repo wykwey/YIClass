@@ -30,7 +30,7 @@ class AboutPage extends StatelessWidget {
             children: [
               SettingsItem.value(
                 title: '当前版本',
-                value: 'v2.3.5',
+                value: 'v2.3.6',
                 inBlock: true,
               ),
               SettingsItem.text(

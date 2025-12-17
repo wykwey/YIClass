@@ -1,7 +1,7 @@
 name: yiclass
 description: 一个课表管理工具，支持多种课程表格式导入，支持多种平台。
 
-version: 2.3.5
+version: 2.3.6
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
